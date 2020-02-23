@@ -50,8 +50,8 @@ public class MainActivity extends AppCompatActivity {
 
         String[] loginParams = {
                 "https://ifspo.ifmo.ru/",
-                "iskhakovgermantimurovich",
-                "passwordToChange"
+                "опа",
+                "пароль?"
         };
         sendLoginRequest(loginParams);
 
