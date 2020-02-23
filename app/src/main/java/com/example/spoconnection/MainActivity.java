@@ -5,8 +5,17 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import android.os.Bundle;
 import android.os.AsyncTask;
+import android.view.View;
+import android.view.ViewGroup;
 import android.view.Window;
 import android.view.WindowManager;
+import android.widget.Button;
+import android.widget.LinearLayout;
+import android.widget.RelativeLayout;
+import android.widget.ScrollView;
+import android.widget.TextView;
+
+import com.google.android.material.textfield.TextInputEditText;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -24,6 +33,7 @@ import java.nio.charset.Charset;
 
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Locale;
 
@@ -39,6 +49,18 @@ public class MainActivity extends AppCompatActivity {
     public JSONArray todayExercises; // не обязательно today, лол
     public JSONObject todayExercisesVisits; // не обязательно today, лол
 
+
+    // контейнеры
+
+    public RelativeLayout main;
+    public RelativeLayout profileScreen;
+    public RelativeLayout loginForm;
+    public LinearLayout navigation;
+    public RelativeLayout homeScreen;
+    public RelativeLayout scheduleScreen;
+    public RelativeLayout lessonsScreen;
+    public RelativeLayout lessonsInformationScreen;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -48,12 +70,47 @@ public class MainActivity extends AppCompatActivity {
         Window w = getWindow();
         w.setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN);
 
-        String[] loginParams = {
-                "https://ifspo.ifmo.ru/",
-                "опа",
-                "пароль?"
-        };
-        sendLoginRequest(loginParams);
+        //инициализируем экраны
+
+        main = (RelativeLayout) findViewById(R.id.main);
+        profileScreen = (RelativeLayout) findViewById(R.id.profileScreen);
+        loginForm = (RelativeLayout) findViewById(R.id.loginForm);
+        navigation = (LinearLayout) findViewById(R.id.navigation);
+        homeScreen = (RelativeLayout) findViewById(R.id.homeScreen);
+        scheduleScreen = (RelativeLayout) findViewById(R.id.scheduleScreen);
+        lessonsScreen = (RelativeLayout) findViewById(R.id.lessonsScreen);
+        lessonsInformationScreen = (RelativeLayout) findViewById(R.id.lessonsInformationScreen);
+
+
+        // в начале убираем все экраны
+
+        main.removeView(profileScreen);
+        main.removeView(navigation);
+        main.removeView(homeScreen);
+        main.removeView(scheduleScreen);
+        main.removeView(lessonsScreen);
+        main.removeView(lessonsInformationScreen);
+
+        // получаем данные для отправки запроса
+
+        final TextInputEditText login = (TextInputEditText) findViewById(R.id.loginFormLogin);
+        final TextInputEditText password = (TextInputEditText) findViewById(R.id.loginFormPassword);
+        final Button submit = (Button) findViewById(R.id.loginFormSubmit);
+
+
+        submit.setOnClickListener(new View.OnClickListener() {
+
+            // отправляем запрос
+            @Override
+            public void onClick(View v) {
+                String[] loginParams = {
+                        "https://ifspo.ifmo.ru/",
+                        login.getText().toString(),
+                        password.getText().toString()
+                };
+                sendLoginRequest(loginParams);
+            }
+        });
 
     }
 
@@ -382,14 +439,248 @@ public class MainActivity extends AppCompatActivity {
     // todayExercises - JSONArray (пары по дате) объектов с их id (пары), topic, name (предмета), shortname (для приложения), time, lid (id предмета)
     // studentLessons - JSONObject пар за выбранную дату, где каждое поле - массив, содержащий один объект с их id (какое-то свое, бесполезное), presence, point, delay, performance, visit_need, mark_need, review (массив), daypast
 
+
+    // кнопки нужны глобально
+
+    Button home;
+    Button schedule;
+    Button profile;
+    Button lessons;
+    Button exit;
+
+    // переменная для мониторинга активного контейнера
+    // 0 - profile
+    // 1 - home
+    // 2 - schedule
+    // 3 - lessons
+    // 4 - lessonsInformation
+
+    int activeContainer;
+
     void buildFrontend() {
-        String test = null;
-        try {
-            test = exercisesVisits.getJSONObject("120").getJSONArray("132682").getJSONObject(0).getString("id");
-        } catch (JSONException e) {
-            e.printStackTrace();
+
+        //заранее высираем контент в lessonsScreen
+        main.addView(lessonsScreen);
+
+        LinearLayout lessonsList = (LinearLayout) findViewById(R.id.lessonsList);
+
+        for(int i = 0; i < studentLessons.length(); i++){
+            JSONObject value;
+            try {
+                value = studentLessons.getJSONObject(i);
+                TextView temp = new TextView(this);
+                LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, 150);
+                lp.setMargins(0,0,0, 50);
+                temp.setLayoutParams(lp);
+                temp.setText(value.getString("name") + " семестр " + value.getString("semester"));
+                temp.setBackgroundColor(127);
+
+                // самая важная вещь - id temp'а это id для JSONObject
+
+                temp.setId(Integer.parseInt(value.getString("id")));
+
+
+                // вешаем универсальный обработчик кликов для каждого предмета
+
+                lessonInformationClicklistener needMoreInfo = new lessonInformationClicklistener();
+                temp.setOnClickListener(needMoreInfo);
+                lessonsList.addView(temp);
+
+            } catch (JSONException e) {
+                e.printStackTrace();
+            }
         }
 
-        System.out.println("test: " + test);
+
+        //скрываем lessonsScreen
+        main.removeView(lessonsScreen);
+
+        // убираем регистрацию и подрубаем стартовый экран
+
+        main.removeView(loginForm);
+        main.addView(profileScreen);
+        main.addView(navigation);
+
+        // делаем активным контейнер profile
+
+        activeContainer = 0;
+
+        // создаем слушатели для кнопок
+
+        home = (Button) findViewById(R.id.home);
+        schedule = (Button) findViewById(R.id.schedule);
+        profile = (Button) findViewById(R.id.profile);
+        lessons = (Button) findViewById(R.id.lessons);
+        exit = (Button) findViewById(R.id.exit);
+
+
+        // мой обработчик кликов
+
+        navigationButtonClicklistener wasClicked = new navigationButtonClicklistener();
+
+        home.setOnClickListener(wasClicked);
+        schedule.setOnClickListener(wasClicked);
+        profile.setOnClickListener(wasClicked);
+        lessons.setOnClickListener(wasClicked);
+        exit.setOnClickListener(wasClicked);
+
+
+        final LinearLayout todayLessonsView = (LinearLayout) findViewById(R.id.todayLessonsView);
+
+
+        // высираем сегодняшние пары перебором
+
+        for(int i = 0; i < todayExercises.length(); i++){
+            JSONObject value;
+            try {
+                value = todayExercises.getJSONObject(i);
+                TextView temp = new TextView(this);
+                temp.setLayoutParams(new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT));
+                temp.setText(value.getString("name") + " " + value.getString("topic") + " " + value.getString("time") + " пара ");
+                todayLessonsView.addView(temp);
+
+            } catch (JSONException e) {
+                e.printStackTrace();
+            }
+        }
     }
+
+
+    // обработчик нажатий на кнопки навигации
+
+    class navigationButtonClicklistener implements View.OnClickListener {
+        @Override
+        public void onClick(View v)
+        {
+
+            // убираем старый контейнер
+
+            switch (activeContainer) {
+                case 0: {
+                    if (v.getId() == profile.getId()) {
+                        return;
+                    }
+                    main.removeView(profileScreen);
+                    break;
+                }
+                case 1: {
+                    if (v.getId() == home.getId()) {
+                        return;
+                    }
+                    main.removeView(homeScreen);
+                    break;
+                }
+                case 2: {
+                    if (v.getId() == schedule.getId()) {
+                        return;
+                    }
+                    main.removeView(scheduleScreen);
+                    break;
+                }
+                case 3: {
+                    if (v.getId() == lessons.getId()) {
+                        return;
+                    }
+                    main.removeView(lessonsScreen);
+                    break;
+                }
+                case 4: {
+                    main.removeView(lessonsInformationScreen);
+                    break;
+                }
+            }
+
+            // и добавляем новый
+
+            if (v.getId() == home.getId()) {
+                System.out.println("You clicked home");
+                activeContainer = 1;
+                main.addView(homeScreen);
+            }
+
+            if (v.getId() == schedule.getId()) {
+                System.out.println("You clicked schedule");
+                activeContainer = 2;
+                main.addView(scheduleScreen);
+            }
+
+            if (v.getId() == profile.getId()) {
+                System.out.println("You clicked profile");
+                activeContainer = 0;
+                main.addView(profileScreen);
+            }
+
+            if (v.getId() == lessons.getId()) {
+                System.out.println("You clicked lessons");
+                activeContainer = 3;
+                main.addView(lessonsScreen);
+            }
+
+            if (v.getId() == exit.getId()) {
+                System.out.println("You clicked exit");
+            }
+
+        }
+
+    }
+
+    // обработчик нажатий на предметы в lessons
+
+    class lessonInformationClicklistener implements View.OnClickListener {
+        @Override
+        public void onClick(View v)
+        {
+
+            // обновляем активный экран
+
+            main.removeView(lessonsScreen);
+            activeContainer = 4;
+            main.addView(lessonsInformationScreen);
+
+            LinearLayout lessonsInformationList = (LinearLayout) findViewById(R.id.lessonsInformationList);
+
+
+            // очищаем scrollview
+
+            lessonsInformationList.removeAllViews();
+
+            // берем нужный предмет
+
+            JSONArray buffer = null;
+            try {
+                buffer = exercises.getJSONArray(v.getId() + "");
+            } catch (JSONException e) {
+                e.printStackTrace();
+            }
+
+
+            // выкидываем информацию о паре
+
+            for (int k = 0; k < buffer.length(); k++) {
+                JSONObject value;
+                try {
+                    value = buffer.getJSONObject(k);
+                    TextView temp = new TextView(getApplicationContext());
+                    //
+                    LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, 150);
+                    lp.setMargins(0,0,0, 50);
+                    temp.setLayoutParams(lp);
+                    temp.setText(value.getString("topic") + " и это пара была " + value.getString("day"));
+                    temp.setBackgroundColor(167);
+
+                    // опять же id - ключ для следующего массива
+
+                    temp.setId(Integer.parseInt(value.getString("id")));
+                    lessonsInformationList.addView(temp);
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+            }
+
+            return;
+
+        }
+
+    }
+
 }
