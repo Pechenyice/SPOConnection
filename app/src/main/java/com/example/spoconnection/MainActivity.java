@@ -6,13 +6,11 @@ import androidx.appcompat.app.AppCompatActivity;
 import android.os.Bundle;
 import android.os.AsyncTask;
 import android.view.View;
-import android.view.ViewGroup;
 import android.view.Window;
 import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
-import android.widget.ScrollView;
 import android.widget.TextView;
 
 import com.google.android.material.textfield.TextInputEditText;
@@ -33,13 +31,13 @@ import java.nio.charset.Charset;
 
 import java.text.SimpleDateFormat;
 import java.util.Date;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Locale;
 
 public class MainActivity extends AppCompatActivity {
 
     public String authCookie;
+    public String studentId;
 
     public JSONArray studentLessons;
     public JSONObject exercises;
@@ -48,6 +46,12 @@ public class MainActivity extends AppCompatActivity {
 
     public JSONArray todayExercises; // не обязательно today, лол
     public JSONObject todayExercisesVisits; // не обязательно today, лол
+
+    public JSONArray exercisesByLesson;
+    public JSONObject exercisesByLessonVisits;
+    public JSONObject exercisesByLessonTeacher;
+    public Integer exercisesByLessonAmount;
+    public Integer exercisesByLessonVisitsAmount;
 
 
     // контейнеры
@@ -61,6 +65,7 @@ public class MainActivity extends AppCompatActivity {
     public RelativeLayout lessonsScreen;
     public RelativeLayout lessonsInformationScreen;
 
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -72,14 +77,14 @@ public class MainActivity extends AppCompatActivity {
 
         //инициализируем экраны
 
-        main = (RelativeLayout) findViewById(R.id.main);
-        profileScreen = (RelativeLayout) findViewById(R.id.profileScreen);
-        loginForm = (RelativeLayout) findViewById(R.id.loginForm);
-        navigation = (LinearLayout) findViewById(R.id.navigation);
-        homeScreen = (RelativeLayout) findViewById(R.id.homeScreen);
-        scheduleScreen = (RelativeLayout) findViewById(R.id.scheduleScreen);
-        lessonsScreen = (RelativeLayout) findViewById(R.id.lessonsScreen);
-        lessonsInformationScreen = (RelativeLayout) findViewById(R.id.lessonsInformationScreen);
+        main = findViewById(R.id.main);
+        profileScreen = findViewById(R.id.profileScreen);
+        loginForm = findViewById(R.id.loginForm);
+        navigation = findViewById(R.id.navigation);
+        homeScreen = findViewById(R.id.homeScreen);
+        scheduleScreen = findViewById(R.id.scheduleScreen);
+        lessonsScreen = findViewById(R.id.lessonsScreen);
+        lessonsInformationScreen = findViewById(R.id.lessonsInformationScreen);
 
 
         // в начале убираем все экраны
@@ -93,9 +98,9 @@ public class MainActivity extends AppCompatActivity {
 
         // получаем данные для отправки запроса
 
-        final TextInputEditText login = (TextInputEditText) findViewById(R.id.loginFormLogin);
-        final TextInputEditText password = (TextInputEditText) findViewById(R.id.loginFormPassword);
-        final Button submit = (Button) findViewById(R.id.loginFormSubmit);
+        final TextInputEditText login = findViewById(R.id.loginFormLogin);
+        final TextInputEditText password = findViewById(R.id.loginFormPassword);
+        final Button submit = findViewById(R.id.loginFormSubmit);
 
 
         submit.setOnClickListener(new View.OnClickListener() {
@@ -114,72 +119,46 @@ public class MainActivity extends AppCompatActivity {
 
     }
 
-    // бэкенд
+    /* -------------------------------------------- BackEnd -------------------------------------------- */
 
-    /*
-      Отправить фоорму для входа в аккаунт
-      String[] params = {url, name, password}
+    // Функции по отправке запроса. Их нужно вызывать при жедании сделать запрос
 
-      Нельзя изменять функцию
-    */
     private void sendLoginRequest(String[] params) {
         loginRequest request = new loginRequest();
         request.execute(params);
     }
 
-    /*
-        Отправить запрос на получение основных данных
-        String[] params = {url, cookie}
-
-        Нельзя изменять функцию
-    */
     private void sendGetStudentMainDataRequest(String[] params) {
         getStudentMainDataRequest request = new getStudentMainDataRequest();
         request.execute(params);
     }
 
-    /*
-        Отпраить завпрос на получение данных о парах за определенный день
-        String[] params = {url, data, cookie}
-
-        Нельзя изменять функцию
-    */
     private void sendGetExercisesByDayRequest(String[] params) {
         getExercisesByDayRequest request = new getExercisesByDayRequest();
         request.execute(params);
     }
 
-    /*
-        Callback, когда запрос на фход в аккаунт завершен
-        Если cookie = "", то вход не удался
-        Иначе вызываем sendLoginRequest
+    private void sendGetExercisesByLessonRequest(String[] params) {
+        getExercisesByDayLesson request = new getExercisesByDayLesson();
+        request.execute(params);
+    }
 
-        Можно изменять
-    */
+
+
+    // Колбеки, которые вызываются при завершении определенного запроса
+
     public void onLoginRequestCompleted(String cookie) {
         if (cookie != "") {
             System.out.println("Login success!");
             authCookie = cookie;
             System.out.println("AuthCookie: " + authCookie);
 
-            String[] requestParams = {
-                    "https://ifspo.ifmo.ru/profile/getStudentLessonsVisits",
-                    authCookie
-            };
-            sendGetStudentMainDataRequest(requestParams);
+            sendGetStudentMainDataRequest(new String[]{"https://ifspo.ifmo.ru/profile/getStudentLessonsVisits"});
         } else {
             System.out.println("Login failure!");
         }
     }
 
-    /*
-        Callback, когда запрос на получение основных данных завершился
-        Если  responseBody == "", то запрос не удался (не зависит от пользователя)
-        Иначе парсим responseBody и записываем из него значения в переменные
-        studentLessons, exercises, exercisesVisits, teachers
-
-        Можно изменять
-    */
     public void onGetStudentMainDataRequestCompleted(String responseBody) {
         if (responseBody != "") {
             System.out.println("GetStudentMainData Success!");
@@ -212,9 +191,6 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-    /*
-        Callback, когда запрос на получение данных по парам за определенный день завершился
-    */
     public void onGetExercisesByDayRequestCompleted (String responseBody) {
         if (responseBody != "") {
             System.out.println("GetExercisesByDay Success!");
@@ -231,10 +207,11 @@ public class MainActivity extends AppCompatActivity {
 
             }
 
-            // создание фронтенда по полученным данным
-
-            buildFrontend();
-
+            String[] params = {
+                    "https://ifspo.ifmo.ru/journal/getStudentExercisesByLesson",
+                    "175"
+            };
+            sendGetExercisesByLessonRequest(params);
 
 
         } else {
@@ -242,10 +219,43 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-    /*
-        Ассинхронный класс, кторый отпраляет login запрос
-        В нем менять ничего не нужно
-    */
+    public void onGetExercisesByLessonRequestCompleted (String responseBody) {
+        if (responseBody != "") {
+            System.out.println("GetExercisesByLesson Success!");
+            JSONObject jsonData;
+            try {
+                jsonData = new JSONObject(responseBody);
+
+                exercisesByLesson = jsonData.getJSONArray("Exercises");
+                exercisesByLessonVisits = jsonData.getJSONObject("todayExercisesVisits");
+                exercisesByLessonTeacher = jsonData.getJSONObject("teacher");
+                exercisesByLessonAmount = jsonData.getInt("all");
+                exercisesByLessonVisitsAmount = jsonData.getInt("was");
+
+                System.out.println("exercisesByLesson: " + exercisesByLesson.toString());
+                System.out.println("exercisesByLessonVisits: " + exercisesByLessonVisits.toString());
+                System.out.println("exercisesByLessonTeacher: " + exercisesByLessonTeacher.toString());
+                System.out.println("exercisesByLessonAmount: " + exercisesByLessonAmount.toString());
+                System.out.println("exercisesByLessonVisitsAmount: " + exercisesByLessonVisitsAmount.toString());
+            } catch (JSONException e) {
+
+            }
+
+            // создание фронтенда по полученным данным
+
+            buildFrontend();
+
+
+
+        } else {
+            System.out.println("GetExercisesByLesson Failure!");
+        }
+    }
+
+
+
+    // Сами асинхронные запросы
+
     class loginRequest extends AsyncTask<String[], Void, String> {
         @Override
         protected String doInBackground(String[]... params) {
@@ -279,6 +289,10 @@ public class MainActivity extends AppCompatActivity {
 
                 if (cookies_count > 1) {
                     authCookie = cookies.get(cookies_count - 1);
+
+                    String[] decoded_cookie = URLDecoder.decode(authCookie).split("s:");
+                    String userIdDirty = decoded_cookie[decoded_cookie.length - 5].split(":")[1];
+                    studentId = userIdDirty.substring(1, userIdDirty.length() - 2);
                 }
             } catch (Exception e) {
                 System.out.println("Problems with login request");
@@ -299,19 +313,15 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-    /*
-        Еще один ассинхронный класс
-        В нем менять ничего не нужно
-    */
     class getStudentMainDataRequest extends AsyncTask<String[], Void, String> {
         protected String doInBackground(String[]... params) {
             URL url;
             HttpURLConnection urlConnection = null;
             String responseBody = "";
 
-            String[] decoded_cookie = URLDecoder.decode(params[0][1]).split("s:");
-            String userIdDirty = decoded_cookie[decoded_cookie.length - 5].split(":")[1];
-            String studentId = userIdDirty.substring(1, userIdDirty.length() - 2);
+//            String[] decoded_cookie = URLDecoder.decode(params[0][1]).split("s:");
+//            String userIdDirty = decoded_cookie[decoded_cookie.length - 5].split(":")[1];
+//            String studentId = userIdDirty.substring(1, userIdDirty.length() - 2);
 
             String month = new SimpleDateFormat("MM", Locale.getDefault()).format(new Date());
             String year = new SimpleDateFormat("YYYY", Locale.getDefault()).format(new Date());
@@ -323,7 +333,7 @@ public class MainActivity extends AppCompatActivity {
 
                 urlConnection.setRequestMethod("GET");
                 urlConnection.setRequestProperty("User-Agent", "Mozilla/5.0 (Windows NT 6.3; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/79.0.3945.130 Safari/537.36 OPR/66.0.3515.95");
-                urlConnection.setRequestProperty("Cookie", params[0][1]);
+                urlConnection.setRequestProperty("Cookie", authCookie);
                 urlConnection.setUseCaches(false);
                 urlConnection.setInstanceFollowRedirects(false);
 
@@ -360,19 +370,65 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-    /*
-        Еще один ассинхронный класс
-        В нем менять ничего не нужно
-    */
+    class getExercisesByDayLesson extends AsyncTask <String[], Void, String> {
+        protected String doInBackground(String[]... params) {
+            URL url;
+            HttpURLConnection urlConnection = null;
+            String responseBody = "";
+
+            try {
+                String url_address = params[0][0] + "?lesson=" + params[0][1] + "&student=" + studentId;
+                url = new URL(url_address);
+                urlConnection = (HttpURLConnection) url.openConnection();
+
+                urlConnection.setRequestMethod("GET");
+                urlConnection.setRequestProperty("User-Agent", "Mozilla/5.0 (Windows NT 6.3; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/79.0.3945.130 Safari/537.36 OPR/66.0.3515.95");
+                urlConnection.setRequestProperty("Cookie", authCookie);
+                urlConnection.setUseCaches(false);
+                urlConnection.setInstanceFollowRedirects(false);
+
+                BufferedReader in = new BufferedReader(
+                        new InputStreamReader(urlConnection.getInputStream())
+                );
+
+                StringBuilder response = new StringBuilder();
+                String currentLine;
+
+                try {
+                    while ((currentLine = in.readLine()) != null)
+                        response.append(currentLine);
+
+                    in.close();
+                } catch (IOException e) {
+                    System.out.println(e.toString());
+                }
+                responseBody = response.toString();
+            } catch (Exception e) {
+                System.out.println("Problems with getExercisesByLesson request");
+                System.out.println(e.toString());
+            } finally {
+                if (urlConnection != null) {
+                    urlConnection.disconnect();
+                }
+            }
+            return responseBody;
+        }
+
+        protected void onPostExecute(String result) {
+            super.onPostExecute(result);
+            onGetExercisesByLessonRequestCompleted(result);
+        }
+    }
+
     class getExercisesByDayRequest extends AsyncTask <String[], Void, String> {
         protected String doInBackground(String[]... params) {
             URL url;
             HttpURLConnection urlConnection = null;
             String responseBody = "";
 
-            String[] decoded_cookie = URLDecoder.decode(params[0][2]).split("s:");
-            String userIdDirty = decoded_cookie[decoded_cookie.length - 5].split(":")[1];
-            String studentId = userIdDirty.substring(1, userIdDirty.length() - 2);
+//            String[] decoded_cookie = URLDecoder.decode(params[0][2]).split("s:");
+//            String userIdDirty = decoded_cookie[decoded_cookie.length - 5].split(":")[1];
+//            String studentId = userIdDirty.substring(1, userIdDirty.length() - 2);
 
             try {
                 String url_address = params[0][0] + "?student=" + studentId + "&day=" + params[0][1];
@@ -381,7 +437,7 @@ public class MainActivity extends AppCompatActivity {
 
                 urlConnection.setRequestMethod("GET");
                 urlConnection.setRequestProperty("User-Agent", "Mozilla/5.0 (Windows NT 6.3; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/79.0.3945.130 Safari/537.36 OPR/66.0.3515.95");
-                urlConnection.setRequestProperty("Cookie", params[0][2]);
+                urlConnection.setRequestProperty("Cookie", authCookie);
                 urlConnection.setUseCaches(false);
                 urlConnection.setInstanceFollowRedirects(false);
 
@@ -422,15 +478,11 @@ public class MainActivity extends AppCompatActivity {
 
 
 
+    /* --------------------------------- FrontEnd ------------------------------------------------------- */
 
 
 
 
-
-
-
-
-    // ну собсна фронтендыч
 
     // studentLessons - JSONArray предметов с их name, semester, id
     // exercises - JSONObject где id предмета - массив с объектами (парами) с их id, topic, type, time, day, timeday (дата yyyy-mm-dd)
@@ -449,20 +501,16 @@ public class MainActivity extends AppCompatActivity {
     Button exit;
 
     // переменная для мониторинга активного контейнера
-    // 0 - profile
-    // 1 - home
-    // 2 - schedule
-    // 3 - lessons
-    // 4 - lessonsInformation
 
-    int activeContainer;
+    enum ContainerName { PROFILE, HOME, SCHEDULE, LESSONS, LESSONS_INFORMATION }
+    ContainerName activeContainer;
 
     void buildFrontend() {
 
         //заранее высираем контент в lessonsScreen
         main.addView(lessonsScreen);
 
-        LinearLayout lessonsList = (LinearLayout) findViewById(R.id.lessonsList);
+        LinearLayout lessonsList = findViewById(R.id.lessonsList);
 
         for(int i = 0; i < studentLessons.length(); i++){
             JSONObject value;
@@ -482,7 +530,7 @@ public class MainActivity extends AppCompatActivity {
 
                 // вешаем универсальный обработчик кликов для каждого предмета
 
-                lessonInformationClicklistener needMoreInfo = new lessonInformationClicklistener();
+                lessonInformationClickListener needMoreInfo = new lessonInformationClickListener();
                 temp.setOnClickListener(needMoreInfo);
                 lessonsList.addView(temp);
 
@@ -503,20 +551,20 @@ public class MainActivity extends AppCompatActivity {
 
         // делаем активным контейнер profile
 
-        activeContainer = 0;
+        activeContainer = ContainerName.PROFILE;
 
         // создаем слушатели для кнопок
 
-        home = (Button) findViewById(R.id.home);
-        schedule = (Button) findViewById(R.id.schedule);
-        profile = (Button) findViewById(R.id.profile);
-        lessons = (Button) findViewById(R.id.lessons);
-        exit = (Button) findViewById(R.id.exit);
+        home = findViewById(R.id.home);
+        schedule = findViewById(R.id.schedule);
+        profile = findViewById(R.id.profile);
+        lessons = findViewById(R.id.lessons);
+        exit = findViewById(R.id.exit);
 
 
-        // мой обработчик кликов
+        // наш обработчик кликов
 
-        navigationButtonClicklistener wasClicked = new navigationButtonClicklistener();
+        navigationButtonClickListener wasClicked = new navigationButtonClickListener();
 
         home.setOnClickListener(wasClicked);
         schedule.setOnClickListener(wasClicked);
@@ -534,9 +582,30 @@ public class MainActivity extends AppCompatActivity {
             JSONObject value;
             try {
                 value = todayExercises.getJSONObject(i);
+
                 TextView temp = new TextView(this);
-                temp.setLayoutParams(new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT));
-                temp.setText(value.getString("name") + " " + value.getString("topic") + " " + value.getString("time") + " пара ");
+                LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT);
+                lp.setMargins(0, 0, 0, 50);
+                temp.setLayoutParams(lp);
+                temp.setText(value.getString("name") + " " + value.getString("time") + " пара ");
+
+                // узнаем подробную информацию о паре
+
+                JSONObject valueInfo;
+                try {
+                    valueInfo = todayExercisesVisits.getJSONArray(value.getString("id")).getJSONObject(0);
+
+                    String presence = valueInfo.getString("presence").equals("0") ? " присутствие: нет " : " присутствие: да ";
+                    String point = valueInfo.getString("point").toString().equals("null")  ? " оценка: нет " : " оценка: да ";
+                    String delay = valueInfo.getString("delay").toString().equals("null")  ? " опоздание: нет " : " опоздание: да ";
+                    String performance = valueInfo.getString("performance").toString().equals("null") ? " активность: нет " : " активность: да ";
+
+                    temp.setText(temp.getText() + presence + point + delay + performance);
+
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+
                 todayLessonsView.addView(temp);
 
             } catch (JSONException e) {
@@ -548,7 +617,7 @@ public class MainActivity extends AppCompatActivity {
 
     // обработчик нажатий на кнопки навигации
 
-    class navigationButtonClicklistener implements View.OnClickListener {
+    class navigationButtonClickListener implements View.OnClickListener {
         @Override
         public void onClick(View v)
         {
@@ -556,35 +625,35 @@ public class MainActivity extends AppCompatActivity {
             // убираем старый контейнер
 
             switch (activeContainer) {
-                case 0: {
+                case PROFILE: {
                     if (v.getId() == profile.getId()) {
                         return;
                     }
                     main.removeView(profileScreen);
                     break;
                 }
-                case 1: {
+                case HOME: {
                     if (v.getId() == home.getId()) {
                         return;
                     }
                     main.removeView(homeScreen);
                     break;
                 }
-                case 2: {
+                case SCHEDULE: {
                     if (v.getId() == schedule.getId()) {
                         return;
                     }
                     main.removeView(scheduleScreen);
                     break;
                 }
-                case 3: {
+                case LESSONS: {
                     if (v.getId() == lessons.getId()) {
                         return;
                     }
                     main.removeView(lessonsScreen);
                     break;
                 }
-                case 4: {
+                case LESSONS_INFORMATION: {
                     main.removeView(lessonsInformationScreen);
                     break;
                 }
@@ -594,25 +663,25 @@ public class MainActivity extends AppCompatActivity {
 
             if (v.getId() == home.getId()) {
                 System.out.println("You clicked home");
-                activeContainer = 1;
+                activeContainer = ContainerName.HOME;
                 main.addView(homeScreen);
             }
 
             if (v.getId() == schedule.getId()) {
                 System.out.println("You clicked schedule");
-                activeContainer = 2;
+                activeContainer = ContainerName.SCHEDULE;
                 main.addView(scheduleScreen);
             }
 
             if (v.getId() == profile.getId()) {
                 System.out.println("You clicked profile");
-                activeContainer = 0;
+                activeContainer = ContainerName.PROFILE;
                 main.addView(profileScreen);
             }
 
             if (v.getId() == lessons.getId()) {
                 System.out.println("You clicked lessons");
-                activeContainer = 3;
+                activeContainer = ContainerName.LESSONS;
                 main.addView(lessonsScreen);
             }
 
@@ -626,7 +695,7 @@ public class MainActivity extends AppCompatActivity {
 
     // обработчик нажатий на предметы в lessons
 
-    class lessonInformationClicklistener implements View.OnClickListener {
+    class lessonInformationClickListener implements View.OnClickListener {
         @Override
         public void onClick(View v)
         {
@@ -634,10 +703,10 @@ public class MainActivity extends AppCompatActivity {
             // обновляем активный экран
 
             main.removeView(lessonsScreen);
-            activeContainer = 4;
+            activeContainer = ContainerName.LESSONS_INFORMATION;
             main.addView(lessonsInformationScreen);
 
-            LinearLayout lessonsInformationList = (LinearLayout) findViewById(R.id.lessonsInformationList);
+            LinearLayout lessonsInformationList = findViewById(R.id.lessonsInformationList);
 
 
             // очищаем scrollview
@@ -676,9 +745,6 @@ public class MainActivity extends AppCompatActivity {
                     e.printStackTrace();
                 }
             }
-
-            return;
-
         }
 
     }
