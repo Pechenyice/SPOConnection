@@ -597,6 +597,24 @@ public class MainActivity extends AppCompatActivity {
 
                     String presence = valueInfo.getString("presence").equals("0") ? " присутствие: нет " : " присутствие: да ";
                     String point = valueInfo.getString("point").toString().equals("null")  ? " оценка: нет " : " оценка: да ";
+                    switch (valueInfo.getString("point")) {
+                        case "2": {
+                            point = " оценка: 2";
+                            break;
+                        }
+                        case "3": {
+                            point = " оценка: 3";
+                            break;
+                        }
+                        case "4": {
+                            point = " оценка: 4";
+                            break;
+                        }
+                        case "5": {
+                            point = " оценка: 5";
+                            break;
+                        }
+                    }
                     String delay = valueInfo.getString("delay").toString().equals("null")  ? " опоздание: нет " : " опоздание: да ";
                     String performance = valueInfo.getString("performance").toString().equals("null") ? " активность: нет " : " активность: да ";
 
@@ -736,6 +754,41 @@ public class MainActivity extends AppCompatActivity {
                     temp.setLayoutParams(lp);
                     temp.setText(value.getString("topic") + " и это пара была " + value.getString("day"));
                     temp.setBackgroundColor(167);
+
+                    // получаем подробную информацию о паре
+
+                    JSONObject valueInfo;
+                    try {
+                        valueInfo = exercisesVisits.getJSONObject(v.getId() + "").getJSONArray(value.getString("id")).getJSONObject(0);
+
+                        String presence = valueInfo.getString("presence").equals("0") ? " присутствие: нет " : " присутствие: да ";
+                        String point = valueInfo.getString("point").toString().equals("null")  ? " оценка: нет " : " оценка: да ";
+                        switch (valueInfo.getString("point")) {
+                            case "2": {
+                                point = " оценка: 2";
+                                break;
+                            }
+                            case "3": {
+                                point = " оценка: 3";
+                                break;
+                            }
+                            case "4": {
+                                point = " оценка: 4";
+                                break;
+                            }
+                            case "5": {
+                                point = " оценка: 5";
+                                break;
+                            }
+                        }
+                        String delay = valueInfo.getString("delay").toString().equals("null")  ? " опоздание: нет " : " опоздание: да ";
+                        String performance = valueInfo.getString("performance").toString().equals("null") ? " активность: нет " : " активность: да ";
+
+                        temp.setText(temp.getText() + presence + point + delay + performance);
+                    } catch (JSONException e) {
+                        e.printStackTrace();
+                    }
+
 
                     // опять же id - ключ для следующего массива
 
