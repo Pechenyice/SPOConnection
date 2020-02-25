@@ -143,6 +143,11 @@ public class MainActivity extends AppCompatActivity {
         request.execute(params);
     }
 
+    private void sendGetVKWallPostsRequest(String[] params) {
+        getVKWallPostsRequest request = new getVKWallPostsRequest();
+        request.execute(params);
+    }
+
 
 
     // Колбеки, которые вызываются при завершении определенного запроса
@@ -240,6 +245,31 @@ public class MainActivity extends AppCompatActivity {
             } catch (JSONException e) {
 
             }
+            String[] params = {
+                    "legacy code",
+                    "пофикси сам, я не могу разбираться в твоих params"
+            };
+            sendGetVKWallPostsRequest(params);
+
+
+
+        } else {
+            System.out.println("GetExercisesByLesson Failure!");
+        }
+    }
+
+    public void onGetVKWallPostsRequestCompleted (String responseBody) {
+        if (responseBody != "") {
+            System.out.println("GetVKWallPosts Success!");
+            JSONObject jsonData;
+            try {
+                jsonData = new JSONObject(responseBody);
+
+                System.out.println("VK DATA: " + jsonData.toString());
+
+            } catch (JSONException e) {
+
+            }
 
             // создание фронтенда по полученным данным
 
@@ -248,7 +278,7 @@ public class MainActivity extends AppCompatActivity {
 
 
         } else {
-            System.out.println("GetExercisesByLesson Failure!");
+            System.out.println("GetVKWallPosts Failure!");
         }
     }
 
@@ -473,6 +503,64 @@ public class MainActivity extends AppCompatActivity {
             onGetExercisesByDayRequestCompleted(result);
         }
     }
+
+
+    class getVKWallPostsRequest extends AsyncTask <String[], Void, String> {
+        protected String doInBackground(String[]... params) {
+            URL url;
+            HttpURLConnection urlConnection = null;
+            String responseBody = "";
+
+//            String[] decoded_cookie = URLDecoder.decode(params[0][2]).split("s:");
+//            String userIdDirty = decoded_cookie[decoded_cookie.length - 5].split(":")[1];
+//            String studentId = userIdDirty.substring(1, userIdDirty.length() - 2);
+
+            try {
+                String url_address = "https://api.vk.com/method/wall.get?domain=raspfspo&count=10&filter=owner&access_token=[ВСТАВЬТЕ_ТОКЕН_СЮДА]&v=5.103";
+                url = new URL(url_address);
+                urlConnection = (HttpURLConnection) url.openConnection();
+
+                urlConnection.setRequestMethod("GET");
+
+                urlConnection.setUseCaches(false);
+                urlConnection.setInstanceFollowRedirects(false);
+
+                BufferedReader in = new BufferedReader(
+                        new InputStreamReader(urlConnection.getInputStream())
+                );
+
+                StringBuilder response = new StringBuilder();
+                String currentLine;
+
+                try {
+                    while ((currentLine = in.readLine()) != null)
+                        response.append(currentLine);
+
+                    in.close();
+                } catch (IOException e) {
+                    System.out.println(e.toString());
+                }
+                responseBody = response.toString();
+            } catch (Exception e) {
+                System.out.println("Problems with vk request");
+                System.out.println(e.toString());
+            } finally {
+                if (urlConnection != null) {
+                    urlConnection.disconnect();
+                }
+            }
+            return responseBody;
+        }
+
+        protected void onPostExecute(String result) {
+            super.onPostExecute(result);
+            onGetVKWallPostsRequestCompleted(result);
+        }
+    }
+
+
+
+
 
 
 
