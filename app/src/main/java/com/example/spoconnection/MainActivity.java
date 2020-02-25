@@ -523,7 +523,7 @@ public class MainActivity extends AppCompatActivity {
 //            String studentId = userIdDirty.substring(1, userIdDirty.length() - 2);
 
             try {
-                String url_address = "https://api.vk.com/method/wall.get?domain=raspfspo&count=10&filter=owner&access_token=c2cb19e3c2cb19e3c2cb19e339c2a4f3d6cc2cbc2cb19e39c9fe125dc37c9d4bb7994cd&v=5.103";
+                String url_address = "https://api.vk.com/method/wall.get?domain=raspfspo&count=10&filter=owner&access_token=[ВСТАВЬТЕ_ТОКЕН_СЮДА]&v=5.103";
                 url = new URL(url_address);
                 urlConnection = (HttpURLConnection) url.openConnection();
 
