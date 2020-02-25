@@ -57,6 +57,7 @@
         android:layout_height="match_parent"
         android:visibility="visible"
         android:layout_marginBottom="50dp"
+        android:layout_marginTop="50dp"
 
         >
 
@@ -81,7 +82,9 @@
     <RelativeLayout
         android:id="@+id/homeScreen"
         android:layout_width="match_parent"
-        android:layout_height="match_parent">
+        android:layout_height="match_parent"
+        android:layout_marginBottom="50dp"
+        android:layout_marginTop="50dp">
 
         <TextView
             android:id="@+id/textView7"
@@ -95,7 +98,9 @@
     <RelativeLayout
         android:id="@+id/scheduleScreen"
         android:layout_width="match_parent"
-        android:layout_height="match_parent">
+        android:layout_height="match_parent"
+        android:layout_marginBottom="50dp"
+        android:layout_marginTop="50dp">
 
         <TextView
             android:id="@+id/textView8"
@@ -111,6 +116,7 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:layout_marginBottom="50dp"
+        android:layout_marginTop="50dp"
         >
 
         <ScrollView
@@ -129,7 +135,8 @@
         android:id="@+id/lessonsInformationScreen"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_marginBottom="50dp">
+        android:layout_marginBottom="50dp"
+        android:layout_marginTop="50dp">
 
         <ScrollView
 
@@ -143,6 +150,43 @@
                 android:orientation="vertical" />
         </ScrollView>
     </RelativeLayout>
+
+    <LinearLayout
+        android:id="@+id/userHelp"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:gravity="top"
+        android:orientation="vertical">
+
+        <Button
+            android:id="@+id/notification"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="vk" />
+
+
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/notificationListScreen"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical"
+        android:paddingTop="25dp"
+        android:layout_marginTop="50dp"
+        android:layout_marginBottom="50dp">
+
+        <ScrollView
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
+
+            <LinearLayout
+                android:id="@+id/notificationList"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical" />
+        </ScrollView>
+    </LinearLayout>
 
     <LinearLayout
         android:id="@+id/navigation"

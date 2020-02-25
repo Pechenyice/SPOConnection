@@ -66,6 +66,8 @@ public class MainActivity extends AppCompatActivity {
     public RelativeLayout scheduleScreen;
     public RelativeLayout lessonsScreen;
     public RelativeLayout lessonsInformationScreen;
+    public LinearLayout userHelpScreen;
+    public LinearLayout notificationListScreen;
 
 
     @Override
@@ -87,6 +89,8 @@ public class MainActivity extends AppCompatActivity {
         scheduleScreen = findViewById(R.id.scheduleScreen);
         lessonsScreen = findViewById(R.id.lessonsScreen);
         lessonsInformationScreen = findViewById(R.id.lessonsInformationScreen);
+        userHelpScreen = findViewById(R.id.userHelp);
+        notificationListScreen = findViewById(R.id.notificationListScreen);
 
 
         // в начале убираем все экраны
@@ -97,6 +101,8 @@ public class MainActivity extends AppCompatActivity {
         main.removeView(scheduleScreen);
         main.removeView(lessonsScreen);
         main.removeView(lessonsInformationScreen);
+        main.removeView(userHelpScreen);
+        main.removeView(notificationListScreen);
 
         // получаем данные для отправки запроса
 
@@ -517,7 +523,7 @@ public class MainActivity extends AppCompatActivity {
 //            String studentId = userIdDirty.substring(1, userIdDirty.length() - 2);
 
             try {
-                String url_address = "https://api.vk.com/method/wall.get?domain=raspfspo&count=10&filter=owner&access_token=[ВСТАВЬТЕ_ТОКЕН_СЮДА]&v=5.103";
+                String url_address = "https://api.vk.com/method/wall.get?domain=raspfspo&count=10&filter=owner&access_token=c2cb19e3c2cb19e3c2cb19e339c2a4f3d6cc2cbc2cb19e39c9fe125dc37c9d4bb7994cd&v=5.103";
                 url = new URL(url_address);
                 urlConnection = (HttpURLConnection) url.openConnection();
 
@@ -589,9 +595,11 @@ public class MainActivity extends AppCompatActivity {
     Button lessons;
     Button exit;
 
+    Button userHelp;
+
     // переменная для мониторинга активного контейнера
 
-    enum ContainerName { PROFILE, HOME, SCHEDULE, LESSONS, LESSONS_INFORMATION }
+    enum ContainerName { PROFILE, HOME, SCHEDULE, LESSONS, LESSONS_INFORMATION, NOTIFICATION }
     ContainerName activeContainer;
 
     void buildFrontend() {
@@ -637,6 +645,7 @@ public class MainActivity extends AppCompatActivity {
         main.removeView(loginForm);
         main.addView(profileScreen);
         main.addView(navigation);
+        main.addView(userHelpScreen);
 
         // делаем активным контейнер profile
 
@@ -649,11 +658,14 @@ public class MainActivity extends AppCompatActivity {
         profile = findViewById(R.id.profile);
         lessons = findViewById(R.id.lessons);
         exit = findViewById(R.id.exit);
+        userHelp = findViewById(R.id.notification);
 
 
         // наш обработчик кликов
 
         navigationButtonClickListener wasClicked = new navigationButtonClickListener();
+
+        userHelp.setOnClickListener(wasClicked);
 
         home.setOnClickListener(wasClicked);
         schedule.setOnClickListener(wasClicked);
@@ -764,6 +776,14 @@ public class MainActivity extends AppCompatActivity {
                     main.removeView(lessonsInformationScreen);
                     break;
                 }
+
+                case NOTIFICATION: {
+                    if (v.getId() == userHelp.getId()) {
+                        return;
+                    }
+                    main.removeView(notificationListScreen);
+                    break;
+                }
             }
 
             // и добавляем новый
@@ -792,9 +812,54 @@ public class MainActivity extends AppCompatActivity {
                 main.addView(lessonsScreen);
             }
 
+            if (v.getId() == userHelp.getId()) {
+                System.out.println("You clicked notifications");
+                activeContainer = ContainerName.NOTIFICATION;
+                main.addView(notificationListScreen);
+            }
+
             if (v.getId() == exit.getId()) {
                 System.out.println("You clicked exit");
             }
+
+            // но если кликнута кнопка изменений в расписании, нужно еще выкинуть контент от вк
+
+            if (activeContainer == ContainerName.NOTIFICATION) {
+
+                // берем массив
+
+                JSONArray value;
+                try {
+                    value = vkWallPosts.getJSONArray("items");
+
+                    for (int i = 0; i < value.length(); i++) {
+
+                        // берем каждый пост
+
+                        JSONObject tmp;
+                        try {
+                            tmp = value.getJSONObject(i);
+
+                            //и выкидывем его на форму
+
+                            LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.WRAP_CONTENT);
+                            lp.setMargins(25, 25, 25, 50);
+                            TextView note = new TextView(getApplicationContext());
+                            note.setLayoutParams(lp);
+                            note.setText( (i+1) + " пост:    " + tmp.getString("text"));
+                            LinearLayout notificationList = findViewById(R.id.notificationList);
+                            notificationList.addView(note);
+
+                        } catch (JSONException e) {
+                            e.printStackTrace();
+                        }
+                    }
+
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+            }
+
 
         }
 
@@ -890,5 +955,7 @@ public class MainActivity extends AppCompatActivity {
         }
 
     }
+
+
 
 }
