@@ -266,7 +266,7 @@ public class MainActivity extends AppCompatActivity {
 
                 vkWallPosts = jsonData.getJSONObject("response");
 
-                System.out.println("vkWallPosts: " + exercisesByLesson.toString());
+                System.out.println("vkWallPosts: " + vkWallPosts.toString());
 
             } catch (JSONException e) {
 
