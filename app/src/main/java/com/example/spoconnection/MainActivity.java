@@ -53,6 +53,8 @@ public class MainActivity extends AppCompatActivity {
     public Integer exercisesByLessonAmount;
     public Integer exercisesByLessonVisitsAmount;
 
+    public JSONObject vkWallPosts;
+
 
     // контейнеры
 
@@ -143,9 +145,9 @@ public class MainActivity extends AppCompatActivity {
         request.execute(params);
     }
 
-    private void sendGetVKWallPostsRequest(String[] params) {
+    private void sendGetVKWallPostsRequest() {
         getVKWallPostsRequest request = new getVKWallPostsRequest();
-        request.execute(params);
+        request.execute();
     }
 
 
@@ -245,11 +247,8 @@ public class MainActivity extends AppCompatActivity {
             } catch (JSONException e) {
 
             }
-            String[] params = {
-                    "legacy code",
-                    "пофикси сам, я не могу разбираться в твоих params"
-            };
-            sendGetVKWallPostsRequest(params);
+
+            sendGetVKWallPostsRequest();
 
 
 
@@ -265,7 +264,9 @@ public class MainActivity extends AppCompatActivity {
             try {
                 jsonData = new JSONObject(responseBody);
 
-                System.out.println("VK DATA: " + jsonData.toString());
+                vkWallPosts = jsonData.getJSONObject("response");
+
+                System.out.println("vkWallPosts: " + exercisesByLesson.toString());
 
             } catch (JSONException e) {
 
