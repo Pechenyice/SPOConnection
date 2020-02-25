@@ -29,6 +29,7 @@ import java.net.URLDecoder;
 
 import java.nio.charset.Charset;
 
+import java.sql.Timestamp;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
@@ -839,6 +840,8 @@ public class MainActivity extends AppCompatActivity {
                         JSONObject tmp;
                         try {
                             tmp = value.getJSONObject(i);
+
+//                            Timestamp stamp = new Timestamp();
 
                             //и выкидывем его на форму
 
