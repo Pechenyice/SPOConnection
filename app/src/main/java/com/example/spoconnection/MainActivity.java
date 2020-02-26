@@ -18,6 +18,8 @@ import com.google.android.material.textfield.TextInputEditText;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.json.JSONArray;
+import org.jsoup.Jsoup;
+import org.jsoup.nodes.Document;
 
 import java.io.BufferedReader;
 import java.io.DataOutputStream;
@@ -101,6 +103,7 @@ public class MainActivity extends AppCompatActivity {
     RequestStatus getExercisesByDayRequestStatus = RequestStatus.NOT_CALLED;
     RequestStatus getExercisesByLessonRequestStatus = RequestStatus.NOT_CALLED;
     RequestStatus getVKWallPostsRequestStatus = RequestStatus.NOT_CALLED;
+    RequestStatus getProfileParsingRequestStatus = RequestStatus.NOT_CALLED;
 
 
     // Переменная, чтобы buildFrontend не вызвался дважды (и после getMainData и после getByDay)
@@ -210,6 +213,11 @@ public class MainActivity extends AppCompatActivity {
         request.execute(params);
     }
 
+    private void sendGetProfileParsingRequest() {
+        getProfileParsingRequest request = new getProfileParsingRequest();
+        getProfileParsingRequestStatus = RequestStatus.CALLED;
+        request.execute();
+    }
 
 
     // Колбеки, которые вызываются при завершении определенного запроса
@@ -232,6 +240,7 @@ public class MainActivity extends AppCompatActivity {
 
             sendGetStudentMainDataRequest(new String[]{ year, month });
             sendGetExercisesByDayRequest(new String[] { year + "-" + month + "-" + day }); // 2020-02-26
+            sendGetProfileParsingRequest();
 
         } else {
             loginRequestStatus = RequestStatus.EMPTY_RESPONSE;
@@ -258,7 +267,7 @@ public class MainActivity extends AppCompatActivity {
 //                System.out.println("ExercisesVisits: " + exercisesVisits.toString());
                 System.out.println("Teachers: " + teachers.toString());
 
-                if (getExercisesByDayRequestStatus == RequestStatus.COMPLETED && !buildFrontendCalled) {
+                if (getExercisesByDayRequestStatus == RequestStatus.COMPLETED && getProfileParsingRequestStatus == RequestStatus.COMPLETED && !buildFrontendCalled) {
                     buildFrontendCalled = true;
                     buildFrontend();
                 }
@@ -287,7 +296,7 @@ public class MainActivity extends AppCompatActivity {
                 System.out.println("TodayExercises: " + exercisesByDay.toString());
                 System.out.println("TodayExercisesVisits: " + exercisesVisitsByDay.toString());
 
-                if (getStudentMainDataRequestStatus == RequestStatus.COMPLETED && !buildFrontendCalled) {
+                if (getStudentMainDataRequestStatus == RequestStatus.COMPLETED && getProfileParsingRequestStatus == RequestStatus.COMPLETED && !buildFrontendCalled) {
                     buildFrontendCalled = true;
                     buildFrontend();
                 }
@@ -472,6 +481,27 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
+    public void onGetProfileParsingRequestCompleted (Document html){
+
+        // ошибку пока хз как ловить, лень разбираться
+
+//        if (responseBody != "") {
+        getProfileParsingRequestStatus = RequestStatus.COMPLETED;
+        System.out.println("GetProfileParsing Success!");
+        System.out.println( html.head().text());
+
+        if (getExercisesByDayRequestStatus == RequestStatus.COMPLETED && getStudentMainDataRequestStatus == RequestStatus.COMPLETED && !buildFrontendCalled) {
+            buildFrontendCalled = true;
+            buildFrontend();
+        }
+
+
+//        } else {
+//            getExercisesByDayRequestStatus = RequestStatus.EMPTY_RESPONSE;
+//            System.out.println("GetExercisesByDay Failure!");
+//        }
+    }
+
 
     // Сами асинхронные запросы
 
@@ -534,6 +564,9 @@ public class MainActivity extends AppCompatActivity {
             onLoginRequestCompleted(result);
         }
     }
+
+
+
 
     // [year, month]
     class getStudentMainDataRequest extends AsyncTask<String[], Void, String> {
@@ -642,6 +675,7 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
+
     // [date <yyyy-mm-dd>]
     class getExercisesByDayRequest extends AsyncTask <String[], Void, String> {
         protected String doInBackground(String[]... params) { // params[0][0] - date <yyyy-mm-dd>
@@ -746,6 +780,60 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
+
+
+    class getProfileParsingRequest extends AsyncTask<Void, Void, Document> {
+
+        protected Document doInBackground(Void... params) {
+            URL url;
+            HttpURLConnection urlConnection = null;
+            String responseBody = "";
+            Document html = new Document(responseBody);
+
+            try {
+                String url_address = "https://ifspo.ifmo.ru/profile";
+
+                url = new URL(url_address);
+                urlConnection = (HttpURLConnection) url.openConnection();
+
+                urlConnection.setRequestMethod("GET");
+                urlConnection.setRequestProperty("User-Agent", "Mozilla/5.0 (Windows NT 6.3; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/79.0.3945.130 Safari/537.36 OPR/66.0.3515.95");
+                urlConnection.setRequestProperty("Cookie", authCookie);
+                urlConnection.setUseCaches(false);
+                urlConnection.setInstanceFollowRedirects(false);
+
+                BufferedReader in = new BufferedReader(
+                        new InputStreamReader(urlConnection.getInputStream())
+                );
+
+                StringBuilder response = new StringBuilder();
+                String currentLine;
+
+                try {
+                    while ((currentLine = in.readLine()) != null) response.append(currentLine);
+                    in.close();
+                } catch (IOException e) {
+                    System.out.println(e.toString());
+                }
+
+                responseBody = response.toString();
+                html = Jsoup.parse(responseBody);
+            } catch (Exception e) {
+                System.out.println("Problems with profileParsing request");
+                System.out.println(e.toString());
+            } finally {
+                if (urlConnection != null) {
+                    urlConnection.disconnect();
+                }
+            }
+            return html;
+        }
+
+        protected void onPostExecute(Document result) {
+            super.onPostExecute(result);
+            onGetProfileParsingRequestCompleted(result);
+        }
+    }
 
 
 
