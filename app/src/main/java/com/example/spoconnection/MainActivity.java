@@ -29,32 +29,79 @@ import java.net.URLDecoder;
 
 import java.nio.charset.Charset;
 
-import java.sql.Timestamp;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
-import java.util.Locale;
+
+/*
+    TODO
+    1. Дата сегодня - сделано
+    2. Построить праильно вызовы - сделано
+    3. Handlers - сделано
+    4. Обьект, где будут пары по кажому предмету
+    5. При копировании кода будут ошибки из-за переменных закоменченых - сделано
+    6. Main и ByDay одновременно - сделано
+    7. Сейчас при нажатии на какой-то предмет ничего не происходит, как и при нажатии на уведомления - сделано
+*/
 
 public class MainActivity extends AppCompatActivity {
 
+    // Переменные, получаемые с запросов
+
+    // by loginRequest
     public String authCookie;
     public String studentId;
 
+    // by getStudentMainDataRequest
     public JSONArray studentLessons;
-    public JSONObject exercises;
-    public JSONObject exercisesVisits;
     public JSONObject teachers;
 
-    public JSONArray todayExercises; // не обязательно today, лол
-    public JSONObject todayExercisesVisits; // не обязательно today, лол
+    // Пары за месяц пока не используем
+//    public JSONObject exercises;
+//    public JSONObject exercisesVisits;
 
+    // by getExercisesByDay
+    public JSONArray exercisesByDay;
+    public JSONObject exercisesVisitsByDay;
+
+    // Переменные выше заменяют эти переменные
+//    public JSONArray todayExercises;
+//    public JSONObject todayExercisesVisits;
+
+
+    // by getExercisesByLesson
     public JSONArray exercisesByLesson;
     public JSONObject exercisesByLessonVisits;
     public JSONObject exercisesByLessonTeacher;
     public Integer exercisesByLessonAmount;
     public Integer exercisesByLessonVisitsAmount;
 
+    // by vk api
     public JSONObject vkWallPosts;
+
+
+
+    // Handlers для проверки на выполнение запроса
+
+    /*
+        Изначально запросы не вызваны - NOT_CALLED
+        При вызове метода get...Request - CALLED
+        Если внутри запроса ошибка - FAILED (пока не сделал)
+        Если возвращает пустой response - EMPTY_RESPONSE        // Эти два значения задаются в функции колбеке on...RequestCompleted()
+        Если возвращает тело response - COMPLETED               //
+    */
+    enum RequestStatus {NOT_CALLED, CALLED, COMPLETED, FAILED, EMPTY_RESPONSE}
+
+
+    RequestStatus loginRequestStatus = RequestStatus.NOT_CALLED;
+    RequestStatus getStudentMainDataRequestStatus = RequestStatus.NOT_CALLED;
+    RequestStatus getExercisesByDayRequestStatus = RequestStatus.NOT_CALLED;
+    RequestStatus getExercisesByLessonRequestStatus = RequestStatus.NOT_CALLED;
+    RequestStatus getVKWallPostsRequestStatus = RequestStatus.NOT_CALLED;
+
+
+    // Переменная, чтобы buildFrontend не вызвался дважды (и после getMainData и после getByDay)
+    Boolean buildFrontendCalled = false;
 
 
     // контейнеры
@@ -80,7 +127,7 @@ public class MainActivity extends AppCompatActivity {
         Window w = getWindow();
         w.setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN);
 
-        //инициализируем экраны
+        // инициализируем экраны
 
         main = findViewById(R.id.main);
         profileScreen = findViewById(R.id.profileScreen);
@@ -117,12 +164,10 @@ public class MainActivity extends AppCompatActivity {
             // отправляем запрос
             @Override
             public void onClick(View v) {
-                String[] loginParams = {
-                        "https://ifspo.ifmo.ru/",
+                sendLoginRequest(new String[] {
                         login.getText().toString(),
                         password.getText().toString()
-                };
-                sendLoginRequest(loginParams);
+                });
             }
         });
 
@@ -134,27 +179,32 @@ public class MainActivity extends AppCompatActivity {
 
     private void sendLoginRequest(String[] params) {
         loginRequest request = new loginRequest();
+        loginRequestStatus = RequestStatus.CALLED;
         request.execute(params);
     }
 
     private void sendGetStudentMainDataRequest(String[] params) {
         getStudentMainDataRequest request = new getStudentMainDataRequest();
+        getStudentMainDataRequestStatus = RequestStatus.CALLED;
         request.execute(params);
     }
 
     private void sendGetExercisesByDayRequest(String[] params) {
         getExercisesByDayRequest request = new getExercisesByDayRequest();
+        getExercisesByDayRequestStatus = RequestStatus.CALLED;
         request.execute(params);
     }
 
     private void sendGetExercisesByLessonRequest(String[] params) {
-        getExercisesByDayLesson request = new getExercisesByDayLesson();
+        getExercisesByLessonRequest request = new getExercisesByLessonRequest();
+        getExercisesByLessonRequestStatus = RequestStatus.CALLED;
         request.execute(params);
     }
 
-    private void sendGetVKWallPostsRequest() {
+    private void sendGetVKWallPostsRequest(String[] params) {
         getVKWallPostsRequest request = new getVKWallPostsRequest();
-        request.execute();
+        getVKWallPostsRequestStatus = RequestStatus.CALLED;
+        request.execute(params);
     }
 
 
@@ -163,78 +213,95 @@ public class MainActivity extends AppCompatActivity {
 
     public void onLoginRequestCompleted(String cookie) {
         if (cookie != "") {
-            System.out.println("Login success!");
+            loginRequestStatus = RequestStatus.COMPLETED;
+
             authCookie = cookie;
+
+            System.out.println("Login success!");
             System.out.println("AuthCookie: " + authCookie);
 
-            sendGetStudentMainDataRequest(new String[]{"https://ifspo.ifmo.ru/profile/getStudentLessonsVisits"});
+            // После входа в акк загружаем предметы, учителей и пары за сегодня
+
+            Date date = new Date();
+            String year = new SimpleDateFormat("yyyy").format(date);
+            String month = new SimpleDateFormat("MM").format(date);
+            String day = new SimpleDateFormat("dd").format(date);
+
+            sendGetStudentMainDataRequest(new String[]{ year, month });
+            sendGetExercisesByDayRequest(new String[] { year + "-" + month + "-" + day }); // 2020-02-26
+
         } else {
+            loginRequestStatus = RequestStatus.EMPTY_RESPONSE;
             System.out.println("Login failure!");
         }
     }
 
     public void onGetStudentMainDataRequestCompleted(String responseBody) {
         if (responseBody != "") {
+            getStudentMainDataRequestStatus = RequestStatus.COMPLETED;
+
             System.out.println("GetStudentMainData Success!");
             JSONObject jsonData;
             try {
                 jsonData = new JSONObject(responseBody);
 
                 studentLessons = jsonData.getJSONArray("userlessons");
-                exercises = jsonData.getJSONObject("Exercises");
-                exercisesVisits = jsonData.getJSONObject("ExercisesVisits");
+//                exercises = jsonData.getJSONObject("Exercises");
+//                exercisesVisits = jsonData.getJSONObject("ExercisesVisits");
                 teachers = jsonData.getJSONObject("lessonteachers");
 
                 System.out.println("StudentLessons: " + studentLessons.toString());
-                System.out.println("Exercises: " + exercises.toString());
-                System.out.println("ExercisesVisits: " + exercisesVisits.toString());
+//                System.out.println("Exercises: " + exercises.toString());
+//                System.out.println("ExercisesVisits: " + exercisesVisits.toString());
                 System.out.println("Teachers: " + teachers.toString());
 
-                String[] params = {
-                        "https://ifspo.ifmo.ru//journal/getStudentExercisesByDay",
-                        "2020-02-22",
-                        authCookie
-                };
-                sendGetExercisesByDayRequest(params);
+                if (getExercisesByDayRequestStatus == RequestStatus.COMPLETED && !buildFrontendCalled) {
+                    buildFrontendCalled = true;
+                    buildFrontend();
+                }
 
             } catch (JSONException e) {
 
             }
         } else {
+            getStudentMainDataRequestStatus = RequestStatus.EMPTY_RESPONSE;
             System.out.println("GetStudentMainData Failure!");
         }
     }
 
     public void onGetExercisesByDayRequestCompleted (String responseBody) {
         if (responseBody != "") {
+            getExercisesByDayRequestStatus = RequestStatus.COMPLETED;
+
             System.out.println("GetExercisesByDay Success!");
             JSONObject jsonData;
             try {
                 jsonData = new JSONObject(responseBody);
 
-                todayExercises = jsonData.getJSONArray("todayExercises");
-                todayExercisesVisits = jsonData.getJSONObject("todayExercisesVisits");
+                exercisesByDay = jsonData.getJSONArray("todayExercises");
+                exercisesVisitsByDay = jsonData.getJSONObject("todayExercisesVisits");
 
-                System.out.println("TodayExercises: " + todayExercises.toString());
-                System.out.println("TodayExercisesVisits: " + todayExercisesVisits.toString());
+                System.out.println("TodayExercises: " + exercisesByDay.toString());
+                System.out.println("TodayExercisesVisits: " + exercisesVisitsByDay.toString());
+
+                if (getStudentMainDataRequestStatus == RequestStatus.COMPLETED && !buildFrontendCalled) {
+                    buildFrontendCalled = true;
+                    buildFrontend();
+                }
+
             } catch (JSONException e) {
 
             }
-
-            String[] params = {
-                    "https://ifspo.ifmo.ru/journal/getStudentExercisesByLesson",
-                    "175"
-            };
-            sendGetExercisesByLessonRequest(params);
-
-
         } else {
+            getExercisesByDayRequestStatus = RequestStatus.EMPTY_RESPONSE;
             System.out.println("GetExercisesByDay Failure!");
         }
     }
 
     public void onGetExercisesByLessonRequestCompleted (String responseBody) {
         if (responseBody != "") {
+            getExercisesByLessonRequestStatus = RequestStatus.COMPLETED;
+
             System.out.println("GetExercisesByLesson Success!");
             JSONObject jsonData;
             try {
@@ -255,17 +322,83 @@ public class MainActivity extends AppCompatActivity {
 
             }
 
-            sendGetVKWallPostsRequest();
+            // берем нужный предмет
+
+            JSONArray buffer = exercisesByLesson;
 
 
+//             выкидываем информацию о паре
+
+            for (int k = 0; k < buffer.length(); k++) {
+                JSONObject value;
+                try {
+
+                        value = buffer.getJSONObject(k);
+                        TextView temp = new TextView(getApplicationContext());
+                        LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, 150);
+                        lp.setMargins(0,0,0, 50);
+                        temp.setLayoutParams(lp);
+                        temp.setText(value.getString("topic") + " и эта пара была " + value.getString("day"));
+                        temp.setBackgroundColor(167);
+
+
+            // получаем подробную информацию о паре
+
+                        JSONObject valueInfo;
+                        try {
+                            valueInfo = exercisesByLessonVisits.getJSONArray(value.getString("id")).getJSONObject(0);
+
+                            String presence = valueInfo.getString("presence").equals("0") ? " присутствие: нет " : " присутствие: да ";
+                            String point = valueInfo.getString("point").toString().equals("null")  ? " оценка: нет " : " оценка: да ";
+                            switch (valueInfo.getString("point")) {
+                                case "2": {
+                                    point = " оценка: 2";
+                                    break;
+                                }
+                                case "3": {
+                                    point = " оценка: 3";
+                                    break;
+                                }
+                                case "4": {
+                                    point = " оценка: 4";
+                                    break;
+                                }
+                                case "5": {
+                                    point = " оценка: 5";
+                                    break;
+                                }
+                            }
+                            String delay = valueInfo.getString("delay").toString().equals("null")  ? " опоздание: нет " : " опоздание: да ";
+                            String performance = valueInfo.getString("performance").toString().equals("null") ? " активность: нет " : " активность: да ";
+
+                            temp.setText(temp.getText() + presence + point + delay + performance);
+                        } catch (JSONException e) {
+                            e.printStackTrace();
+                        }
+
+
+                        LinearLayout lessonsInformationList = findViewById(R.id.lessonsInformationList);
+
+                        // опять же id - ключ для следующего массива
+
+                    temp.setId(Integer.parseInt(value.getString("id")));
+                    lessonsInformationList.addView(temp);
+
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+            }
 
         } else {
+            getExercisesByLessonRequestStatus = RequestStatus.EMPTY_RESPONSE;
             System.out.println("GetExercisesByLesson Failure!");
         }
     }
 
     public void onGetVKWallPostsRequestCompleted (String responseBody) {
         if (responseBody != "") {
+            getVKWallPostsRequestStatus = RequestStatus.COMPLETED;
+
             System.out.println("GetVKWallPosts Success!");
             JSONObject jsonData;
             try {
@@ -279,33 +412,61 @@ public class MainActivity extends AppCompatActivity {
 
             }
 
-            // создание фронтенда по полученным данным
+            JSONArray value;
+            try {
+                value = vkWallPosts.getJSONArray("items");
 
-            buildFrontend();
+                for (int i = 0; i < value.length(); i++) {
 
+                    // берем каждый пост
 
+                    JSONObject tmp;
+                    try {
+                        tmp = value.getJSONObject(i);
+
+                        //и выкидывем его на форму
+
+                        LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.WRAP_CONTENT);
+                        lp.setMargins(25, 25, 25, 50);
+                        TextView note = new TextView(getApplicationContext());
+                        note.setLayoutParams(lp);
+                        note.setText( (i+1) + " пост:    " + tmp.getString("text"));
+                        LinearLayout notificationList = findViewById(R.id.notificationList);
+                        notificationList.addView(note);
+
+                    } catch (JSONException e) {
+                        e.printStackTrace();
+                    }
+                }
+
+            } catch (JSONException e) {
+                e.printStackTrace();
+            }
 
         } else {
+            getVKWallPostsRequestStatus = RequestStatus.EMPTY_RESPONSE;
             System.out.println("GetVKWallPosts Failure!");
         }
     }
 
 
-
     // Сами асинхронные запросы
 
+    // [name, password]
     class loginRequest extends AsyncTask<String[], Void, String> {
+
         @Override
-        protected String doInBackground(String[]... params) {
+        protected String doInBackground(String[]... params) { // params[0][0] - name, params[0][1] - password
             URL url;
             HttpURLConnection urlConnection = null;
             String authCookie = "";
+
             try {
-                String url_address = params[0][0];
+                String url_address = "https://ifspo.ifmo.ru/";
                 url = new URL(url_address);
                 urlConnection = (HttpURLConnection) url.openConnection();
 
-                String urlParameters = "User[login]=" + params[0][1] + "&User[password]=" + params[0][2];
+                String urlParameters = "User[login]=" + params[0][0] + "&User[password]=" + params[0][1];
                 byte[] postData = urlParameters.getBytes(Charset.forName("UTF-8"));
                 int postDataLength = postData.length;
 
@@ -351,21 +512,20 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
+    // [year, month]
     class getStudentMainDataRequest extends AsyncTask<String[], Void, String> {
-        protected String doInBackground(String[]... params) {
+
+        protected String doInBackground(String[]... params) { // params[0][0] - year, params[0][1] - month
             URL url;
             HttpURLConnection urlConnection = null;
             String responseBody = "";
 
-//            String[] decoded_cookie = URLDecoder.decode(params[0][1]).split("s:");
-//            String userIdDirty = decoded_cookie[decoded_cookie.length - 5].split(":")[1];
-//            String studentId = userIdDirty.substring(1, userIdDirty.length() - 2);
-
-            String month = new SimpleDateFormat("MM", Locale.getDefault()).format(new Date());
-            String year = new SimpleDateFormat("YYYY", Locale.getDefault()).format(new Date());
-
             try {
-                String url_address = params[0][0] + "?stud=" + studentId + "&dateyear=" + year + "&datemonth=" + month;
+                String url_address = "https://ifspo.ifmo.ru/profile/getStudentLessonsVisits"
+                        + "?stud=" + studentId
+                        + "&dateyear=" + params[0][0]
+                        + "&datemonth=" + params[0][1];
+
                 url = new URL(url_address);
                 urlConnection = (HttpURLConnection) url.openConnection();
 
@@ -383,13 +543,12 @@ public class MainActivity extends AppCompatActivity {
                 String currentLine;
 
                 try {
-                    while ((currentLine = in.readLine()) != null)
-                        response.append(currentLine);
-
+                    while ((currentLine = in.readLine()) != null) response.append(currentLine);
                     in.close();
                 } catch (IOException e) {
                     System.out.println(e.toString());
                 }
+
                 responseBody = response.toString();
             } catch (Exception e) {
                 System.out.println("Problems with getStudentMainData request");
@@ -408,14 +567,17 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-    class getExercisesByDayLesson extends AsyncTask <String[], Void, String> {
-        protected String doInBackground(String[]... params) {
+    // [lessonId]
+    class getExercisesByLessonRequest extends AsyncTask <String[], Void, String> {
+        protected String doInBackground(String[]... params) { // params[0][0] - lesson_id (String)
             URL url;
             HttpURLConnection urlConnection = null;
             String responseBody = "";
 
             try {
-                String url_address = params[0][0] + "?lesson=" + params[0][1] + "&student=" + studentId;
+                String url_address = "https://ifspo.ifmo.ru/journal/getStudentExercisesByLesson"
+                        + "?lesson=" + params[0][0]
+                        + "&student=" + studentId;
                 url = new URL(url_address);
                 urlConnection = (HttpURLConnection) url.openConnection();
 
@@ -433,13 +595,12 @@ public class MainActivity extends AppCompatActivity {
                 String currentLine;
 
                 try {
-                    while ((currentLine = in.readLine()) != null)
-                        response.append(currentLine);
-
+                    while ((currentLine = in.readLine()) != null) response.append(currentLine);
                     in.close();
                 } catch (IOException e) {
                     System.out.println(e.toString());
                 }
+
                 responseBody = response.toString();
             } catch (Exception e) {
                 System.out.println("Problems with getExercisesByLesson request");
@@ -458,18 +619,18 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
+    // [date <yyyy-mm-dd>]
     class getExercisesByDayRequest extends AsyncTask <String[], Void, String> {
-        protected String doInBackground(String[]... params) {
+        protected String doInBackground(String[]... params) { // params[0][0] - date <yyyy-mm-dd>
             URL url;
             HttpURLConnection urlConnection = null;
             String responseBody = "";
 
-//            String[] decoded_cookie = URLDecoder.decode(params[0][2]).split("s:");
-//            String userIdDirty = decoded_cookie[decoded_cookie.length - 5].split(":")[1];
-//            String studentId = userIdDirty.substring(1, userIdDirty.length() - 2);
-
             try {
-                String url_address = params[0][0] + "?student=" + studentId + "&day=" + params[0][1];
+                String url_address = "https://ifspo.ifmo.ru//journal/getStudentExercisesByDay"
+                        + "?student=" + studentId
+                        + "&day=" + params[0][0];
+
                 url = new URL(url_address);
                 urlConnection = (HttpURLConnection) url.openConnection();
 
@@ -487,13 +648,12 @@ public class MainActivity extends AppCompatActivity {
                 String currentLine;
 
                 try {
-                    while ((currentLine = in.readLine()) != null)
-                        response.append(currentLine);
-
+                    while ((currentLine = in.readLine()) != null) response.append(currentLine);
                     in.close();
                 } catch (IOException e) {
                     System.out.println(e.toString());
                 }
+
                 responseBody = response.toString();
             } catch (Exception e) {
                 System.out.println("Problems with getExercisesByDay request");
@@ -512,24 +672,22 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-
-    class getVKWallPostsRequest extends AsyncTask <String[], Void, String> {
+    // [postsCount]
+    class getVKWallPostsRequest extends AsyncTask <String[], Void, String> { // params[0][0] - posts count
         protected String doInBackground(String[]... params) {
             URL url;
             HttpURLConnection urlConnection = null;
             String responseBody = "";
 
-//            String[] decoded_cookie = URLDecoder.decode(params[0][2]).split("s:");
-//            String userIdDirty = decoded_cookie[decoded_cookie.length - 5].split(":")[1];
-//            String studentId = userIdDirty.substring(1, userIdDirty.length() - 2);
-
             try {
-                String url_address = "https://api.vk.com/method/wall.get?domain=raspfspo&count=10&filter=owner&access_token=[ВСТАВЬТЕ_ТОКЕН_СЮДА]&v=5.103";
+                String url_address = "https://api.vk.com/method/wall.get?domain=raspfspo"
+                        + "&count=" + params[0][0]
+                        + "&filter=owner&access_token=c2cb19e3c2cb19e3c2cb19e339c2a4f3d6cc2cbc2cb19e39c9fe125dc37c9d4bb7994cd&v=5.103";
+
                 url = new URL(url_address);
                 urlConnection = (HttpURLConnection) url.openConnection();
 
                 urlConnection.setRequestMethod("GET");
-
                 urlConnection.setUseCaches(false);
                 urlConnection.setInstanceFollowRedirects(false);
 
@@ -541,13 +699,12 @@ public class MainActivity extends AppCompatActivity {
                 String currentLine;
 
                 try {
-                    while ((currentLine = in.readLine()) != null)
-                        response.append(currentLine);
-
+                    while ((currentLine = in.readLine()) != null) response.append(currentLine);
                     in.close();
                 } catch (IOException e) {
                     System.out.println(e.toString());
                 }
+
                 responseBody = response.toString();
             } catch (Exception e) {
                 System.out.println("Problems with vk request");
@@ -602,6 +759,23 @@ public class MainActivity extends AppCompatActivity {
 
     enum ContainerName { PROFILE, HOME, SCHEDULE, LESSONS, LESSONS_INFORMATION, NOTIFICATION }
     ContainerName activeContainer;
+
+    /*
+    Какие запросы, для каких сцен:
+        PROFILE
+            GetExercisesByDaY (сегодня) вернет пары, которые были сегодня, на данный момент
+            переменные: todayExercisesVisits, todayExercises нужно заменить на exercisesByDay, exercisesVisitsByDay
+        LESSONS
+            GetStudentMainData (этот или прошлый год) главное, что вернет все предметы, которые и будут выводится в списке
+        LESSONS_INFORMATION
+            GetExercisesByLesson (айди предмета) вернет все пары по этому предмету
+
+        В общем, все нормально, кроме вывода информации по парам для каждого предмета
+        Потому что использу.тся переменные exercises, exercisesVisits (с getStudentMainDataRequest) кторые показывают пары только за текущий месяц.
+
+
+    */
+
 
     void buildFrontend() {
 
@@ -680,10 +854,10 @@ public class MainActivity extends AppCompatActivity {
 
         // высираем сегодняшние пары перебором
 
-        for(int i = 0; i < todayExercises.length(); i++){
+        for(int i = 0; i < exercisesByDay.length(); i++){
             JSONObject value;
             try {
-                value = todayExercises.getJSONObject(i);
+                value = exercisesByDay.getJSONObject(i);
 
                 TextView temp = new TextView(this);
                 LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT);
@@ -695,7 +869,7 @@ public class MainActivity extends AppCompatActivity {
 
                 JSONObject valueInfo;
                 try {
-                    valueInfo = todayExercisesVisits.getJSONArray(value.getString("id")).getJSONObject(0);
+                    valueInfo = exercisesVisitsByDay.getJSONArray(value.getString("id")).getJSONObject(0);
 
                     String presence = valueInfo.getString("presence").equals("0") ? " присутствие: нет " : " присутствие: да ";
                     String point = valueInfo.getString("point").toString().equals("null")  ? " оценка: нет " : " оценка: да ";
@@ -718,7 +892,7 @@ public class MainActivity extends AppCompatActivity {
                         }
                     }
                     String delay = valueInfo.getString("delay").toString().equals("null")  ? " опоздание: нет " : " опоздание: да ";
-                    String performance = valueInfo.getString("performance").toString().equals("null") ? " активность: нет " : " активность: да ";
+                    String performance = valueInfo.getString("performance").equals("null") ? " активность: нет " : " активность: да ";
 
                     temp.setText(temp.getText() + presence + point + delay + performance);
 
@@ -825,51 +999,14 @@ public class MainActivity extends AppCompatActivity {
 
             // но если кликнута кнопка изменений в расписании, нужно еще выкинуть контент от вк
 
+
+
             if (activeContainer == ContainerName.NOTIFICATION) {
 
-                // берем массив
+                sendGetVKWallPostsRequest(new String[] {"10"});
 
-                JSONArray value;
-                try {
-                    value = vkWallPosts.getJSONArray("items");
-
-                    for (int i = 0; i < value.length(); i++) {
-
-                        // берем каждый пост
-
-                        JSONObject tmp;
-                        try {
-                            tmp = value.getJSONObject(i);
-
-//                            Date currentDate = new Date();
-                            long stamp = System.currentTimeMillis()/1000;
-                            System.out.println("current time: " + stamp);
-
-                            //и выкидывем его на форму если он моложе двух дней
-
-                            if (stamp - Long.parseLong(tmp.getString("date")) <= 2*24*3600) {
-
-                                LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.WRAP_CONTENT);
-                                lp.setMargins(25, 25, 25, 50);
-                                TextView note = new TextView(getApplicationContext());
-                                note.setLayoutParams(lp);
-
-                                // GMT +3
-
-                                note.setText( (i+1) + " пост (" + new Date(Long.parseLong(tmp.getString("date"))*1000 + 3*3600*1000) + "):    " + tmp.getString("text"));
-                                LinearLayout notificationList = findViewById(R.id.notificationList);
-                                notificationList.addView(note);
-                            }
-
-                        } catch (JSONException e) {
-                            e.printStackTrace();
-                        }
-                    }
-
-                } catch (JSONException e) {
-                    e.printStackTrace();
-                }
             }
+
 
 
         }
@@ -882,6 +1019,8 @@ public class MainActivity extends AppCompatActivity {
         @Override
         public void onClick(View v)
         {
+
+            sendGetExercisesByLessonRequest(new String[] {v.getId()+""});
 
             // обновляем активный экран
 
@@ -896,73 +1035,6 @@ public class MainActivity extends AppCompatActivity {
 
             lessonsInformationList.removeAllViews();
 
-            // берем нужный предмет
-
-            JSONArray buffer = null;
-            try {
-                buffer = exercises.getJSONArray(v.getId() + "");
-            } catch (JSONException e) {
-                e.printStackTrace();
-            }
-
-
-            // выкидываем информацию о паре
-
-            for (int k = 0; k < buffer.length(); k++) {
-                JSONObject value;
-                try {
-                    value = buffer.getJSONObject(k);
-                    TextView temp = new TextView(getApplicationContext());
-                    //
-                    LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, 150);
-                    lp.setMargins(0,0,0, 50);
-                    temp.setLayoutParams(lp);
-                    temp.setText(value.getString("topic") + " и это пара была " + value.getString("day"));
-                    temp.setBackgroundColor(167);
-
-                    // получаем подробную информацию о паре
-
-                    JSONObject valueInfo;
-                    try {
-                        valueInfo = exercisesVisits.getJSONObject(v.getId() + "").getJSONArray(value.getString("id")).getJSONObject(0);
-
-                        String presence = valueInfo.getString("presence").equals("0") ? " присутствие: нет " : " присутствие: да ";
-                        String point = valueInfo.getString("point").toString().equals("null")  ? " оценка: нет " : " оценка: да ";
-                        switch (valueInfo.getString("point")) {
-                            case "2": {
-                                point = " оценка: 2";
-                                break;
-                            }
-                            case "3": {
-                                point = " оценка: 3";
-                                break;
-                            }
-                            case "4": {
-                                point = " оценка: 4";
-                                break;
-                            }
-                            case "5": {
-                                point = " оценка: 5";
-                                break;
-                            }
-                        }
-                        String delay = valueInfo.getString("delay").toString().equals("null")  ? " опоздание: нет " : " опоздание: да ";
-                        String performance = valueInfo.getString("performance").toString().equals("null") ? " активность: нет " : " активность: да ";
-
-                        temp.setText(temp.getText() + presence + point + delay + performance);
-                    } catch (JSONException e) {
-                        e.printStackTrace();
-                    }
-
-
-                    // опять же id - ключ для следующего массива
-
-                    temp.setId(Integer.parseInt(value.getString("id")));
-                    lessonsInformationList.addView(temp);
-                } catch (JSONException e) {
-                    e.printStackTrace();
-                }
-            }
         }
 
     }
