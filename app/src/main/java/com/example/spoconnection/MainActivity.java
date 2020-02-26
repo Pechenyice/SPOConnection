@@ -76,6 +76,8 @@ public class MainActivity extends AppCompatActivity {
     public Integer exercisesByLessonAmount;
     public Integer exercisesByLessonVisitsAmount;
 
+    public JSONObject readyExercisesByLesson;
+
     // by vk api
     public JSONObject vkWallPosts;
 
@@ -388,6 +390,7 @@ public class MainActivity extends AppCompatActivity {
                     e.printStackTrace();
                 }
             }
+//            readyExercisesByLesson.put()
 
         } else {
             getExercisesByLessonRequestStatus = RequestStatus.EMPTY_RESPONSE;
@@ -425,14 +428,21 @@ public class MainActivity extends AppCompatActivity {
                         tmp = value.getJSONObject(i);
 
                         //и выкидывем его на форму
+                        long stamp = System.currentTimeMillis()/1000;
+                        System.out.println("current time: " + stamp);
 
-                        LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.WRAP_CONTENT);
-                        lp.setMargins(25, 25, 25, 50);
-                        TextView note = new TextView(getApplicationContext());
-                        note.setLayoutParams(lp);
-                        note.setText( (i+1) + " пост:    " + tmp.getString("text"));
-                        LinearLayout notificationList = findViewById(R.id.notificationList);
-                        notificationList.addView(note);
+                        //и выкидывем его на форму если он моложе двух дней
+
+                        if (stamp - Long.parseLong(tmp.getString("date")) <= 2*24*3600) {
+
+                            LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.WRAP_CONTENT);
+                            lp.setMargins(25, 25, 25, 50);
+                            TextView note = new TextView(getApplicationContext());
+                            note.setLayoutParams(lp);
+                            note.setText( (i+1) + " пост (" + new Date(Long.parseLong(tmp.getString("date"))*1000 + 3*3600*1000) + "):    " + tmp.getString("text"));
+                            LinearLayout notificationList = findViewById(R.id.notificationList);
+                            notificationList.addView(note);
+                        }
 
                     } catch (JSONException e) {
                         e.printStackTrace();
