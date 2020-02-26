@@ -488,13 +488,18 @@ public class MainActivity extends AppCompatActivity {
 //        if (responseBody != "") {
         getProfileParsingRequestStatus = RequestStatus.COMPLETED;
         System.out.println("GetProfileParsing Success!");
-        System.out.println( html.head().text());
+
+        String FIO = html.body().getElementsByClass("row").get(0).getElementsByClass("span9").select("h3").get(0).text();
+        System.out.println( FIO );
+
+
+
+
 
         if (getExercisesByDayRequestStatus == RequestStatus.COMPLETED && getStudentMainDataRequestStatus == RequestStatus.COMPLETED && !buildFrontendCalled) {
             buildFrontendCalled = true;
             buildFrontend();
         }
-
 
 //        } else {
 //            getExercisesByDayRequestStatus = RequestStatus.EMPTY_RESPONSE;
