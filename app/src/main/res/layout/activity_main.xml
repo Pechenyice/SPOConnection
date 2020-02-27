@@ -102,13 +102,36 @@
         android:layout_marginBottom="50dp"
         android:layout_marginTop="50dp">
 
-        <TextView
-            android:id="@+id/textView8"
+        <Button
+            android:id="@+id/now"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_centerHorizontal="true"
-            android:layout_centerVertical="true"
-            android:text="this is schedule, so fuck u x2" />
+            android:text="now" />
+        <Button
+            android:id="@+id/next"
+            android:layout_marginLeft="100dp"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="next" />
+        <Button
+            android:id="@+id/notificationSchedule"
+            android:layout_marginLeft="200dp"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="changes" />
+
+        <ScrollView
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_marginTop="50dp">
+
+            <LinearLayout
+                android:id="@+id/scheduleList"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical" />
+        </ScrollView>
+
     </RelativeLayout>
 
     <RelativeLayout
@@ -151,21 +174,6 @@
         </ScrollView>
     </RelativeLayout>
 
-    <LinearLayout
-        android:id="@+id/userHelp"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:gravity="top"
-        android:orientation="vertical">
-
-        <Button
-            android:id="@+id/notification"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="vk" />
-
-
-    </LinearLayout>
 
     <LinearLayout
         android:id="@+id/notificationListScreen"
@@ -186,6 +194,22 @@
                 android:layout_height="wrap_content"
                 android:orientation="vertical" />
         </ScrollView>
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/userHelp"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:gravity="top"
+        android:orientation="vertical">
+
+        <Button
+            android:id="@+id/notification"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="vk" />
+
+
     </LinearLayout>
 
     <LinearLayout

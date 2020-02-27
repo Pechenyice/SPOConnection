@@ -113,6 +113,9 @@ public class MainActivity extends AppCompatActivity {
     // Переменная, чтобы buildFrontend не вызвался дважды (и после getMainData и после getByDay)
     Boolean buildFrontendCalled = false;
 
+    Boolean nowWeekScheduleCalled = false;
+    Boolean nextWeekScheduleCalled = false;
+
 
     // контейнеры
 
@@ -178,6 +181,38 @@ public class MainActivity extends AppCompatActivity {
         lessonsInformationScreen = findViewById(R.id.lessonsInformationScreen);
         userHelpScreen = findViewById(R.id.userHelp);
         notificationListScreen = findViewById(R.id.notificationListScreen);
+
+        // локальные кнопки экранов
+
+        scheduleChanges = findViewById(R.id.notificationSchedule);
+        scheduleNow = findViewById(R.id.now);
+        scheduleNext = findViewById(R.id.next);
+
+        // запросы для расписания отправляются только 1 раз
+
+        scheduleNow.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (!nowWeekScheduleCalled) {
+                    sendGetScheduleParsingRequest("now");
+                    nowWeekScheduleCalled = true;
+                } else {
+                    onGetScheduleParsingRequestCompleted("now");
+                }
+            }
+        });
+
+        scheduleNext.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (!nextWeekScheduleCalled) {
+                    sendGetScheduleParsingRequest("next");
+                    nextWeekScheduleCalled = true;
+                } else {
+                    onGetScheduleParsingRequestCompleted("next");
+                }
+            }
+        });
 
 
         // в начале убираем все экраны
@@ -542,8 +577,82 @@ public class MainActivity extends AppCompatActivity {
 //        }
     }
 
-    public void onGetScheduleParsingRequestCompleted() {
+    public void onGetScheduleParsingRequestCompleted(String param) {
+        if (getVKWallPostsRequestStatus == RequestStatus.COMPLETED && activeContainer == ContainerName.SCHEDULE) {
 
+            LinearLayout box = findViewById(R.id.scheduleList);
+            box.removeAllViews();
+            TextView text = new TextView(getApplicationContext());
+
+            JSONArray value = new JSONArray();
+
+            try {
+                value = scheduleLessons.getJSONArray(param);
+            } catch (JSONException e) {
+                e.printStackTrace();
+            }
+
+            for (int i = 0; i < value.length(); i++) {
+
+                switch (i) {
+                    case 0: {
+                        text.setText(text.getText() + "Понедельник:\n\n");
+                        break;
+                    }
+                    case 1: {
+                        text.setText(text.getText() + "Вторник:\n\n");
+                        break;
+                    }
+                    case 2: {
+                        text.setText(text.getText() + "Среда:\n\n");
+                        break;
+                    }
+                    case 3: {
+                        text.setText(text.getText() + "Четверг:\n\n");
+                        break;
+                    }
+                    case 4: {
+                        text.setText(text.getText() + "Пятница:\n\n");
+                        break;
+                    }
+                    case 5: {
+                        text.setText(text.getText() + "Суббота:\n\n");
+                        break;
+                    }
+                }
+
+                JSONArray temp = new JSONArray();
+                try {
+                    temp = value.getJSONArray(i);
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+
+                for (int j = 0; j < temp.length(); j++) {
+
+                    JSONObject tmp = new JSONObject();
+                    try {
+                        tmp = temp.getJSONObject(j);
+                    } catch (JSONException e) {
+                        e.printStackTrace();
+                    }
+
+                    try {
+                        text.setText(text.getText() + tmp.getString("position") + " (" + tmp.getString("start") + tmp.getString("end") + ") " + tmp.getString("name") + " (" + tmp.getString("teacher") + ")\n");
+                    } catch (JSONException e) {
+                        e.printStackTrace();
+                    }
+                    text.setText(text.getText() + "\n\n");
+
+                }
+            }
+
+            box.addView(text);
+
+        } else {
+            getScheduleParsingRequestStatus = RequestStatus.EMPTY_RESPONSE;
+            System.out.println("GetScheduleParsing Failure!");
+        }
     }
 
 
@@ -888,10 +997,6 @@ public class MainActivity extends AppCompatActivity {
             super.onPostExecute(result);
             onGetProfileParsingRequestCompleted(result);
 
-
-            /////////
-            sendGetScheduleParsingRequest("now");
-            sendGetScheduleParsingRequest("next");
         }
     }
 
@@ -1030,31 +1135,15 @@ public class MainActivity extends AppCompatActivity {
 
             }
 
-//            JSONObject schedule = {
-
-//              "now": [ // week
-
-//                  [ // day
-//                      {position: "I", start: "10", end: "11", name: "name", teacher: "teacher"}, // lesson
-//                      {position: "II", start: "11", end: "12", name: "name", teacher: "teacher"}
-//                  ],
-//                  [ // day
-//                      {position: "I", start: "10", end: "11", name: "name", teacher: "teacher"}, // lesson
-//                      {position: "II", start: "11", end: "12", name: "name", teacher: "teacher"}
-//                  ]
-//
-//              ]
-
-//            };
-
             System.out.println(scheduleLessons.toString());
 
-            return " ";
+            return params[0][0];
         }
 
         protected void onPostExecute(String result) {
             super.onPostExecute(result);
-            onGetScheduleParsingRequestCompleted();
+            getVKWallPostsRequestStatus = RequestStatus.COMPLETED;
+            onGetScheduleParsingRequestCompleted(result);
         }
     }
 
@@ -1088,6 +1177,9 @@ public class MainActivity extends AppCompatActivity {
     Button exit;
 
     Button userHelp;
+    Button scheduleChanges;
+    Button scheduleNow;
+    Button scheduleNext;
 
     // переменная для мониторинга активного контейнера
 
@@ -1106,6 +1198,25 @@ public class MainActivity extends AppCompatActivity {
         В общем, все нормально, кроме вывода информации по парам для каждого предмета
         Потому что использу.тся переменные exercises, exercisesVisits (с getStudentMainDataRequest) кторые показывают пары только за текущий месяц.
     */
+
+
+
+    //            JSONObject schedule = {
+
+//              "now": [ // week
+
+//                  [ // day
+//                      {position: "I", start: "10", end: "11", name: "name", teacher: "teacher"}, // lesson
+//                      {position: "II", start: "11", end: "12", name: "name", teacher: "teacher"}
+//                  ],
+//                  [ // day
+//                      {position: "I", start: "10", end: "11", name: "name", teacher: "teacher"}, // lesson
+//                      {position: "II", start: "11", end: "12", name: "name", teacher: "teacher"}
+//                  ]
+//
+//              ]
+
+//            };
 
 
     void buildFrontend() {
@@ -1178,6 +1289,8 @@ public class MainActivity extends AppCompatActivity {
         profile.setOnClickListener(wasClicked);
         lessons.setOnClickListener(wasClicked);
         exit.setOnClickListener(wasClicked);
+
+        scheduleChanges.setOnClickListener(wasClicked);
 
 
         final LinearLayout todayLessonsView = (LinearLayout) findViewById(R.id.todayLessonsView);
@@ -1318,7 +1431,7 @@ public class MainActivity extends AppCompatActivity {
                 main.addView(lessonsScreen);
             }
 
-            if (v.getId() == userHelp.getId()) {
+            if (v.getId() == userHelp.getId() || v.getId() == scheduleChanges.getId()) {
                 System.out.println("You clicked notifications");
                 activeContainer = ContainerName.NOTIFICATION;
                 main.addView(notificationListScreen);
