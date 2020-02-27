@@ -487,10 +487,6 @@ public class MainActivity extends AppCompatActivity {
 
 //        if (responseBody != "") {
         getProfileParsingRequestStatus = RequestStatus.COMPLETED;
-        System.out.println("GetProfileParsing Success!");
-
-        String FIO = html.body().getElementsByClass("row").get(0).getElementsByClass("span9").select("h3").get(0).text();
-        System.out.println( FIO );
 
 
 
@@ -831,6 +827,15 @@ public class MainActivity extends AppCompatActivity {
                     urlConnection.disconnect();
                 }
             }
+
+            System.out.println("GetProfileParsing Success!");
+
+            String FIO = html.body().getElementsByClass("row").get(0).getElementsByClass("span9").select("h3").get(0).text();
+            String GROUP = html.body().getElementsByClass("row").get(0).getElementsByClass("span9").get(0).getElementsByClass("row").get(0).getElementsByClass("span3").select("ul").select("li").last().text();
+            String[] groupContent = GROUP.split(" ");
+            System.out.println( FIO );
+            System.out.println( groupContent[0] );
+
             return html;
         }
 
