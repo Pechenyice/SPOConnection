@@ -20,6 +20,8 @@ import org.json.JSONObject;
 import org.json.JSONArray;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
+import org.jsoup.nodes.Element;
+import org.jsoup.select.Elements;
 
 import java.io.BufferedReader;
 import java.io.DataOutputStream;
@@ -34,6 +36,7 @@ import java.nio.charset.Charset;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
 
 /*
     TODO
@@ -104,6 +107,7 @@ public class MainActivity extends AppCompatActivity {
     RequestStatus getExercisesByLessonRequestStatus = RequestStatus.NOT_CALLED;
     RequestStatus getVKWallPostsRequestStatus = RequestStatus.NOT_CALLED;
     RequestStatus getProfileParsingRequestStatus = RequestStatus.NOT_CALLED;
+    RequestStatus getScheduleParsingRequestStatus = RequestStatus.NOT_CALLED;
 
 
     // Переменная, чтобы buildFrontend не вызвался дважды (и после getMainData и после getByDay)
@@ -122,6 +126,35 @@ public class MainActivity extends AppCompatActivity {
     public RelativeLayout lessonsInformationScreen;
     public LinearLayout userHelpScreen;
     public LinearLayout notificationListScreen;
+
+
+    // массив расписания
+    JSONObject scheduleLessons = new JSONObject();
+
+    // номер группы пользователя
+    String groupNumber;
+
+    // номер группы для запроса
+
+    private String getGroupURLAddressByName(String name) { // "Y2234"
+        switch (name) {
+            case "Y2231": return "g6"; case "Y2232": return "g7";
+            case "Y2233": return "g8"; case "Y2234": return "g9";
+            case "Y2235": return "g10"; case "Y2236": return "g66";
+            case "Y2237": return "g67"; case "Y2238": return "g68";
+
+            case "Y2331": return "g11"; case "Y2333": return "g13";
+            case "Y2334": return "g14"; case "Y2335": return "g15";
+            case "Y2336": return "g70"; case "Y2337": return "g71";
+            case "Y2338": return "g72"; case "Y2339": return "g2760";
+
+            case "Y2431": return "g16"; case "Y2432": return "g17";
+            case "Y2433": return "g18"; case "Y2434": return "g19";
+            case "Y2435": return "g20"; case "Y2436": return "g31";
+            case "Y2437": return "g74"; case "Y2438": return "g75";
+        }
+        return "";
+    }
 
 
     @Override
@@ -219,6 +252,12 @@ public class MainActivity extends AppCompatActivity {
         request.execute();
     }
 
+    private void sendGetScheduleParsingRequest(String param) {
+        getScheduleParsingRequest request = new getScheduleParsingRequest();
+        getScheduleParsingRequestStatus = RequestStatus.CALLED;
+        request.execute(new String[] {param});
+    }
+
 
     // Колбеки, которые вызываются при завершении определенного запроса
 
@@ -314,7 +353,7 @@ public class MainActivity extends AppCompatActivity {
         String responseBody = response[0];
         String lessonId = response[1];
 
-        if (responseBody != "") {
+        if (responseBody != "" && activeContainer == ContainerName.LESSONS_INFORMATION) {
             getExercisesByLessonRequestStatus = RequestStatus.COMPLETED;
 
             System.out.println("GetExercisesByLesson Success!");
@@ -421,7 +460,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public void onGetVKWallPostsRequestCompleted (String responseBody) {
-        if (responseBody != "") {
+        if (responseBody != "" && activeContainer == ContainerName.NOTIFICATION) {
             getVKWallPostsRequestStatus = RequestStatus.COMPLETED;
 
             System.out.println("GetVKWallPosts Success!");
@@ -454,7 +493,6 @@ public class MainActivity extends AppCompatActivity {
                         System.out.println("current time: " + stamp);
 
                         //и выкидывем его на форму если он моложе двух дней
-
                         if (stamp - Long.parseLong(tmp.getString("date")) <= 2*24*3600) {
 
                             LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.WRAP_CONTENT);
@@ -481,7 +519,7 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-    public void onGetProfileParsingRequestCompleted (Document html){
+    public void onGetProfileParsingRequestCompleted (String[] response){
 
         // ошибку пока хз как ловить, лень разбираться
 
@@ -489,7 +527,8 @@ public class MainActivity extends AppCompatActivity {
         getProfileParsingRequestStatus = RequestStatus.COMPLETED;
 
 
-
+        System.out.println(response[0]); // fio
+        System.out.println(response[1]); // group
 
 
         if (getExercisesByDayRequestStatus == RequestStatus.COMPLETED && getStudentMainDataRequestStatus == RequestStatus.COMPLETED && !buildFrontendCalled) {
@@ -501,6 +540,10 @@ public class MainActivity extends AppCompatActivity {
 //            getExercisesByDayRequestStatus = RequestStatus.EMPTY_RESPONSE;
 //            System.out.println("GetExercisesByDay Failure!");
 //        }
+    }
+
+    public void onGetScheduleParsingRequestCompleted() {
+
     }
 
 
@@ -783,9 +826,9 @@ public class MainActivity extends AppCompatActivity {
 
 
 
-    class getProfileParsingRequest extends AsyncTask<Void, Void, Document> {
+    class getProfileParsingRequest extends AsyncTask<Void, Void, String[]> { //FIO, GROUP
 
-        protected Document doInBackground(Void... params) {
+        protected String[] doInBackground(Void... params) {
             URL url;
             HttpURLConnection urlConnection = null;
             String responseBody = "";
@@ -833,15 +876,185 @@ public class MainActivity extends AppCompatActivity {
             String FIO = html.body().getElementsByClass("row").get(0).getElementsByClass("span9").select("h3").get(0).text();
             String GROUP = html.body().getElementsByClass("row").get(0).getElementsByClass("span9").get(0).getElementsByClass("row").get(0).getElementsByClass("span3").select("ul").select("li").last().text();
             String[] groupContent = GROUP.split(" ");
-            System.out.println( FIO );
-            System.out.println( groupContent[0] );
+            groupNumber = getGroupURLAddressByName(groupContent[0]);
 
-            return html;
+//            System.out.println(groupNumber);
+//            JSONObject week = {"now": [{{"1", "10-11 30", "matan"}, {"2", "11 30 - 13 00", "matan"}}, { {} {} }]};
+
+            return new String[] {FIO, groupContent[0]};
         }
 
-        protected void onPostExecute(Document result) {
+        protected void onPostExecute(String[] result) {
             super.onPostExecute(result);
             onGetProfileParsingRequestCompleted(result);
+
+
+            /////////
+            sendGetScheduleParsingRequest("now");
+            sendGetScheduleParsingRequest("next");
+        }
+    }
+
+
+
+
+    class getScheduleParsingRequest extends AsyncTask<String[], Void, String> { // Void на самом деле
+
+        protected String doInBackground(String[]... params) { // now next
+            URL url;
+            HttpURLConnection urlConnection = null;
+            String responseBody = "";
+            Document html = new Document(responseBody);
+
+            try {
+                String url_address = "https://ifspo.ifmo.ru/schedule/get?num=" + groupNumber + "&week=" + params[0][0];
+
+                url = new URL(url_address);
+                urlConnection = (HttpURLConnection) url.openConnection();
+
+                urlConnection.setRequestMethod("GET");
+                urlConnection.setRequestProperty("User-Agent", "Mozilla/5.0 (Windows NT 6.3; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/79.0.3945.130 Safari/537.36 OPR/66.0.3515.95");
+                urlConnection.setRequestProperty("Cookie", authCookie);
+                urlConnection.setUseCaches(false);
+                urlConnection.setInstanceFollowRedirects(false);
+
+                BufferedReader in = new BufferedReader(
+                        new InputStreamReader(urlConnection.getInputStream())
+                );
+
+                StringBuilder response = new StringBuilder();
+                String currentLine;
+
+                try {
+                    while ((currentLine = in.readLine()) != null) response.append(currentLine);
+                    in.close();
+                } catch (IOException e) {
+                    System.out.println(e.toString());
+                }
+
+                responseBody = response.toString();
+                html = Jsoup.parse(responseBody);
+            } catch (Exception e) {
+                System.out.println("Problems with sheduleParsing request");
+                System.out.println(e.toString());
+            } finally {
+                if (urlConnection != null) {
+                    urlConnection.disconnect();
+                }
+            }
+
+            System.out.println("GetScheduleParsing Success!");
+
+            JSONArray scheduleRoot = new JSONArray();
+
+            try {
+                scheduleLessons.put(params[0][0], new JSONArray());
+//                System.out.println(scheduleLessons.toString());
+                scheduleRoot = scheduleLessons.getJSONArray(params[0][0]);
+
+            } catch (JSONException e) {
+                e.printStackTrace();
+            }
+
+            for (int i = 0; i < 6; i++) {
+
+                scheduleRoot.put(new JSONArray());
+
+                JSONArray scheduleRootLesson = new JSONArray();
+                try {
+                    scheduleRootLesson = scheduleRoot.getJSONArray(i);
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+
+                Element root = html.body().getElementsByClass("schedule-row-table").get(0).getElementsByClass("weekday-div").get(i);
+                Elements lessonRoot = root.getElementsByClass("period-tr");
+                for (Element elem : lessonRoot) {
+
+                    scheduleRootLesson.put(new JSONObject());
+
+                    String numberOfLesson = elem.select("div").get(0).text();
+                    numberOfLesson = numberOfLesson.split(" ")[0];
+
+                    String timeOfLessonStart = "";
+                    String timeOfLessonEnd = "";
+
+                    switch (numberOfLesson) {
+                        case "I": {
+                            timeOfLessonStart = "8:20";
+                            timeOfLessonEnd = "9:50";
+                            break;
+                        }
+                        case "II": {
+                            timeOfLessonStart = "10:00";
+                            timeOfLessonEnd = "11:30";
+                            break;
+                        }
+                        case "III": {
+                            timeOfLessonStart = "11:40";
+                            timeOfLessonEnd = "13:10";
+                            break;
+                        }
+                        case "IV": {
+                            timeOfLessonStart = "13:30";
+                            timeOfLessonEnd = "15:00";
+                            break;
+                        }
+                        case "V": {
+                            timeOfLessonStart = "15:20";
+                            timeOfLessonEnd = "16:50";
+                            break;
+                        }
+                        case "VI": {
+                            timeOfLessonStart = "17:00";
+                            timeOfLessonEnd = "18:30";
+                            break;
+                        }
+                    }
+                    String nameOfLesson = elem.getElementsByClass("lesson_td").get(0).select("div").get(0).text();
+                    String teacherOfLesson = elem.getElementsByClass("lesson_td").get(0).select("div").get(1).text();
+
+                    JSONObject scheduleRootLessonInformation = new JSONObject();
+                    try {
+                        scheduleRootLessonInformation = scheduleRootLesson.getJSONObject(scheduleRootLesson.length() - 1);
+                        scheduleRootLessonInformation.put("position", numberOfLesson);
+                        scheduleRootLessonInformation.put("start", timeOfLessonStart);
+                        scheduleRootLessonInformation.put("end", timeOfLessonEnd);
+                        scheduleRootLessonInformation.put("name", nameOfLesson);
+                        scheduleRootLessonInformation.put("teacher", teacherOfLesson);
+                    } catch (JSONException e) {
+                        e.printStackTrace();
+                    }
+
+                }
+
+            }
+
+//            JSONObject schedule = {
+
+//              "now": [ // week
+
+//                  [ // day
+//                      {position: "I", start: "10", end: "11", name: "name", teacher: "teacher"}, // lesson
+//                      {position: "II", start: "11", end: "12", name: "name", teacher: "teacher"}
+//                  ],
+//                  [ // day
+//                      {position: "I", start: "10", end: "11", name: "name", teacher: "teacher"}, // lesson
+//                      {position: "II", start: "11", end: "12", name: "name", teacher: "teacher"}
+//                  ]
+//
+//              ]
+
+//            };
+
+            System.out.println(scheduleLessons.toString());
+
+            return " ";
+        }
+
+        protected void onPostExecute(String result) {
+            super.onPostExecute(result);
+            onGetScheduleParsingRequestCompleted();
         }
     }
 
