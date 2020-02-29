@@ -9,6 +9,20 @@
 
 
     <RelativeLayout
+        android:id="@+id/loadingScreen"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="horizontal">
+        <TextView
+            android:id="@+id/loadingText"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerHorizontal="true"
+            android:layout_centerVertical="true"
+            android:text="loading, please wait" />
+    </RelativeLayout>
+
+    <RelativeLayout
         android:id="@+id/loginForm"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
@@ -60,6 +74,16 @@
         android:layout_marginTop="50dp"
 
         >
+
+
+        <ImageView
+            android:layout_marginLeft="50dp"
+            android:layout_marginTop="100dp"
+            android:id="@+id/profileImage"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:src="@drawable/ic_launcher_background"
+            />
 
         <ScrollView
             android:layout_width="match_parent"
@@ -257,6 +281,8 @@
             android:layout_marginLeft="300dp"
             android:text="exit()" />
     </LinearLayout>
+
+
 
 
 </RelativeLayout>

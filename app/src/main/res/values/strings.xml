@@ -3,4 +3,5 @@
     <string name="loginFormLogin">login</string>
     <string name="loginFormPassword">password</string>
     <string name="loginFormSubmit">войти</string>
+    <string name="title_activity_test">Test</string>
 </resources>

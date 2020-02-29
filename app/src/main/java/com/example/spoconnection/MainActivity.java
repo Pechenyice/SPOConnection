@@ -3,12 +3,18 @@ package com.example.spoconnection;
 
 import androidx.appcompat.app.AppCompatActivity;
 
+import android.content.Context;
+import android.content.SharedPreferences;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.graphics.drawable.BitmapDrawable;
 import android.os.Bundle;
 import android.os.AsyncTask;
 import android.view.View;
 import android.view.Window;
 import android.view.WindowManager;
 import android.widget.Button;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
@@ -24,19 +30,25 @@ import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 
 import java.io.BufferedReader;
+import java.io.ByteArrayOutputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
+import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLDecoder;
 
 import java.nio.charset.Charset;
 
+import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
-import java.util.Map;
+
+//import com.example.spoconnection.Functions;
+
 
 /*
     TODO
@@ -50,6 +62,8 @@ import java.util.Map;
 */
 
 public class MainActivity extends AppCompatActivity {
+
+    final long COOKIE_LIFETIME = 100; // в минутах. На самом деле 120 минут.
 
     // Переменные, получаемые с запросов
 
@@ -116,6 +130,8 @@ public class MainActivity extends AppCompatActivity {
     Boolean nowWeekScheduleCalled = false;
     Boolean nextWeekScheduleCalled = false;
 
+    Boolean appFirstRun = false;
+
 
     // контейнеры
 
@@ -129,35 +145,19 @@ public class MainActivity extends AppCompatActivity {
     public RelativeLayout lessonsInformationScreen;
     public LinearLayout userHelpScreen;
     public LinearLayout notificationListScreen;
+    public RelativeLayout loadingScreen;
 
 
     // массив расписания
     JSONObject scheduleLessons = new JSONObject();
 
     // номер группы пользователя
-    String groupNumber;
+    String studentGroup;
+    String studentFIO;
+    String studentAvatarSrc;
 
-    // номер группы для запроса
-
-    private String getGroupURLAddressByName(String name) { // "Y2234"
-        switch (name) {
-            case "Y2231": return "g6"; case "Y2232": return "g7";
-            case "Y2233": return "g8"; case "Y2234": return "g9";
-            case "Y2235": return "g10"; case "Y2236": return "g66";
-            case "Y2237": return "g67"; case "Y2238": return "g68";
-
-            case "Y2331": return "g11"; case "Y2333": return "g13";
-            case "Y2334": return "g14"; case "Y2335": return "g15";
-            case "Y2336": return "g70"; case "Y2337": return "g71";
-            case "Y2338": return "g72"; case "Y2339": return "g2760";
-
-            case "Y2431": return "g16"; case "Y2432": return "g17";
-            case "Y2433": return "g18"; case "Y2434": return "g19";
-            case "Y2435": return "g20"; case "Y2436": return "g31";
-            case "Y2437": return "g74"; case "Y2438": return "g75";
-        }
-        return "";
-    }
+    SharedPreferences preferences;
+    SharedPreferences.Editor preferencesEditor;
 
 
     @Override
@@ -181,6 +181,7 @@ public class MainActivity extends AppCompatActivity {
         lessonsInformationScreen = findViewById(R.id.lessonsInformationScreen);
         userHelpScreen = findViewById(R.id.userHelp);
         notificationListScreen = findViewById(R.id.notificationListScreen);
+        loadingScreen = findViewById(R.id.loadingScreen);
 
         // локальные кнопки экранов
 
@@ -225,25 +226,122 @@ public class MainActivity extends AppCompatActivity {
         main.removeView(lessonsInformationScreen);
         main.removeView(userHelpScreen);
         main.removeView(notificationListScreen);
-
-        // получаем данные для отправки запроса
-
-        final TextInputEditText login = findViewById(R.id.loginFormLogin);
-        final TextInputEditText password = findViewById(R.id.loginFormPassword);
-        final Button submit = findViewById(R.id.loginFormSubmit);
+        main.removeView(loginForm);
+        activeContainer = ContainerName.LOADING;
 
 
-        submit.setOnClickListener(new View.OnClickListener() {
+        preferences = MainActivity.this.getPreferences(Context.MODE_PRIVATE);
 
-            // отправляем запрос
-            @Override
-            public void onClick(View v) {
-                sendLoginRequest(new String[] {
-                        login.getText().toString(),
-                        password.getText().toString()
+        appFirstRun = preferences.getBoolean("appFirstRun", true);
+        // первый запуск
+        if (appFirstRun) {
+
+            setContainer(ContainerName.LOGIN);
+
+            // получаем данные для отправки запроса
+
+            final TextInputEditText login = findViewById(R.id.loginFormLogin);
+            final TextInputEditText password = findViewById(R.id.loginFormPassword);
+            final Button submit = findViewById(R.id.loginFormSubmit);
+
+
+            submit.setOnClickListener(new View.OnClickListener() {
+
+                // отправляем запрос
+                @Override
+                public void onClick(View v) {
+                    sendLoginRequest(new String[] {
+                            login.getText().toString(),
+                            password.getText().toString()
+                    });
+                }
+            });
+
+            System.out.println("App first run");
+            preferencesEditor = preferences.edit();
+
+            preferencesEditor.putBoolean("appFirstRun", false);
+            preferencesEditor.apply();
+        } else {
+            System.out.println("Not app first run");
+            String lastLoginRequestTime = preferences.getString("lastLoginRequest", "");
+
+            // есть дата последнего входа в аккаунт
+            if (!lastLoginRequestTime.isEmpty()) {
+                Date loginRequestDate = null;
+                Date currentDate;
+
+                try { loginRequestDate = new SimpleDateFormat("dd-MM-yyyy HH:mm:ss").parse(lastLoginRequestTime); }
+                catch (ParseException e) {}
+                currentDate = new Date();
+                System.out.println(new SimpleDateFormat("dd-MM-yyyy HH:mm:ss").format(currentDate));
+
+                long minutesBetweenDates = ((currentDate.getTime() / 60000) - (loginRequestDate.getTime() / 60000));
+                System.out.println(currentDate);
+                System.out.println(loginRequestDate);
+                System.out.println(lastLoginRequestTime);
+                System.out.println("Last login request was " + minutesBetweenDates + " minutes ago");
+
+                // вход был выполнен более COOKIE_LIFETIME минут назад, тогда нужно сделать запрос заново
+                if ( minutesBetweenDates >= COOKIE_LIFETIME) {
+
+                    setContainer(ContainerName.LOGIN);
+
+                    System.out.println("Cookie lifetime is more then" + COOKIE_LIFETIME + " minutes. Sending new login request");
+
+                    String name = preferences.getString("studentName", "");
+                    String password = preferences.getString("studentPassword", "");
+
+                    studentGroup = preferences.getString("studentGroup", "");
+                    studentFIO = preferences.getString("studentFIO", "");
+                    studentAvatarSrc = preferences.getString("studentAvatarSrc", "");
+                    getProfileParsingRequestStatus = RequestStatus.COMPLETED;
+
+                    sendLoginRequest(new String[] { name, password });
+                // иначе пропускаем вход в аккаунт
+                } else {
+                    System.out.println("Cookie lifetime is less then" + COOKIE_LIFETIME + " minutes. Continue");
+                    authCookie = preferences.getString("authCookie", "");
+                    studentId = Functions.getStudentIdFromCookie(authCookie);
+
+                    studentGroup = preferences.getString("studentGroup", "");
+                    studentFIO = preferences.getString("studentFIO", "");
+                    studentAvatarSrc = preferences.getString("studentAvatarSrc", "");
+                    getProfileParsingRequestStatus = RequestStatus.COMPLETED;
+
+                    Date date = new Date();
+                    String year = new SimpleDateFormat("yyyy").format(date);
+                    String month = new SimpleDateFormat("MM").format(date);
+                    String day = new SimpleDateFormat("dd").format(date);
+
+                    sendGetStudentMainDataRequest(new String[]{ year, month });
+                    sendGetExercisesByDayRequest(new String[] { year + "-" + month + "-" + day }); // 2020-02-26
+                }
+
+            } else {
+                setContainer(ContainerName.LOGIN);
+
+                final TextInputEditText login = findViewById(R.id.loginFormLogin);
+                final TextInputEditText password = findViewById(R.id.loginFormPassword);
+                final Button submit = findViewById(R.id.loginFormSubmit);
+
+
+                submit.setOnClickListener(new View.OnClickListener() {
+
+                    // отправляем запрос
+                    @Override
+                    public void onClick(View v) {
+                        sendLoginRequest(new String[] {
+                                login.getText().toString(),
+                                password.getText().toString()
+                        });
+                    }
                 });
+
+                System.out.println("App first login");
             }
-        });
+        }
+
 
     }
 
@@ -252,6 +350,7 @@ public class MainActivity extends AppCompatActivity {
     // Функции по отправке запроса. Их нужно вызывать при жедании сделать запрос
 
     private void sendLoginRequest(String[] params) {
+        setContainer(ContainerName.LOADING);
         loginRequest request = new loginRequest();
         loginRequestStatus = RequestStatus.CALLED;
         request.execute(params);
@@ -296,14 +395,29 @@ public class MainActivity extends AppCompatActivity {
 
     // Колбеки, которые вызываются при завершении определенного запроса
 
-    public void onLoginRequestCompleted(String cookie) {
-        if (cookie != "") {
+    public void onLoginRequestCompleted(String[] response) {
+        String cookie = response[0];
+        String studentName = response[1];
+        String studentPassword = response[2];
+
+        if (!cookie.isEmpty()) {
             loginRequestStatus = RequestStatus.COMPLETED;
 
             authCookie = cookie;
+            studentId = Functions.getStudentIdFromCookie(authCookie);
 
             System.out.println("Login success!");
             System.out.println("AuthCookie: " + authCookie);
+
+            preferences = MainActivity.this.getPreferences(Context.MODE_PRIVATE);
+            preferencesEditor = preferences.edit();
+
+            String currentDate = new SimpleDateFormat("dd-MM-yyyy HH:mm:ss").format(new Date());
+            preferencesEditor.putString("lastLoginRequest", currentDate);
+            preferencesEditor.putString("authCookie", authCookie);
+            preferencesEditor.putString("studentName", studentName);
+            preferencesEditor.putString("studentPassword", studentPassword);
+            preferencesEditor.apply();
 
             // После входа в акк загружаем предметы, учителей и пары за сегодня
 
@@ -314,7 +428,7 @@ public class MainActivity extends AppCompatActivity {
 
             sendGetStudentMainDataRequest(new String[]{ year, month });
             sendGetExercisesByDayRequest(new String[] { year + "-" + month + "-" + day }); // 2020-02-26
-            sendGetProfileParsingRequest();
+            if (getProfileParsingRequestStatus != RequestStatus.COMPLETED) sendGetProfileParsingRequest();
 
         } else {
             loginRequestStatus = RequestStatus.EMPTY_RESPONSE;
@@ -322,9 +436,13 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
+
     public void onGetStudentMainDataRequestCompleted(String responseBody) {
         if (responseBody != "") {
             getStudentMainDataRequestStatus = RequestStatus.COMPLETED;
+
+
+
 
             System.out.println("GetStudentMainData Success!");
             JSONObject jsonData;
@@ -363,10 +481,16 @@ public class MainActivity extends AppCompatActivity {
             JSONObject jsonData;
             try {
                 jsonData = new JSONObject(responseBody);
+                System.out.println(jsonData.toString());
 
                 exercisesByDay = jsonData.getJSONArray("todayExercises");
-                exercisesVisitsByDay = jsonData.getJSONObject("todayExercisesVisits");
 
+                System.out.println(jsonData.get("todayExercisesVisits"));
+
+                if (!jsonData.get("todayExercisesVisits").equals(null))
+                    exercisesVisitsByDay = jsonData.getJSONObject("todayExercisesVisits");
+                else
+                    exercisesVisitsByDay = new JSONObject();
                 System.out.println("TodayExercises: " + exercisesByDay.toString());
                 System.out.println("TodayExercisesVisits: " + exercisesVisitsByDay.toString());
 
@@ -376,7 +500,7 @@ public class MainActivity extends AppCompatActivity {
                 }
 
             } catch (JSONException e) {
-
+                System.out.println(e.toString());
             }
         } else {
             getExercisesByDayRequestStatus = RequestStatus.EMPTY_RESPONSE;
@@ -534,7 +658,7 @@ public class MainActivity extends AppCompatActivity {
                             lp.setMargins(25, 25, 25, 50);
                             TextView note = new TextView(getApplicationContext());
                             note.setLayoutParams(lp);
-                            note.setText( (i+1) + " пост (" + new Date(Long.parseLong(tmp.getString("date"))*1000 + 3*3600*1000) + "):    " + tmp.getString("text"));
+                            note.setText( (i+1) + " пост (" + new Date(Long.parseLong(tmp.getString("date"))*1000) + "):    " + tmp.getString("text"));
                             LinearLayout notificationList = findViewById(R.id.notificationList);
                             notificationList.addView(note);
                         }
@@ -556,29 +680,39 @@ public class MainActivity extends AppCompatActivity {
 
     public void onGetProfileParsingRequestCompleted (String[] response){
 
-        // ошибку пока хз как ловить, лень разбираться
+        String studentFIO = response[0];
+        String studentGroup = response[1];
 
-//        if (responseBody != "") {
-        getProfileParsingRequestStatus = RequestStatus.COMPLETED;
+        if ( !(studentFIO.isEmpty() || studentGroup.isEmpty()) ) {
+            getProfileParsingRequestStatus = RequestStatus.COMPLETED;
+
+            preferences = MainActivity.this.getPreferences(Context.MODE_PRIVATE);
+            preferencesEditor = preferences.edit();
+
+            preferencesEditor.putString("studentFIO", studentFIO);
+            preferencesEditor.putString("studentGroup", studentGroup);
+            preferencesEditor.putString("studentAvatarSrc", studentAvatarSrc);
+            preferencesEditor.apply();
+
+            this.studentFIO = studentFIO;
+            this.studentGroup = studentGroup;
+
+//            System.out.println(response[0]); // fio
+//            System.out.println(response[1]); // group
 
 
-        System.out.println(response[0]); // fio
-        System.out.println(response[1]); // group
-
-
-        if (getExercisesByDayRequestStatus == RequestStatus.COMPLETED && getStudentMainDataRequestStatus == RequestStatus.COMPLETED && !buildFrontendCalled) {
-            buildFrontendCalled = true;
-            buildFrontend();
+            if (getExercisesByDayRequestStatus == RequestStatus.COMPLETED && getStudentMainDataRequestStatus == RequestStatus.COMPLETED && !buildFrontendCalled) {
+                buildFrontendCalled = true;
+                buildFrontend();
+            }
+        } else {
+            getExercisesByDayRequestStatus = RequestStatus.EMPTY_RESPONSE;
+            System.out.println("ProfileParsing Failure!");
         }
-
-//        } else {
-//            getExercisesByDayRequestStatus = RequestStatus.EMPTY_RESPONSE;
-//            System.out.println("GetExercisesByDay Failure!");
-//        }
     }
 
     public void onGetScheduleParsingRequestCompleted(String param) {
-        if (getVKWallPostsRequestStatus == RequestStatus.COMPLETED && activeContainer == ContainerName.SCHEDULE) {
+        if (getScheduleParsingRequestStatus == RequestStatus.COMPLETED && activeContainer == ContainerName.SCHEDULE) {
 
             LinearLayout box = findViewById(R.id.scheduleList);
             box.removeAllViews();
@@ -659,13 +793,13 @@ public class MainActivity extends AppCompatActivity {
     // Сами асинхронные запросы
 
     // [name, password]
-    class loginRequest extends AsyncTask<String[], Void, String> {
+    class loginRequest extends AsyncTask<String[], Void, String[]> {
 
         @Override
-        protected String doInBackground(String[]... params) { // params[0][0] - name, params[0][1] - password
+        protected String[] doInBackground(String[]... params) { // params[0][0] - name, params[0][1] - password
             URL url;
             HttpURLConnection urlConnection = null;
-            String authCookie = "";
+            String cookie = "";
 
             try {
                 String url_address = "https://ifspo.ifmo.ru/";
@@ -693,11 +827,7 @@ public class MainActivity extends AppCompatActivity {
                 Integer cookies_count = cookies.size();
 
                 if (cookies_count > 1) {
-                    authCookie = cookies.get(cookies_count - 1);
-
-                    String[] decoded_cookie = URLDecoder.decode(authCookie).split("s:");
-                    String userIdDirty = decoded_cookie[decoded_cookie.length - 5].split(":")[1];
-                    studentId = userIdDirty.substring(1, userIdDirty.length() - 2);
+                    cookie = cookies.get(cookies_count - 1);
                 }
             } catch (Exception e) {
                 System.out.println("Problems with login request");
@@ -708,26 +838,35 @@ public class MainActivity extends AppCompatActivity {
                 }
             }
 
-            return authCookie;
+            return new String[] { cookie, params[0][0], params[0][1] };
         }
 
         @Override
-        protected void onPostExecute(String result) {
+        protected void onPostExecute(String[] result) {
             super.onPostExecute(result);
             onLoginRequestCompleted(result);
         }
     }
 
 
-
-
     // [year, month]
     class getStudentMainDataRequest extends AsyncTask<String[], Void, String> {
 
         protected String doInBackground(String[]... params) { // params[0][0] - year, params[0][1] - month
-            URL url;
             HttpURLConnection urlConnection = null;
             String responseBody = "";
+
+
+            // создаем мап для картинки
+
+            try {
+                bitmap = BitmapFactory.decodeStream((InputStream)new URL("https://ifspo.ifmo.ru" + studentAvatarSrc).getContent());
+            } catch (MalformedURLException e) {
+                e.printStackTrace();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+
 
             try {
                 String url_address = "https://ifspo.ifmo.ru/profile/getStudentLessonsVisits"
@@ -735,37 +874,14 @@ public class MainActivity extends AppCompatActivity {
                         + "&dateyear=" + params[0][0]
                         + "&datemonth=" + params[0][1];
 
-                url = new URL(url_address);
-                urlConnection = (HttpURLConnection) url.openConnection();
+                urlConnection = Functions.setupGetAuthRequest(url_address, authCookie);
+                responseBody = Functions.getResponseFromGetRequest(urlConnection);
 
-                urlConnection.setRequestMethod("GET");
-                urlConnection.setRequestProperty("User-Agent", "Mozilla/5.0 (Windows NT 6.3; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/79.0.3945.130 Safari/537.36 OPR/66.0.3515.95");
-                urlConnection.setRequestProperty("Cookie", authCookie);
-                urlConnection.setUseCaches(false);
-                urlConnection.setInstanceFollowRedirects(false);
-
-                BufferedReader in = new BufferedReader(
-                        new InputStreamReader(urlConnection.getInputStream())
-                );
-
-                StringBuilder response = new StringBuilder();
-                String currentLine;
-
-                try {
-                    while ((currentLine = in.readLine()) != null) response.append(currentLine);
-                    in.close();
-                } catch (IOException e) {
-                    System.out.println(e.toString());
-                }
-
-                responseBody = response.toString();
             } catch (Exception e) {
                 System.out.println("Problems with getStudentMainData request");
                 System.out.println(e.toString());
             } finally {
-                if (urlConnection != null) {
-                    urlConnection.disconnect();
-                }
+                if (urlConnection != null) urlConnection.disconnect();
             }
             return responseBody;
         }
@@ -779,7 +895,6 @@ public class MainActivity extends AppCompatActivity {
     // [lessonId]
     class getExercisesByLessonRequest extends AsyncTask <String[], Void, String[]> {
         protected String[] doInBackground(String[]... params) { // params[0][0] - lesson_id (String)
-            URL url;
             HttpURLConnection urlConnection = null;
             String responseBody = "";
 
@@ -787,37 +902,15 @@ public class MainActivity extends AppCompatActivity {
                 String url_address = "https://ifspo.ifmo.ru/journal/getStudentExercisesByLesson"
                         + "?lesson=" + params[0][0]
                         + "&student=" + studentId;
-                url = new URL(url_address);
-                urlConnection = (HttpURLConnection) url.openConnection();
 
-                urlConnection.setRequestMethod("GET");
-                urlConnection.setRequestProperty("User-Agent", "Mozilla/5.0 (Windows NT 6.3; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/79.0.3945.130 Safari/537.36 OPR/66.0.3515.95");
-                urlConnection.setRequestProperty("Cookie", authCookie);
-                urlConnection.setUseCaches(false);
-                urlConnection.setInstanceFollowRedirects(false);
+                urlConnection = Functions.setupGetAuthRequest(url_address, authCookie);
+                responseBody = Functions.getResponseFromGetRequest(urlConnection);
 
-                BufferedReader in = new BufferedReader(
-                        new InputStreamReader(urlConnection.getInputStream())
-                );
-
-                StringBuilder response = new StringBuilder();
-                String currentLine;
-
-                try {
-                    while ((currentLine = in.readLine()) != null) response.append(currentLine);
-                    in.close();
-                } catch (IOException e) {
-                    System.out.println(e.toString());
-                }
-
-                responseBody = response.toString();
             } catch (Exception e) {
-                System.out.println("Problems with getExercisesByLesson request");
+                System.out.println("Problems with getStudentMainData request");
                 System.out.println(e.toString());
             } finally {
-                if (urlConnection != null) {
-                    urlConnection.disconnect();
-                }
+                if (urlConnection != null) urlConnection.disconnect();
             }
             return new String[] {responseBody, params[0][0]};
         }
@@ -828,11 +921,10 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-
     // [date <yyyy-mm-dd>]
     class getExercisesByDayRequest extends AsyncTask <String[], Void, String> {
+
         protected String doInBackground(String[]... params) { // params[0][0] - date <yyyy-mm-dd>
-            URL url;
             HttpURLConnection urlConnection = null;
             String responseBody = "";
 
@@ -841,37 +933,14 @@ public class MainActivity extends AppCompatActivity {
                         + "?student=" + studentId
                         + "&day=" + params[0][0];
 
-                url = new URL(url_address);
-                urlConnection = (HttpURLConnection) url.openConnection();
+                urlConnection = Functions.setupGetAuthRequest(url_address, authCookie);
+                responseBody = Functions.getResponseFromGetRequest(urlConnection);
 
-                urlConnection.setRequestMethod("GET");
-                urlConnection.setRequestProperty("User-Agent", "Mozilla/5.0 (Windows NT 6.3; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/79.0.3945.130 Safari/537.36 OPR/66.0.3515.95");
-                urlConnection.setRequestProperty("Cookie", authCookie);
-                urlConnection.setUseCaches(false);
-                urlConnection.setInstanceFollowRedirects(false);
-
-                BufferedReader in = new BufferedReader(
-                        new InputStreamReader(urlConnection.getInputStream())
-                );
-
-                StringBuilder response = new StringBuilder();
-                String currentLine;
-
-                try {
-                    while ((currentLine = in.readLine()) != null) response.append(currentLine);
-                    in.close();
-                } catch (IOException e) {
-                    System.out.println(e.toString());
-                }
-
-                responseBody = response.toString();
             } catch (Exception e) {
-                System.out.println("Problems with getExercisesByDay request");
+                System.out.println("Problems with getStudentMainData request");
                 System.out.println(e.toString());
             } finally {
-                if (urlConnection != null) {
-                    urlConnection.disconnect();
-                }
+                if (urlConnection != null) urlConnection.disconnect();
             }
             return responseBody;
         }
@@ -884,8 +953,8 @@ public class MainActivity extends AppCompatActivity {
 
     // [postsCount]
     class getVKWallPostsRequest extends AsyncTask <String[], Void, String> { // params[0][0] - posts count
+
         protected String doInBackground(String[]... params) {
-            URL url;
             HttpURLConnection urlConnection = null;
             String responseBody = "";
 
@@ -894,35 +963,14 @@ public class MainActivity extends AppCompatActivity {
                         + "&count=" + params[0][0]
                         + "&filter=owner&access_token=c2cb19e3c2cb19e3c2cb19e339c2a4f3d6cc2cbc2cb19e39c9fe125dc37c9d4bb7994cd&v=5.103";
 
-                url = new URL(url_address);
-                urlConnection = (HttpURLConnection) url.openConnection();
+                urlConnection = Functions.setupGetAuthRequest(url_address, authCookie);
+                responseBody = Functions.getResponseFromGetRequest(urlConnection);
 
-                urlConnection.setRequestMethod("GET");
-                urlConnection.setUseCaches(false);
-                urlConnection.setInstanceFollowRedirects(false);
-
-                BufferedReader in = new BufferedReader(
-                        new InputStreamReader(urlConnection.getInputStream())
-                );
-
-                StringBuilder response = new StringBuilder();
-                String currentLine;
-
-                try {
-                    while ((currentLine = in.readLine()) != null) response.append(currentLine);
-                    in.close();
-                } catch (IOException e) {
-                    System.out.println(e.toString());
-                }
-
-                responseBody = response.toString();
             } catch (Exception e) {
-                System.out.println("Problems with vk request");
+                System.out.println("Problems with getStudentMainData request");
                 System.out.println(e.toString());
             } finally {
-                if (urlConnection != null) {
-                    urlConnection.disconnect();
-                }
+                if (urlConnection != null) urlConnection.disconnect();
             }
             return responseBody;
         }
@@ -934,11 +982,11 @@ public class MainActivity extends AppCompatActivity {
     }
 
 
+    Bitmap bitmap; // картинка профиля
 
     class getProfileParsingRequest extends AsyncTask<Void, Void, String[]> { //FIO, GROUP
 
         protected String[] doInBackground(Void... params) {
-            URL url;
             HttpURLConnection urlConnection = null;
             String responseBody = "";
             Document html = new Document(responseBody);
@@ -946,33 +994,100 @@ public class MainActivity extends AppCompatActivity {
             try {
                 String url_address = "https://ifspo.ifmo.ru/profile";
 
-                url = new URL(url_address);
+                urlConnection = Functions.setupGetAuthRequest(url_address, authCookie);
+                responseBody = Functions.getResponseFromGetRequest(urlConnection);
+
+                html = Jsoup.parse(responseBody);
+
+            } catch (Exception e) {
+                System.out.println("Problems with GetProfileParsing request");
+                System.out.println(e.toString());
+            } finally {
+                if (urlConnection != null) urlConnection.disconnect();
+            }
+
+            System.out.println("GetProfileParsing Success!");
+
+            String studentFIO = "";
+            String studentGroup = "";
+            String avatarSrc = "";
+            Element row;
+
+            Integer bodyRowsCount = html.body().getElementsByClass("row").size();
+            if (bodyRowsCount > 1) {
+                row = html.body().getElementsByClass("row").get(1);
+            } else {
+                row = html.body().getElementsByClass("row").get(0);
+            }
+
+            studentFIO = row.getElementsByClass("span9").select("h3").get(0).text();
+            studentGroup = row.getElementsByClass("span9").get(0)
+                    .getElementsByClass("row").get(0)
+                    .getElementsByClass("span3").select("ul").select("li").last().text();
+            avatarSrc = row.getElementsByClass("span3").get(0)
+                    .getElementsByClass("showchange").get(0)
+                    .getElementsByTag("img").get(0).attr("src");
+
+            studentAvatarSrc = avatarSrc;
+
+            // создаем мап для картинки
+
+            try {
+                bitmap = BitmapFactory.decodeStream((InputStream)new URL("https://ifspo.ifmo.ru" + studentAvatarSrc).getContent());
+            } catch (MalformedURLException e) {
+                e.printStackTrace();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+
+            String[] groupContent = studentGroup.split(" ");
+
+//            System.out.println(studentGroup);
+//            JSONObject week = {"now": [{{"1", "10-11 30", "matan"}, {"2", "11 30 - 13 00", "matan"}}, { {} {} }]};
+
+//            try {
+//                String url_address = "https://ifspo.ifmo.ru" + avatarSrc;
+//
+//                urlConnection = Functions.setupGetAuthRequest(url_address, authCookie);
+//                responseBody = Functions.getResponseFromGetRequest(urlConnection);
+//
+//                System.out.println(responseBody);
+//
+//            } catch (Exception e) {
+//                System.out.println("Problems with ProfileParsing (Avatar) request");
+//                System.out.println(e.toString());
+//            } finally {
+//                if (urlConnection != null) urlConnection.disconnect();
+//            }
+
+            try {
+                String url_address = "https://ifspo.ifmo.ru/profile/getStudentStatistics";
+                URL url = new URL(url_address);
                 urlConnection = (HttpURLConnection) url.openConnection();
 
-                urlConnection.setRequestMethod("GET");
+                String urlParameters = "student_id=" + studentId;
+                byte[] postData = urlParameters.getBytes(Charset.forName("UTF-8"));
+                int postDataLength = postData.length;
+
+                urlConnection.setRequestMethod("POST");
+                urlConnection.setRequestProperty("Content-Type", "application/x-www-form-urlencoded; charset=UTF-8");
                 urlConnection.setRequestProperty("User-Agent", "Mozilla/5.0 (Windows NT 6.3; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/79.0.3945.130 Safari/537.36 OPR/66.0.3515.95");
+                urlConnection.setRequestProperty("Content-Length", Integer.toString(postDataLength));
+                urlConnection.setRequestProperty("Accept", "text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.9");
                 urlConnection.setRequestProperty("Cookie", authCookie);
+                urlConnection.setDoOutput(true);
                 urlConnection.setUseCaches(false);
                 urlConnection.setInstanceFollowRedirects(false);
 
-                BufferedReader in = new BufferedReader(
-                        new InputStreamReader(urlConnection.getInputStream())
-                );
-
-                StringBuilder response = new StringBuilder();
-                String currentLine;
-
-                try {
-                    while ((currentLine = in.readLine()) != null) response.append(currentLine);
-                    in.close();
-                } catch (IOException e) {
-                    System.out.println(e.toString());
+                try (DataOutputStream wr = new DataOutputStream(urlConnection.getOutputStream())) {
+                    wr.write(postData);
                 }
 
-                responseBody = response.toString();
-                html = Jsoup.parse(responseBody);
+                responseBody = Functions.getResponseFromGetRequest(urlConnection);
+                System.out.println(responseBody);
+
             } catch (Exception e) {
-                System.out.println("Problems with profileParsing request");
+                System.out.println("Problems with statistics request");
                 System.out.println(e.toString());
             } finally {
                 if (urlConnection != null) {
@@ -980,17 +1095,7 @@ public class MainActivity extends AppCompatActivity {
                 }
             }
 
-            System.out.println("GetProfileParsing Success!");
-
-            String FIO = html.body().getElementsByClass("row").get(0).getElementsByClass("span9").select("h3").get(0).text();
-            String GROUP = html.body().getElementsByClass("row").get(0).getElementsByClass("span9").get(0).getElementsByClass("row").get(0).getElementsByClass("span3").select("ul").select("li").last().text();
-            String[] groupContent = GROUP.split(" ");
-            groupNumber = getGroupURLAddressByName(groupContent[0]);
-
-//            System.out.println(groupNumber);
-//            JSONObject week = {"now": [{{"1", "10-11 30", "matan"}, {"2", "11 30 - 13 00", "matan"}}, { {} {} }]};
-
-            return new String[] {FIO, groupContent[0]};
+            return new String[] {studentFIO, Functions.getGroupIdByName(groupContent[0]) };
         }
 
         protected void onPostExecute(String[] result) {
@@ -999,8 +1104,6 @@ public class MainActivity extends AppCompatActivity {
 
         }
     }
-
-
 
 
     class getScheduleParsingRequest extends AsyncTask<String[], Void, String> { // Void на самом деле
@@ -1012,7 +1115,7 @@ public class MainActivity extends AppCompatActivity {
             Document html = new Document(responseBody);
 
             try {
-                String url_address = "https://ifspo.ifmo.ru/schedule/get?num=" + groupNumber + "&week=" + params[0][0];
+                String url_address = "https://ifspo.ifmo.ru/schedule/get?num=" + studentGroup + "&week=" + params[0][0];
 
                 url = new URL(url_address);
                 urlConnection = (HttpURLConnection) url.openConnection();
@@ -1142,7 +1245,7 @@ public class MainActivity extends AppCompatActivity {
 
         protected void onPostExecute(String result) {
             super.onPostExecute(result);
-            getVKWallPostsRequestStatus = RequestStatus.COMPLETED;
+            getScheduleParsingRequestStatus = RequestStatus.COMPLETED;
             onGetScheduleParsingRequestCompleted(result);
         }
     }
@@ -1183,8 +1286,88 @@ public class MainActivity extends AppCompatActivity {
 
     // переменная для мониторинга активного контейнера
 
-    enum ContainerName { PROFILE, HOME, SCHEDULE, LESSONS, LESSONS_INFORMATION, NOTIFICATION }
+    enum ContainerName { PROFILE, HOME, SCHEDULE, LESSONS, LESSONS_INFORMATION, NOTIFICATION, LOADING, LOGIN }
     ContainerName activeContainer;
+
+
+    public void setContainer(ContainerName newContainer) { // функция обновления активного контейнера
+        switch (activeContainer) {
+            case PROFILE: {
+                main.removeView(profileScreen);
+                break;
+            }
+            case HOME: {
+                main.removeView(homeScreen);
+                break;
+            }
+            case SCHEDULE: {
+                main.removeView(scheduleScreen);
+                break;
+            }
+            case LESSONS: {
+                main.removeView(lessonsScreen);
+                break;
+            }
+            case LESSONS_INFORMATION: {
+                main.removeView(lessonsInformationScreen);
+                break;
+            }
+            case NOTIFICATION: {
+                main.removeView(notificationListScreen);
+                break;
+            }
+            case LOGIN: {
+                main.removeView(loginForm);
+                break;
+            }
+            case LOADING: {
+                main.removeView(loadingScreen);
+            }
+        }
+
+        switch (newContainer) {
+            case PROFILE: {
+                main.addView(profileScreen);
+                activeContainer = ContainerName.PROFILE;
+                break;
+            }
+            case HOME: {
+                main.addView(homeScreen);
+                activeContainer = ContainerName.HOME;
+                break;
+            }
+            case SCHEDULE: {
+                main.addView(scheduleScreen);
+                activeContainer = ContainerName.SCHEDULE;
+                break;
+            }
+            case LESSONS: {
+                main.addView(lessonsScreen);
+                activeContainer = ContainerName.LESSONS;
+                break;
+            }
+            case LESSONS_INFORMATION: {
+                main.addView(lessonsInformationScreen);
+                activeContainer = ContainerName.LESSONS_INFORMATION;
+                break;
+            }
+            case NOTIFICATION: {
+                main.addView(notificationListScreen);
+                activeContainer = ContainerName.NOTIFICATION;
+                break;
+            }
+            case LOGIN: {
+                main.addView(loginForm);
+                activeContainer = ContainerName.LOGIN;
+                break;
+            }
+            case LOADING: {
+                main.addView(loadingScreen);
+                activeContainer = ContainerName.LOADING;
+            }
+        }
+    }
+
 
     /*
     Какие запросы, для каких сцен:
@@ -1258,15 +1441,18 @@ public class MainActivity extends AppCompatActivity {
         main.removeView(lessonsScreen);
 
         // убираем регистрацию и подрубаем стартовый экран
-
+        main.removeView(loadingScreen);
         main.removeView(loginForm);
-        main.addView(profileScreen);
+        setContainer(ContainerName.PROFILE);
         main.addView(navigation);
         main.addView(userHelpScreen);
 
-        // делаем активным контейнер profile
+        // инициализируем картинку
 
-        activeContainer = ContainerName.PROFILE;
+        ImageView img = (ImageView) findViewById(R.id.profileImage);
+        img.setImageBitmap(bitmap);
+        img.setScaleType(ImageView.ScaleType.FIT_XY);
+
 
         // создаем слушатели для кнопок
 
@@ -1292,6 +1478,13 @@ public class MainActivity extends AppCompatActivity {
 
         scheduleChanges.setOnClickListener(wasClicked);
 
+        // под удаление - вывод инфы о юзере
+
+        TextView text = new TextView(this);
+        LinearLayout.LayoutParams lpText = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.WRAP_CONTENT);
+        lpText.setMargins(50,50,50,50);
+        text.setText(studentFIO + " - " + studentGroup);
+        profileScreen.addView(text);
 
         final LinearLayout todayLessonsView = (LinearLayout) findViewById(R.id.todayLessonsView);
 
@@ -1364,30 +1557,22 @@ public class MainActivity extends AppCompatActivity {
 
             switch (activeContainer) {
                 case PROFILE: {
-                    if (v.getId() == profile.getId()) {
-                        return;
-                    }
+                    if (v.getId() == profile.getId()) return;
                     main.removeView(profileScreen);
                     break;
                 }
                 case HOME: {
-                    if (v.getId() == home.getId()) {
-                        return;
-                    }
+                    if (v.getId() == home.getId()) return;
                     main.removeView(homeScreen);
                     break;
                 }
                 case SCHEDULE: {
-                    if (v.getId() == schedule.getId()) {
-                        return;
-                    }
+                    if (v.getId() == schedule.getId()) return;
                     main.removeView(scheduleScreen);
                     break;
                 }
                 case LESSONS: {
-                    if (v.getId() == lessons.getId()) {
-                        return;
-                    }
+                    if (v.getId() == lessons.getId()) return;
                     main.removeView(lessonsScreen);
                     break;
                 }
@@ -1395,11 +1580,8 @@ public class MainActivity extends AppCompatActivity {
                     main.removeView(lessonsInformationScreen);
                     break;
                 }
-
                 case NOTIFICATION: {
-                    if (v.getId() == userHelp.getId()) {
-                        return;
-                    }
+                    if (v.getId() == userHelp.getId()) return;
                     main.removeView(notificationListScreen);
                     break;
                 }
@@ -1409,32 +1591,27 @@ public class MainActivity extends AppCompatActivity {
 
             if (v.getId() == home.getId()) {
                 System.out.println("You clicked home");
-                activeContainer = ContainerName.HOME;
-                main.addView(homeScreen);
+                setContainer(ContainerName.HOME);
             }
 
             if (v.getId() == schedule.getId()) {
                 System.out.println("You clicked schedule");
-                activeContainer = ContainerName.SCHEDULE;
-                main.addView(scheduleScreen);
+                setContainer(ContainerName.SCHEDULE);
             }
 
             if (v.getId() == profile.getId()) {
                 System.out.println("You clicked profile");
-                activeContainer = ContainerName.PROFILE;
-                main.addView(profileScreen);
+                setContainer(ContainerName.PROFILE);
             }
 
             if (v.getId() == lessons.getId()) {
                 System.out.println("You clicked lessons");
-                activeContainer = ContainerName.LESSONS;
-                main.addView(lessonsScreen);
+                setContainer(ContainerName.LESSONS);
             }
 
             if (v.getId() == userHelp.getId() || v.getId() == scheduleChanges.getId()) {
                 System.out.println("You clicked notifications");
-                activeContainer = ContainerName.NOTIFICATION;
-                main.addView(notificationListScreen);
+                setContainer(ContainerName.NOTIFICATION);
             }
 
             if (v.getId() == exit.getId()) {
@@ -1553,7 +1730,5 @@ public class MainActivity extends AppCompatActivity {
         }
 
     }
-
-
 
 }
