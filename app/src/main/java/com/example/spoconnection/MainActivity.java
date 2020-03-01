@@ -50,17 +50,6 @@ import java.util.List;
 //import com.example.spoconnection.Functions;
 
 
-/*
-    TODO
-    1. Дата сегодня - сделано
-    2. Построить праильно вызовы - сделано
-    3. Handlers - сделано
-    4. Обьект, где будут пары по кажому предмету
-    5. При копировании кода будут ошибки из-за переменных закоменченых - сделано
-    6. Main и ByDay одновременно - сделано
-    7. Сейчас при нажатии на какой-то предмет ничего не происходит, как и при нажатии на уведомления - сделано
-*/
-
 public class MainActivity extends AppCompatActivity {
 
     final long COOKIE_LIFETIME = 100; // в минутах. На самом деле 120 минут.
@@ -75,18 +64,9 @@ public class MainActivity extends AppCompatActivity {
     public JSONArray studentLessons;
     public JSONObject teachers;
 
-    // Пары за месяц пока не используем
-//    public JSONObject exercises;
-//    public JSONObject exercisesVisits;
-
     // by getExercisesByDay
     public JSONArray exercisesByDay;
     public JSONObject exercisesVisitsByDay;
-
-    // Переменные выше заменяют эти переменные
-//    public JSONArray todayExercises;
-//    public JSONObject todayExercisesVisits;
-
 
     // by getExercisesByLesson
     public JSONArray exercisesByLesson;
@@ -101,8 +81,6 @@ public class MainActivity extends AppCompatActivity {
     // by vk api
     public JSONObject vkWallPosts;
 
-
-
     // Handlers для проверки на выполнение запроса
 
     /*
@@ -115,17 +93,18 @@ public class MainActivity extends AppCompatActivity {
     enum RequestStatus {NOT_CALLED, CALLED, COMPLETED, FAILED, EMPTY_RESPONSE}
 
 
-    RequestStatus loginRequestStatus = RequestStatus.NOT_CALLED;
-    RequestStatus getStudentMainDataRequestStatus = RequestStatus.NOT_CALLED;
-    RequestStatus getExercisesByDayRequestStatus = RequestStatus.NOT_CALLED;
-    RequestStatus getExercisesByLessonRequestStatus = RequestStatus.NOT_CALLED;
-    RequestStatus getVKWallPostsRequestStatus = RequestStatus.NOT_CALLED;
-    RequestStatus getProfileParsingRequestStatus = RequestStatus.NOT_CALLED;
-    RequestStatus getScheduleParsingRequestStatus = RequestStatus.NOT_CALLED;
+    RequestStatus loginRequestStatus                    = RequestStatus.NOT_CALLED;
+    RequestStatus getStudentMainDataRequestStatus       = RequestStatus.NOT_CALLED;
+    RequestStatus getExercisesByDayRequestStatus        = RequestStatus.NOT_CALLED;
+    RequestStatus getExercisesByLessonRequestStatus     = RequestStatus.NOT_CALLED;
+    RequestStatus getVKWallPostsRequestStatus           = RequestStatus.NOT_CALLED;
+    RequestStatus getStudentProfileDataRequestStatus    = RequestStatus.NOT_CALLED;
+    RequestStatus getScheduleRequestStatus              = RequestStatus.NOT_CALLED;
+    RequestStatus getStudentStatsRequestStatus          = RequestStatus.NOT_CALLED;
 
 
     // Переменная, чтобы buildFrontend не вызвался дважды (и после getMainData и после getByDay)
-    Boolean buildFrontendCalled = false;
+//    Boolean buildFrontendCalled = false;
 
     Boolean nowWeekScheduleCalled = false;
     Boolean nextWeekScheduleCalled = false;
@@ -151,10 +130,13 @@ public class MainActivity extends AppCompatActivity {
     // массив расписания
     JSONObject scheduleLessons = new JSONObject();
 
-    // номер группы пользователя
-    String studentGroup;
+    String studentGroup; // Y2234
     String studentFIO;
     String studentAvatarSrc;
+
+    String statsMidMark; // 4.74
+    String statsDebtsCount; // 0
+    String statsPercentageOfVisits; // 91%
 
     SharedPreferences preferences;
     SharedPreferences.Editor preferencesEditor;
@@ -196,9 +178,10 @@ public class MainActivity extends AppCompatActivity {
             public void onClick(View v) {
                 if (!nowWeekScheduleCalled) {
                     sendGetScheduleParsingRequest("now");
+                    setLoadingToList(ContainerName.SCHEDULE);
                     nowWeekScheduleCalled = true;
                 } else {
-                    onGetScheduleParsingRequestCompleted("now");
+                    onGetScheduleRequestCompleted("now");
                 }
             }
         });
@@ -208,9 +191,10 @@ public class MainActivity extends AppCompatActivity {
             public void onClick(View v) {
                 if (!nextWeekScheduleCalled) {
                     sendGetScheduleParsingRequest("next");
+                    setLoadingToList(ContainerName.SCHEDULE);
                     nextWeekScheduleCalled = true;
                 } else {
-                    onGetScheduleParsingRequestCompleted("next");
+                    onGetScheduleRequestCompleted("next");
                 }
             }
         });
@@ -274,12 +258,8 @@ public class MainActivity extends AppCompatActivity {
                 try { loginRequestDate = new SimpleDateFormat("dd-MM-yyyy HH:mm:ss").parse(lastLoginRequestTime); }
                 catch (ParseException e) {}
                 currentDate = new Date();
-                System.out.println(new SimpleDateFormat("dd-MM-yyyy HH:mm:ss").format(currentDate));
 
                 long minutesBetweenDates = ((currentDate.getTime() / 60000) - (loginRequestDate.getTime() / 60000));
-                System.out.println(currentDate);
-                System.out.println(loginRequestDate);
-                System.out.println(lastLoginRequestTime);
                 System.out.println("Last login request was " + minutesBetweenDates + " minutes ago");
 
                 // вход был выполнен более COOKIE_LIFETIME минут назад, тогда нужно сделать запрос заново
@@ -287,7 +267,7 @@ public class MainActivity extends AppCompatActivity {
 
                     setContainer(ContainerName.LOGIN);
 
-                    System.out.println("Cookie lifetime is more then" + COOKIE_LIFETIME + " minutes. Sending new login request");
+                    System.out.println("Cookie lifetime is more then " + COOKIE_LIFETIME + " minutes. Sending new login request");
 
                     String name = preferences.getString("studentName", "");
                     String password = preferences.getString("studentPassword", "");
@@ -295,10 +275,10 @@ public class MainActivity extends AppCompatActivity {
                     studentGroup = preferences.getString("studentGroup", "");
                     studentFIO = preferences.getString("studentFIO", "");
                     studentAvatarSrc = preferences.getString("studentAvatarSrc", "");
-                    getProfileParsingRequestStatus = RequestStatus.COMPLETED;
+                    getStudentProfileDataRequestStatus = RequestStatus.COMPLETED;
 
                     sendLoginRequest(new String[] { name, password });
-                // иначе пропускаем вход в аккаунт
+                    // иначе пропускаем вход в аккаунт
                 } else {
                     System.out.println("Cookie lifetime is less then" + COOKIE_LIFETIME + " minutes. Continue");
                     authCookie = preferences.getString("authCookie", "");
@@ -307,13 +287,18 @@ public class MainActivity extends AppCompatActivity {
                     studentGroup = preferences.getString("studentGroup", "");
                     studentFIO = preferences.getString("studentFIO", "");
                     studentAvatarSrc = preferences.getString("studentAvatarSrc", "");
-                    getProfileParsingRequestStatus = RequestStatus.COMPLETED;
+
+                    statsMidMark = preferences.getString("studentStatsMidMark", "");
+                    statsDebtsCount = preferences.getString("studentStatsDebtsCount", "");
+                    statsPercentageOfVisits = preferences.getString("studentStatsPercentageOfVisits", "");
+                    getStudentProfileDataRequestStatus = RequestStatus.COMPLETED;
 
                     Date date = new Date();
                     String year = new SimpleDateFormat("yyyy").format(date);
                     String month = new SimpleDateFormat("MM").format(date);
                     String day = new SimpleDateFormat("dd").format(date);
 
+                    sendGetStudentStatsRequest();
                     sendGetStudentMainDataRequest(new String[]{ year, month });
                     sendGetExercisesByDayRequest(new String[] { year + "-" + month + "-" + day }); // 2020-02-26
                 }
@@ -380,16 +365,22 @@ public class MainActivity extends AppCompatActivity {
         request.execute(params);
     }
 
-    private void sendGetProfileParsingRequest() {
-        getProfileParsingRequest request = new getProfileParsingRequest();
-        getProfileParsingRequestStatus = RequestStatus.CALLED;
+    private void sendGetStudentProfileDataRequest() {
+        getStudentProfileDataRequest request = new getStudentProfileDataRequest();
+        getStudentProfileDataRequestStatus = RequestStatus.CALLED;
         request.execute();
     }
 
     private void sendGetScheduleParsingRequest(String param) {
-        getScheduleParsingRequest request = new getScheduleParsingRequest();
-        getScheduleParsingRequestStatus = RequestStatus.CALLED;
+        getScheduleRequest request = new getScheduleRequest();
+        getScheduleRequestStatus = RequestStatus.CALLED;
         request.execute(new String[] {param});
+    }
+
+    private void sendGetStudentStatsRequest() {
+        getStudentStatsRequest request = new getStudentStatsRequest();
+        getStudentStatsRequestStatus = RequestStatus.CALLED;
+        request.execute();
     }
 
 
@@ -426,23 +417,20 @@ public class MainActivity extends AppCompatActivity {
             String month = new SimpleDateFormat("MM").format(date);
             String day = new SimpleDateFormat("dd").format(date);
 
+            sendGetStudentStatsRequest();
             sendGetStudentMainDataRequest(new String[]{ year, month });
+            if (getStudentProfileDataRequestStatus != RequestStatus.COMPLETED) sendGetStudentProfileDataRequest();
             sendGetExercisesByDayRequest(new String[] { year + "-" + month + "-" + day }); // 2020-02-26
-            if (getProfileParsingRequestStatus != RequestStatus.COMPLETED) sendGetProfileParsingRequest();
 
         } else {
             loginRequestStatus = RequestStatus.EMPTY_RESPONSE;
-            System.out.println("Login failure!");
+            System.out.println("Login request empty response!");
         }
     }
 
-
     public void onGetStudentMainDataRequestCompleted(String responseBody) {
-        if (responseBody != "") {
+        if (!responseBody.isEmpty()) {
             getStudentMainDataRequestStatus = RequestStatus.COMPLETED;
-
-
-
 
             System.out.println("GetStudentMainData Success!");
             JSONObject jsonData;
@@ -450,31 +438,30 @@ public class MainActivity extends AppCompatActivity {
                 jsonData = new JSONObject(responseBody);
 
                 studentLessons = jsonData.getJSONArray("userlessons");
-//                exercises = jsonData.getJSONObject("Exercises");
-//                exercisesVisits = jsonData.getJSONObject("ExercisesVisits");
                 teachers = jsonData.getJSONObject("lessonteachers");
 
                 System.out.println("StudentLessons: " + studentLessons.toString());
-//                System.out.println("Exercises: " + exercises.toString());
-//                System.out.println("ExercisesVisits: " + exercisesVisits.toString());
                 System.out.println("Teachers: " + teachers.toString());
 
-                if (getExercisesByDayRequestStatus == RequestStatus.COMPLETED && getProfileParsingRequestStatus == RequestStatus.COMPLETED && !buildFrontendCalled) {
-                    buildFrontendCalled = true;
-                    buildFrontend();
-                }
+//                if (getExercisesByDayRequestStatus == RequestStatus.COMPLETED
+//                        && getStudentProfileDataRequestStatus == RequestStatus.COMPLETED
+//                        && !buildFrontendCalled)
+//                {
+//                    buildFrontendCalled = true;
+//                    buildFrontend();
+//                }
 
             } catch (JSONException e) {
 
             }
         } else {
             getStudentMainDataRequestStatus = RequestStatus.EMPTY_RESPONSE;
-            System.out.println("GetStudentMainData Failure!");
+            System.out.println("Student main data request empty response!");
         }
     }
 
     public void onGetExercisesByDayRequestCompleted (String responseBody) {
-        if (responseBody != "") {
+        if (!responseBody.isEmpty()) {
             getExercisesByDayRequestStatus = RequestStatus.COMPLETED;
 
             System.out.println("GetExercisesByDay Success!");
@@ -494,17 +481,22 @@ public class MainActivity extends AppCompatActivity {
                 System.out.println("TodayExercises: " + exercisesByDay.toString());
                 System.out.println("TodayExercisesVisits: " + exercisesVisitsByDay.toString());
 
-                if (getStudentMainDataRequestStatus == RequestStatus.COMPLETED && getProfileParsingRequestStatus == RequestStatus.COMPLETED && !buildFrontendCalled) {
-                    buildFrontendCalled = true;
-                    buildFrontend();
-                }
+//                if (getStudentMainDataRequestStatus == RequestStatus.COMPLETED
+//                        && getStudentProfileDataRequestStatus == RequestStatus.COMPLETED
+//                        && !buildFrontendCalled)
+//                {
+//                    buildFrontendCalled = true;
+//                    buildFrontend();
+//                }
+
+                buildFrontend();
 
             } catch (JSONException e) {
                 System.out.println(e.toString());
             }
         } else {
             getExercisesByDayRequestStatus = RequestStatus.EMPTY_RESPONSE;
-            System.out.println("GetExercisesByDay Failure!");
+            System.out.println("Exercises by day request empty response!");
         }
     }
 
@@ -512,7 +504,7 @@ public class MainActivity extends AppCompatActivity {
         String responseBody = response[0];
         String lessonId = response[1];
 
-        if (responseBody != "" && activeContainer == ContainerName.LESSONS_INFORMATION) {
+        if (!responseBody.isEmpty() && activeContainer == ContainerName.LESSONS_INFORMATION) {
             getExercisesByLessonRequestStatus = RequestStatus.COMPLETED;
 
             System.out.println("GetExercisesByLesson Success!");
@@ -536,12 +528,11 @@ public class MainActivity extends AppCompatActivity {
             }
 
             // берем нужный предмет
-
             JSONArray buffer = exercisesByLesson;
+            LinearLayout lessonsInformationList = findViewById(R.id.lessonsInformationList);
+            lessonsInformationList.removeAllViews();
 
-
-//             выкидываем информацию о паре
-
+             // выкидываем информацию о паре
             for (int k = 0; k < buffer.length(); k++) {
                 JSONObject value;
                 try {
@@ -590,7 +581,7 @@ public class MainActivity extends AppCompatActivity {
                     }
 
 
-                    LinearLayout lessonsInformationList = findViewById(R.id.lessonsInformationList);
+
 
                     // опять же id - ключ для следующего массива
 
@@ -614,12 +605,12 @@ public class MainActivity extends AppCompatActivity {
 
         } else {
             getExercisesByLessonRequestStatus = RequestStatus.EMPTY_RESPONSE;
-            System.out.println("GetExercisesByLesson Failure!");
+            System.out.println("Exercises by lesson request empty response!");
         }
     }
 
     public void onGetVKWallPostsRequestCompleted (String responseBody) {
-        if (responseBody != "" && activeContainer == ContainerName.NOTIFICATION) {
+        if (!responseBody.isEmpty() && activeContainer == ContainerName.NOTIFICATION) {
             getVKWallPostsRequestStatus = RequestStatus.COMPLETED;
 
             System.out.println("GetVKWallPosts Success!");
@@ -638,6 +629,8 @@ public class MainActivity extends AppCompatActivity {
             JSONArray value;
             try {
                 value = vkWallPosts.getJSONArray("items");
+                LinearLayout notificationList = findViewById(R.id.notificationList);
+                notificationList.removeAllViews();
 
                 for (int i = 0; i < value.length(); i++) {
 
@@ -659,7 +652,6 @@ public class MainActivity extends AppCompatActivity {
                             TextView note = new TextView(getApplicationContext());
                             note.setLayoutParams(lp);
                             note.setText( (i+1) + " пост (" + new Date(Long.parseLong(tmp.getString("date"))*1000) + "):    " + tmp.getString("text"));
-                            LinearLayout notificationList = findViewById(R.id.notificationList);
                             notificationList.addView(note);
                         }
 
@@ -674,17 +666,18 @@ public class MainActivity extends AppCompatActivity {
 
         } else {
             getVKWallPostsRequestStatus = RequestStatus.EMPTY_RESPONSE;
-            System.out.println("GetVKWallPosts Failure!");
+            System.out.println("VK wall posts request empty response!");
         }
     }
 
-    public void onGetProfileParsingRequestCompleted (String[] response){
+    public void onGetStudentProfileDataRequestCompleted (String[] response){
 
         String studentFIO = response[0];
         String studentGroup = response[1];
+        String studentAvatarSrc = response[2];
 
-        if ( !(studentFIO.isEmpty() || studentGroup.isEmpty()) ) {
-            getProfileParsingRequestStatus = RequestStatus.COMPLETED;
+        if ( !(studentFIO.isEmpty() || studentGroup.isEmpty() || studentAvatarSrc.isEmpty()) ) {
+            getStudentProfileDataRequestStatus = RequestStatus.COMPLETED;
 
             preferences = MainActivity.this.getPreferences(Context.MODE_PRIVATE);
             preferencesEditor = preferences.edit();
@@ -692,27 +685,29 @@ public class MainActivity extends AppCompatActivity {
             preferencesEditor.putString("studentFIO", studentFIO);
             preferencesEditor.putString("studentGroup", studentGroup);
             preferencesEditor.putString("studentAvatarSrc", studentAvatarSrc);
+
+            preferencesEditor.putString("studentStatsMidMark", statsMidMark);
+            preferencesEditor.putString("studentStatsDebtsCount", statsDebtsCount);
+            preferencesEditor.putString("studentStatsPercentageOfVisits", statsPercentageOfVisits);
+
             preferencesEditor.apply();
 
             this.studentFIO = studentFIO;
             this.studentGroup = studentGroup;
+            this.studentAvatarSrc = studentAvatarSrc;
 
-//            System.out.println(response[0]); // fio
-//            System.out.println(response[1]); // group
-
-
-            if (getExercisesByDayRequestStatus == RequestStatus.COMPLETED && getStudentMainDataRequestStatus == RequestStatus.COMPLETED && !buildFrontendCalled) {
-                buildFrontendCalled = true;
-                buildFrontend();
-            }
+//            if (getExercisesByDayRequestStatus == RequestStatus.COMPLETED && getStudentMainDataRequestStatus == RequestStatus.COMPLETED && !buildFrontendCalled) {
+//                buildFrontendCalled = true;
+//                buildFrontend();
+//            }
         } else {
-            getExercisesByDayRequestStatus = RequestStatus.EMPTY_RESPONSE;
-            System.out.println("ProfileParsing Failure!");
+            getStudentProfileDataRequestStatus = RequestStatus.EMPTY_RESPONSE;
+            System.out.println("Student profile's data request empty response!");
         }
     }
 
-    public void onGetScheduleParsingRequestCompleted(String param) {
-        if (getScheduleParsingRequestStatus == RequestStatus.COMPLETED && activeContainer == ContainerName.SCHEDULE) {
+    public void onGetScheduleRequestCompleted(String param) {
+        if (getScheduleRequestStatus == RequestStatus.COMPLETED && activeContainer == ContainerName.SCHEDULE) {
 
             LinearLayout box = findViewById(R.id.scheduleList);
             box.removeAllViews();
@@ -784,11 +779,29 @@ public class MainActivity extends AppCompatActivity {
             box.addView(text);
 
         } else {
-            getScheduleParsingRequestStatus = RequestStatus.EMPTY_RESPONSE;
-            System.out.println("GetScheduleParsing Failure!");
+            getScheduleRequestStatus = RequestStatus.EMPTY_RESPONSE;
+            System.out.println("Schedule request empty response!");
         }
     }
 
+    public void onGetStudentStatsRequestCompleted(String[] response) {
+        String statsMidMark = response[0];
+        String statsDebtsCount = response[1];
+        String statsPercentageOfVisits = response[2];
+
+        if ( !(statsDebtsCount.isEmpty() || statsDebtsCount.isEmpty() || statsPercentageOfVisits.isEmpty()) ) {
+            getStudentStatsRequestStatus = RequestStatus.COMPLETED;
+
+            System.out.println("StudentStats Success!");
+
+            this.statsMidMark = statsMidMark;
+            this.statsDebtsCount = statsDebtsCount;
+            this.statsPercentageOfVisits = statsPercentageOfVisits;
+        } else {
+            getStudentStatsRequestStatus = RequestStatus.EMPTY_RESPONSE;
+            System.out.println("Student stats request empty response!");
+        }
+    }
 
     // Сами асинхронные запросы
 
@@ -848,7 +861,6 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-
     // [year, month]
     class getStudentMainDataRequest extends AsyncTask<String[], Void, String> {
 
@@ -894,6 +906,7 @@ public class MainActivity extends AppCompatActivity {
 
     // [lessonId]
     class getExercisesByLessonRequest extends AsyncTask <String[], Void, String[]> {
+
         protected String[] doInBackground(String[]... params) { // params[0][0] - lesson_id (String)
             HttpURLConnection urlConnection = null;
             String responseBody = "";
@@ -981,10 +994,9 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-
     Bitmap bitmap; // картинка профиля
 
-    class getProfileParsingRequest extends AsyncTask<Void, Void, String[]> { //FIO, GROUP
+    class getStudentProfileDataRequest extends AsyncTask<Void, Void, String[]> { //FIO, GROUP
 
         protected String[] doInBackground(Void... params) {
             HttpURLConnection urlConnection = null;
@@ -1011,6 +1023,11 @@ public class MainActivity extends AppCompatActivity {
             String studentFIO = "";
             String studentGroup = "";
             String avatarSrc = "";
+
+            String statsMidMark = "";
+            String statsDebtsCount = "";
+            String statsPercentageOfVisits = "";
+
             Element row;
 
             Integer bodyRowsCount = html.body().getElementsByClass("row").size();
@@ -1028,85 +1045,29 @@ public class MainActivity extends AppCompatActivity {
                     .getElementsByClass("showchange").get(0)
                     .getElementsByTag("img").get(0).attr("src");
 
-            studentAvatarSrc = avatarSrc;
+            studentGroup = studentGroup.split(" ")[0];
 
             // создаем мап для картинки
 
             try {
-                bitmap = BitmapFactory.decodeStream((InputStream)new URL("https://ifspo.ifmo.ru" + studentAvatarSrc).getContent());
+                bitmap = BitmapFactory.decodeStream((InputStream)new URL("https://ifspo.ifmo.ru" + avatarSrc).getContent());
             } catch (MalformedURLException e) {
                 e.printStackTrace();
             } catch (IOException e) {
                 e.printStackTrace();
             }
 
-            String[] groupContent = studentGroup.split(" ");
-
-//            System.out.println(studentGroup);
-//            JSONObject week = {"now": [{{"1", "10-11 30", "matan"}, {"2", "11 30 - 13 00", "matan"}}, { {} {} }]};
-
-//            try {
-//                String url_address = "https://ifspo.ifmo.ru" + avatarSrc;
-//
-//                urlConnection = Functions.setupGetAuthRequest(url_address, authCookie);
-//                responseBody = Functions.getResponseFromGetRequest(urlConnection);
-//
-//                System.out.println(responseBody);
-//
-//            } catch (Exception e) {
-//                System.out.println("Problems with ProfileParsing (Avatar) request");
-//                System.out.println(e.toString());
-//            } finally {
-//                if (urlConnection != null) urlConnection.disconnect();
-//            }
-
-            try {
-                String url_address = "https://ifspo.ifmo.ru/profile/getStudentStatistics";
-                URL url = new URL(url_address);
-                urlConnection = (HttpURLConnection) url.openConnection();
-
-                String urlParameters = "student_id=" + studentId;
-                byte[] postData = urlParameters.getBytes(Charset.forName("UTF-8"));
-                int postDataLength = postData.length;
-
-                urlConnection.setRequestMethod("POST");
-                urlConnection.setRequestProperty("Content-Type", "application/x-www-form-urlencoded; charset=UTF-8");
-                urlConnection.setRequestProperty("User-Agent", "Mozilla/5.0 (Windows NT 6.3; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/79.0.3945.130 Safari/537.36 OPR/66.0.3515.95");
-                urlConnection.setRequestProperty("Content-Length", Integer.toString(postDataLength));
-                urlConnection.setRequestProperty("Accept", "text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.9");
-                urlConnection.setRequestProperty("Cookie", authCookie);
-                urlConnection.setDoOutput(true);
-                urlConnection.setUseCaches(false);
-                urlConnection.setInstanceFollowRedirects(false);
-
-                try (DataOutputStream wr = new DataOutputStream(urlConnection.getOutputStream())) {
-                    wr.write(postData);
-                }
-
-                responseBody = Functions.getResponseFromGetRequest(urlConnection);
-                System.out.println(responseBody);
-
-            } catch (Exception e) {
-                System.out.println("Problems with statistics request");
-                System.out.println(e.toString());
-            } finally {
-                if (urlConnection != null) {
-                    urlConnection.disconnect();
-                }
-            }
-
-            return new String[] {studentFIO, Functions.getGroupIdByName(groupContent[0]) };
+            return new String[] { studentFIO, studentGroup, avatarSrc };
         }
 
         protected void onPostExecute(String[] result) {
             super.onPostExecute(result);
-            onGetProfileParsingRequestCompleted(result);
+            onGetStudentProfileDataRequestCompleted(result);
 
         }
     }
 
-
-    class getScheduleParsingRequest extends AsyncTask<String[], Void, String> { // Void на самом деле
+    class getScheduleRequest extends AsyncTask<String[], Void, String> { // Void на самом деле
 
         protected String doInBackground(String[]... params) { // now next
             URL url;
@@ -1115,7 +1076,7 @@ public class MainActivity extends AppCompatActivity {
             Document html = new Document(responseBody);
 
             try {
-                String url_address = "https://ifspo.ifmo.ru/schedule/get?num=" + studentGroup + "&week=" + params[0][0];
+                String url_address = "https://ifspo.ifmo.ru/schedule/get?num=" + Functions.getGroupIdByName(studentGroup) + "&week=" + params[0][0];
 
                 url = new URL(url_address);
                 urlConnection = (HttpURLConnection) url.openConnection();
@@ -1245,12 +1206,74 @@ public class MainActivity extends AppCompatActivity {
 
         protected void onPostExecute(String result) {
             super.onPostExecute(result);
-            getScheduleParsingRequestStatus = RequestStatus.COMPLETED;
-            onGetScheduleParsingRequestCompleted(result);
+            getScheduleRequestStatus = RequestStatus.COMPLETED;
+            onGetScheduleRequestCompleted(result);
         }
     }
 
+    class getStudentStatsRequest extends AsyncTask<Void, Void, String[]> { // Void на самом деле
 
+        protected String[] doInBackground(Void ...params) {
+            String statsMidMark = "";
+            String statsDebtsCount = "";
+            String statsPercentageOfVisits = "";
+
+            String responseBody = "";
+            Document html;
+
+            HttpURLConnection urlConnection = null;
+
+            try {
+                String url_address = "https://ifspo.ifmo.ru/profile/getStudentStatistics";
+                URL url = new URL(url_address);
+                urlConnection = (HttpURLConnection) url.openConnection();
+
+                String urlParameters = "student_id=" + studentId;
+                byte[] postData = urlParameters.getBytes(Charset.forName("UTF-8"));
+                int postDataLength = postData.length;
+
+                urlConnection.setRequestMethod("POST");
+                urlConnection.setRequestProperty("Content-Type", "application/x-www-form-urlencoded; charset=UTF-8");
+                urlConnection.setRequestProperty("User-Agent", "Mozilla/5.0 (Windows NT 6.3; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/79.0.3945.130 Safari/537.36 OPR/66.0.3515.95");
+                urlConnection.setRequestProperty("Content-Length", Integer.toString(postDataLength));
+                urlConnection.setRequestProperty("Accept", "text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.9");
+                urlConnection.setRequestProperty("Cookie", authCookie);
+                urlConnection.setDoOutput(true);
+                urlConnection.setUseCaches(false);
+                urlConnection.setInstanceFollowRedirects(false);
+
+                try (DataOutputStream wr = new DataOutputStream(urlConnection.getOutputStream())) {
+                    wr.write(postData);
+                }
+
+                responseBody = Functions.getResponseFromGetRequest(urlConnection);
+                html = Jsoup.parse(responseBody);
+
+                Elements stats = html.body().getElementsByClass("stat-block");
+
+                statsMidMark = stats.get(0).getElementsByClass("stat-value").get(0).text();
+                statsDebtsCount = stats.get(1).getElementsByClass("stat-value").get(0).text();
+                statsPercentageOfVisits = stats.get(2).getElementsByClass("stat-value").get(0).text();
+                System.out.println(statsMidMark + " " + statsDebtsCount + " " + statsPercentageOfVisits);
+
+            } catch (Exception e) {
+                System.out.println("Problems with statistics request");
+                System.out.println(e.toString());
+            } finally {
+                if (urlConnection != null) {
+                    urlConnection.disconnect();
+                }
+            }
+
+            return new String[] { statsMidMark, statsDebtsCount, statsPercentageOfVisits };
+        }
+
+        protected void onPostExecute(String[] result) {
+            super.onPostExecute(result);
+            onGetStudentStatsRequestCompleted(result);
+
+        }
+    }
 
 
 
@@ -1368,26 +1391,32 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
+    public void setLoadingToList(ContainerName neededContainer) { // функция обновления активного контейнера
+        switch (neededContainer) {
+            case SCHEDULE: {
+                LinearLayout box = findViewById(R.id.scheduleList);
+                box.removeAllViews();
+                box.addView(loadingScreen);
+                break;
+            }
+            case LESSONS_INFORMATION: {
+                LinearLayout box = findViewById(R.id.lessonsInformationList);
+                box.removeAllViews();
+                box.addView(loadingScreen);
+                break;
+            }
+            case NOTIFICATION: {
+                LinearLayout box = findViewById(R.id.notificationList);
+                box.removeAllViews();
+                box.addView(loadingScreen);
+                break;
+            }
+        }
+    }
 
-    /*
-    Какие запросы, для каких сцен:
-        PROFILE
-            GetExercisesByDaY (сегодня) вернет пары, которые были сегодня, на данный момент
-            переменные: todayExercisesVisits, todayExercises нужно заменить на exercisesByDay, exercisesVisitsByDay
-        LESSONS
-            GetStudentMainData (этот или прошлый год) главное, что вернет все предметы, которые и будут выводится в списке
-        LESSONS_INFORMATION
-            GetExercisesByLesson (айди предмета) вернет все пары по этому предмету
-        В общем, все нормально, кроме вывода информации по парам для каждого предмета
-        Потому что использу.тся переменные exercises, exercisesVisits (с getStudentMainDataRequest) кторые показывают пары только за текущий месяц.
-    */
 
-
-
-    //            JSONObject schedule = {
-
+//            JSONObject schedule = {
 //              "now": [ // week
-
 //                  [ // day
 //                      {position: "I", start: "10", end: "11", name: "name", teacher: "teacher"}, // lesson
 //                      {position: "II", start: "11", end: "12", name: "name", teacher: "teacher"}
@@ -1398,7 +1427,7 @@ public class MainActivity extends AppCompatActivity {
 //                  ]
 //
 //              ]
-
+//
 //            };
 
 
@@ -1408,6 +1437,8 @@ public class MainActivity extends AppCompatActivity {
         main.addView(lessonsScreen);
 
         LinearLayout lessonsList = findViewById(R.id.lessonsList);
+
+//        System.out.println(statsMidMark + " " + statsDebtsCount + " " + statsPercentageOfVisits);
 
         for(int i = 0; i < studentLessons.length(); i++){
             JSONObject value;
@@ -1483,7 +1514,7 @@ public class MainActivity extends AppCompatActivity {
         TextView text = new TextView(this);
         LinearLayout.LayoutParams lpText = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.WRAP_CONTENT);
         lpText.setMargins(50,50,50,50);
-        text.setText(studentFIO + " - " + studentGroup);
+        text.setText(studentFIO + " - " + studentGroup + " " + statsDebtsCount + " долгов " + statsMidMark + " средний балл " + statsPercentageOfVisits +" посещений");
         profileScreen.addView(text);
 
         final LinearLayout todayLessonsView = (LinearLayout) findViewById(R.id.todayLessonsView);
@@ -1625,6 +1656,8 @@ public class MainActivity extends AppCompatActivity {
             if (activeContainer == ContainerName.NOTIFICATION) {
 
                 sendGetVKWallPostsRequest(new String[] {"10"});
+                setLoadingToList(ContainerName.NOTIFICATION);
+
 
             }
 
@@ -1647,12 +1680,13 @@ public class MainActivity extends AppCompatActivity {
             activeContainer = ContainerName.LESSONS_INFORMATION;
             main.addView(lessonsInformationScreen);
 
-            LinearLayout lessonsInformationList = findViewById(R.id.lessonsInformationList);
 
+            setLoadingToList(ContainerName.LESSONS_INFORMATION);
+
+            LinearLayout lessonsInformationList = findViewById(R.id.lessonsInformationList);
 
             // очищаем scrollview
 
-            lessonsInformationList.removeAllViews();
 
             JSONArray buffer = null;
             try {
