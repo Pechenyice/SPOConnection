@@ -214,6 +214,7 @@ public class MainActivity extends AppCompatActivity {
         activeContainer = ContainerName.LOADING;
 
 
+
         preferences = MainActivity.this.getPreferences(Context.MODE_PRIVATE);
 
         appFirstRun = preferences.getBoolean("appFirstRun", true);
@@ -1380,6 +1381,7 @@ public class MainActivity extends AppCompatActivity {
                 break;
             }
             case LOGIN: {
+                main.removeAllViews();
                 main.addView(loginForm);
                 activeContainer = ContainerName.LOGIN;
                 break;
@@ -1493,6 +1495,7 @@ public class MainActivity extends AppCompatActivity {
         lessons = findViewById(R.id.lessons);
         exit = findViewById(R.id.exit);
         userHelp = findViewById(R.id.notification);
+
 
 
         // наш обработчик кликов
@@ -1646,7 +1649,30 @@ public class MainActivity extends AppCompatActivity {
             }
 
             if (v.getId() == exit.getId()) {
-                System.out.println("You clicked exit");
+                preferences = MainActivity.this.getPreferences(Context.MODE_PRIVATE);
+                preferencesEditor = preferences.edit();
+                preferencesEditor.clear();
+                preferencesEditor.apply();
+
+                nowWeekScheduleCalled = false;
+                nextWeekScheduleCalled = false;
+                readyExercisesByLesson = new JSONObject();
+
+                setContainer(ContainerName.LOGIN);
+                Button submit = findViewById(R.id.loginFormSubmit);
+                final TextInputEditText login = findViewById(R.id.loginFormLogin);
+                final TextInputEditText password = findViewById(R.id.loginFormPassword);
+                submit.setOnClickListener(new View.OnClickListener() {
+
+                    // отправляем запрос
+                    @Override
+                    public void onClick(View v) {
+                        sendLoginRequest(new String[] {
+                                login.getText().toString(),
+                                password.getText().toString()
+                        });
+                    }
+                });
             }
 
             // но если кликнута кнопка изменений в расписании, нужно еще выкинуть контент от вк
@@ -1681,8 +1707,6 @@ public class MainActivity extends AppCompatActivity {
             main.addView(lessonsInformationScreen);
 
 
-            setLoadingToList(ContainerName.LESSONS_INFORMATION);
-
             LinearLayout lessonsInformationList = findViewById(R.id.lessonsInformationList);
 
             // очищаем scrollview
@@ -1696,6 +1720,7 @@ public class MainActivity extends AppCompatActivity {
             }
             System.out.println(buffer);
             if (buffer == null) {
+                setLoadingToList(ContainerName.LESSONS_INFORMATION);
                 sendGetExercisesByLessonRequest(new String[] {v.getId()+""});
             } else {
 
