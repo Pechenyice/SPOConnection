@@ -12,7 +12,9 @@
         android:id="@+id/loadingScreen"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:orientation="horizontal">
+        android:orientation="horizontal"
+        tools:visibility="visible">
+
         <TextView
             android:id="@+id/loadingText"
             android:layout_width="wrap_content"
@@ -27,31 +29,79 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:orientation="vertical"
-        android:visibility="visible">
+        tools:visibility="visible">
+
+
+        <ImageView
+            android:id="@+id/imageView2"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:scaleType="centerCrop"
+            app:srcCompat="@drawable/gradient_background" />
+
+        <ImageView
+            android:layout_width="300dp"
+            android:layout_height="120dp"
+            android:layout_centerHorizontal="true"
+            android:layout_marginTop="90dp"
+            android:src="@drawable/itmo_logo"></ImageView>
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerHorizontal="true"
+            android:layout_marginTop="350dp"
+            android:fontFamily="@font/montserrat_semibold"
+            android:text="ФСПО ИТМО 2.0"
+            android:textColor="@color/pinkColor"
+            android:textSize="24dp">
+
+        </TextView>
 
         <com.google.android.material.textfield.TextInputLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="150dp">
+            android:layout_marginTop="420dp"
+            android:textColorHint="#ADADAD">
 
 
             <com.google.android.material.textfield.TextInputEditText
                 android:id="@+id/loginFormLogin"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:hint="@string/loginFormLogin" />
+                android:layout_marginLeft="30dp"
+                android:layout_marginRight="30dp"
+                android:background="@drawable/login_text_input"
+                android:fontFamily="@font/montserrat_light"
+                android:hint="@string/loginFormLogin"
+                android:paddingLeft="20dp"
+                android:paddingTop="10dp"
+                android:paddingBottom="10dp"
+                android:textColor="#ADADAD"
+                android:textColorHint="#ADADAD" />
         </com.google.android.material.textfield.TextInputLayout>
 
         <com.google.android.material.textfield.TextInputLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="300dp">
+            android:layout_marginTop="475dp"
+            android:textColorHint="#ADADAD">
 
             <com.google.android.material.textfield.TextInputEditText
                 android:id="@+id/loginFormPassword"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:hint="@string/loginFormPassword" />
+                android:layout_marginLeft="30dp"
+                android:layout_marginRight="30dp"
+                android:background="@drawable/login_text_input"
+                android:fontFamily="@font/montserrat_light"
+                android:hint="@string/loginFormPassword"
+                android:inputType="textPassword"
+                android:paddingLeft="20dp"
+                android:paddingTop="10dp"
+                android:paddingBottom="10dp"
+                android:textColor="#ADADAD"
+                android:textColorHint="#ADADAD" />
         </com.google.android.material.textfield.TextInputLayout>
 
 
@@ -60,8 +110,15 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_centerHorizontal="true"
-            android:layout_marginTop="500dp"
-            android:text="@string/loginFormSubmit" />
+            android:layout_marginTop="560dp"
+            android:background="@drawable/login_button"
+            android:fontFamily="@font/montserrat_light"
+            android:gravity="center"
+            android:paddingLeft="40dp"
+            android:paddingRight="40dp"
+            android:text="@string/loginFormSubmit"
+            android:textColor="#17223B"
+            android:textSize="16dp" />
 
     </RelativeLayout>
 
@@ -69,34 +126,31 @@
         android:id="@+id/profileScreen"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:visibility="visible"
-        android:layout_marginBottom="50dp"
         android:layout_marginTop="50dp"
+        android:layout_marginBottom="50dp"
+        android:visibility="visible"
 
-        >
+        tools:visibility="visible">
 
 
         <ImageView
-            android:layout_marginLeft="50dp"
-            android:layout_marginTop="100dp"
             android:id="@+id/profileImage"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:src="@drawable/ic_launcher_background"
-            />
+            android:layout_marginLeft="50dp"
+            android:layout_marginTop="100dp"
+            android:src="@drawable/ic_launcher_background" />
 
         <ScrollView
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:layout_marginTop="300dp"
-            >
+            android:layout_marginTop="300dp">
 
             <LinearLayout
+                android:id="@+id/todayLessonsView"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:orientation="vertical"
-                android:id="@+id/todayLessonsView"
-                >
+                android:orientation="vertical">
 
 
             </LinearLayout>
@@ -107,8 +161,9 @@
         android:id="@+id/homeScreen"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
+        android:layout_marginTop="50dp"
         android:layout_marginBottom="50dp"
-        android:layout_marginTop="50dp">
+        tools:visibility="visible">
 
         <TextView
             android:id="@+id/textView7"
@@ -123,25 +178,28 @@
         android:id="@+id/scheduleScreen"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
+        android:layout_marginTop="50dp"
         android:layout_marginBottom="50dp"
-        android:layout_marginTop="50dp">
+        tools:visibility="visible">
 
         <Button
             android:id="@+id/now"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="now" />
+
         <Button
             android:id="@+id/next"
-            android:layout_marginLeft="100dp"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:layout_marginLeft="100dp"
             android:text="next" />
+
         <Button
             android:id="@+id/notificationSchedule"
-            android:layout_marginLeft="200dp"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:layout_marginLeft="200dp"
             android:text="changes" />
 
         <ScrollView
@@ -162,9 +220,9 @@
         android:id="@+id/lessonsScreen"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_marginBottom="50dp"
         android:layout_marginTop="50dp"
-        >
+        android:layout_marginBottom="50dp"
+        tools:visibility="visible">
 
         <ScrollView
             android:layout_width="match_parent"
@@ -182,8 +240,9 @@
         android:id="@+id/lessonsInformationScreen"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
+        android:layout_marginTop="50dp"
         android:layout_marginBottom="50dp"
-        android:layout_marginTop="50dp">
+        tools:visibility="visible">
 
         <ScrollView
 
@@ -203,10 +262,11 @@
         android:id="@+id/notificationListScreen"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
+        android:layout_marginTop="50dp"
+        android:layout_marginBottom="50dp"
         android:orientation="vertical"
         android:paddingTop="25dp"
-        android:layout_marginTop="50dp"
-        android:layout_marginBottom="50dp">
+        tools:visibility="visible">
 
         <ScrollView
             android:layout_width="match_parent"
@@ -223,15 +283,22 @@
     <LinearLayout
         android:id="@+id/userHelp"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
+        android:layout_height="wrap_content"
         android:gravity="top"
-        android:orientation="vertical">
+        android:orientation="vertical"
+        tools:visibility="visible">
 
         <Button
             android:id="@+id/notification"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="vk" />
+
+<!--        <ImageView-->
+<!--            android:id="@+id/notification"-->
+<!--            android:layout_width="42dp"-->
+<!--            android:layout_height="50dp"-->
+<!--            app:srcCompat="@drawable/notification_passive" />-->
 
 
     </LinearLayout>
@@ -241,7 +308,8 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:gravity="bottom"
-        android:orientation="vertical">
+        android:orientation="vertical"
+        tools:visibility="visible">
 
         <Button
             android:id="@+id/home"

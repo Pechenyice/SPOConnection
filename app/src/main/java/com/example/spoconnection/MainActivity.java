@@ -92,15 +92,14 @@ public class MainActivity extends AppCompatActivity {
     */
     enum RequestStatus {NOT_CALLED, CALLED, COMPLETED, FAILED, EMPTY_RESPONSE}
 
-
-    RequestStatus loginRequestStatus                    = RequestStatus.NOT_CALLED;
-    RequestStatus getStudentMainDataRequestStatus       = RequestStatus.NOT_CALLED;
-    RequestStatus getExercisesByDayRequestStatus        = RequestStatus.NOT_CALLED;
-    RequestStatus getExercisesByLessonRequestStatus     = RequestStatus.NOT_CALLED;
-    RequestStatus getVKWallPostsRequestStatus           = RequestStatus.NOT_CALLED;
-    RequestStatus getStudentProfileDataRequestStatus    = RequestStatus.NOT_CALLED;
-    RequestStatus getScheduleRequestStatus              = RequestStatus.NOT_CALLED;
-    RequestStatus getStudentStatsRequestStatus          = RequestStatus.NOT_CALLED;
+    RequestStatus loginRequestStatus;
+    RequestStatus getStudentMainDataRequestStatus;
+    RequestStatus getExercisesByDayRequestStatus;
+    RequestStatus getExercisesByLessonRequestStatus;
+    RequestStatus getVKWallPostsRequestStatus;
+    RequestStatus getStudentProfileDataRequestStatus;
+    RequestStatus getScheduleRequestStatus;
+    RequestStatus getStudentStatsRequestStatus;
 
 
     // Переменная, чтобы buildFrontend не вызвался дважды (и после getMainData и после getByDay)
@@ -150,6 +149,8 @@ public class MainActivity extends AppCompatActivity {
         // убрать шторку сверху
         Window w = getWindow();
         w.setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN);
+
+        getWindow().getDecorView().setSystemUiVisibility(View.SYSTEM_UI_FLAG_HIDE_NAVIGATION | View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY);
 
         // инициализируем экраны
 
@@ -213,11 +214,13 @@ public class MainActivity extends AppCompatActivity {
         main.removeView(loginForm);
         activeContainer = ContainerName.LOADING;
 
-
+        resetRequestsStatuses();
 
         preferences = MainActivity.this.getPreferences(Context.MODE_PRIVATE);
 
         appFirstRun = preferences.getBoolean("appFirstRun", true);
+        System.out.println(preferences.getAll());
+
         // первый запуск
         if (appFirstRun) {
 
@@ -245,8 +248,8 @@ public class MainActivity extends AppCompatActivity {
             System.out.println("App first run");
             preferencesEditor = preferences.edit();
 
-            preferencesEditor.putBoolean("appFirstRun", false);
-            preferencesEditor.apply();
+//            preferencesEditor.putBoolean("appFirstRun", false);
+//            preferencesEditor.apply();
         } else {
             System.out.println("Not app first run");
             String lastLoginRequestTime = preferences.getString("lastLoginRequest", "");
@@ -333,6 +336,17 @@ public class MainActivity extends AppCompatActivity {
 
     /* -------------------------------------------- BackEnd -------------------------------------------- */
 
+    public void resetRequestsStatuses() {
+        loginRequestStatus                    = RequestStatus.NOT_CALLED;
+        getStudentMainDataRequestStatus       = RequestStatus.NOT_CALLED;
+        getExercisesByDayRequestStatus        = RequestStatus.NOT_CALLED;
+        getExercisesByLessonRequestStatus     = RequestStatus.NOT_CALLED;
+        getVKWallPostsRequestStatus           = RequestStatus.NOT_CALLED;
+        getStudentProfileDataRequestStatus    = RequestStatus.NOT_CALLED;
+        getScheduleRequestStatus              = RequestStatus.NOT_CALLED;
+        getStudentStatsRequestStatus          = RequestStatus.NOT_CALLED;
+    }
+
     // Функции по отправке запроса. Их нужно вызывать при жедании сделать запрос
 
     private void sendLoginRequest(String[] params) {
@@ -384,6 +398,21 @@ public class MainActivity extends AppCompatActivity {
         request.execute();
     }
 
+    // Когда отпраили все запросы для входа в акаунт
+    public void onAuthCompleted() {
+        if (getStudentStatsRequestStatus == RequestStatus.COMPLETED
+            && getStudentMainDataRequestStatus == RequestStatus.COMPLETED
+            && getExercisesByDayRequestStatus  == RequestStatus.COMPLETED
+        ) {
+            preferences = MainActivity.this.getPreferences(Context.MODE_PRIVATE);
+            preferencesEditor = preferences.edit();
+            preferencesEditor.putBoolean("appFirstRun", false);
+            preferencesEditor.apply();
+
+            buildFrontend();
+        }
+    }
+
 
     // Колбеки, которые вызываются при завершении определенного запроса
 
@@ -430,7 +459,9 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public void onGetStudentMainDataRequestCompleted(String responseBody) {
+        System.out.println("HERE1");
         if (!responseBody.isEmpty()) {
+            System.out.println("HERE2");
             getStudentMainDataRequestStatus = RequestStatus.COMPLETED;
 
             System.out.println("GetStudentMainData Success!");
@@ -456,6 +487,7 @@ public class MainActivity extends AppCompatActivity {
 
             }
         } else {
+            System.out.println("HERE3");
             getStudentMainDataRequestStatus = RequestStatus.EMPTY_RESPONSE;
             System.out.println("Student main data request empty response!");
         }
@@ -490,7 +522,9 @@ public class MainActivity extends AppCompatActivity {
 //                    buildFrontend();
 //                }
 
-                buildFrontend();
+//                buildFrontend();
+
+                onAuthCompleted();
 
             } catch (JSONException e) {
                 System.out.println(e.toString());
@@ -533,7 +567,7 @@ public class MainActivity extends AppCompatActivity {
             LinearLayout lessonsInformationList = findViewById(R.id.lessonsInformationList);
             lessonsInformationList.removeAllViews();
 
-             // выкидываем информацию о паре
+            // выкидываем информацию о паре
             for (int k = 0; k < buffer.length(); k++) {
                 JSONObject value;
                 try {
@@ -1657,6 +1691,8 @@ public class MainActivity extends AppCompatActivity {
                 nowWeekScheduleCalled = false;
                 nextWeekScheduleCalled = false;
                 readyExercisesByLesson = new JSONObject();
+
+                resetRequestsStatuses();
 
                 setContainer(ContainerName.LOGIN);
                 Button submit = findViewById(R.id.loginFormSubmit);

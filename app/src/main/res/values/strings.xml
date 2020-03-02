@@ -1,7 +1,7 @@
 <resources>
     <string name="app_name">SPOConnection</string>
-    <string name="loginFormLogin">login</string>
-    <string name="loginFormPassword">password</string>
-    <string name="loginFormSubmit">войти</string>
+    <string name="loginFormLogin">LOGIN</string>
+    <string name="loginFormPassword">PASSWORD</string>
+    <string name="loginFormSubmit">ВОЙТИ</string>
     <string name="title_activity_test">Test</string>
 </resources>
