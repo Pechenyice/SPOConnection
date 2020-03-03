@@ -4,4 +4,5 @@
     <string name="loginFormPassword">PASSWORD</string>
     <string name="loginFormSubmit">ВОЙТИ</string>
     <string name="title_activity_test">Test</string>
+    <string name="navigationProfile">User.Profile</string>
 </resources>
