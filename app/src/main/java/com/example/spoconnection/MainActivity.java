@@ -122,7 +122,7 @@ public class MainActivity extends AppCompatActivity {
     // контейнеры
 
     public RelativeLayout main;
-    public RelativeLayout profileScreen;
+    public LinearLayout profileScreen;
     public RelativeLayout loginForm;
     public LinearLayout navigation;
     public RelativeLayout homeScreen;
@@ -173,6 +173,13 @@ public class MainActivity extends AppCompatActivity {
         userHelpScreen = findViewById(R.id.userHelp);
         notificationListScreen = findViewById(R.id.notificationListScreen);
         loadingScreen = findViewById(R.id.loadingScreen);
+
+        // инициаизируем переменные для очистки их при выходе (важно)
+        profileUserName = findViewById(R.id.profileUserName);
+        profileUserGroup = findViewById(R.id.profileUserGroup);
+        profileUserCalendar = findViewById(R.id.profileUserCalendar);
+        profileUserBalls = findViewById(R.id.profileUserBalls);
+        profileUserBills = findViewById(R.id.profileUserBills);
 
         // локальные кнопки экранов
 
@@ -1491,6 +1498,16 @@ public class MainActivity extends AppCompatActivity {
 //            };
 
 
+
+    // ПОД ОЧИСТКУ ОЧЕНЬ ОЧЕНЬ ВАЖНО
+
+    TextView profileUserName;
+    TextView profileUserGroup;
+    TextView profileUserCalendar;
+    TextView profileUserBalls;
+    TextView profileUserBills;
+
+
     void buildFrontend() {
 
         //заранее высираем контент в lessonsScreen
@@ -1572,11 +1589,17 @@ public class MainActivity extends AppCompatActivity {
 
         // под удаление - вывод инфы о юзере
 
-        TextView text = new TextView(this);
-        LinearLayout.LayoutParams lpText = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.WRAP_CONTENT);
-        lpText.setMargins(50,50,50,50);
-        text.setText(studentFIO + " - " + studentGroup + " " + statsDebtsCount + " долгов " + statsMidMark + " средний балл " + statsPercentageOfVisits +" посещений");
-        profileScreen.addView(text);
+//        TextView text = new TextView(this);
+//        LinearLayout.LayoutParams lpText = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.WRAP_CONTENT);
+//        lpText.setMargins(50,50,50,50);
+//        text.setText(studentFIO + " - " + studentGroup + " " + statsDebtsCount + " долгов " + statsMidMark + " средний балл " + statsPercentageOfVisits +" посещений");
+//        profileScreen.addView(text);
+        profileUserName.setText(studentFIO.split(" ")[0] + " "+ studentFIO.split(" ")[1]);
+        profileUserGroup.setText(studentGroup);
+        profileUserCalendar.setText(statsPercentageOfVisits);
+        profileUserBalls.setText(statsMidMark);
+        profileUserBills.setText(statsDebtsCount);
+
 
         final LinearLayout todayLessonsView = (LinearLayout) findViewById(R.id.todayLessonsView);
 

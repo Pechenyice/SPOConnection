@@ -6,4 +6,5 @@
     <color name="pinkColor">#FF6768</color>
     <color name="backgroundMainColor">#17223B</color>
     <color name="backgroundLightColor">#263859</color>
+    <color name="white">#ffffff</color>
 </resources>
