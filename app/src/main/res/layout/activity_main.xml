@@ -122,13 +122,16 @@
             android:textSize="16dp" />
 
     </RelativeLayout>
-
-    <LinearLayout
+    <ScrollView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
         android:id="@+id/profileScreen"
+        android:layout_marginTop="60dp"
+        android:layout_marginBottom="60dp"
+        android:overScrollMode="never">
+    <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_marginTop="50dp"
-        android:layout_marginBottom="50dp"
         android:visibility="visible"
         android:orientation="vertical"
 
@@ -138,11 +141,11 @@
             android:layout_height="wrap_content"
             android:layout_width="match_parent">
             <androidx.cardview.widget.CardView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
+                android:layout_width="100dp"
+                android:layout_height="100dp"
                 app:cardCornerRadius="50dp"
                 android:layout_marginLeft="25dp"
-                android:layout_marginTop="25dp"
+                android:layout_marginTop="15dp"
                 >
 
                 <ImageView
@@ -164,7 +167,7 @@
                 android:textColor="@color/pinkColor"
                 android:textSize="18dp"
                 android:layout_marginLeft="160dp"
-                android:layout_marginTop="35dp"
+                android:layout_marginTop="25dp"
                 android:layout_marginRight="15dp"
                 >
             </TextView>
@@ -174,7 +177,7 @@
                 android:layout_marginRight="15dp"
                 android:layout_height="50dp"
                 android:layout_marginLeft="140dp"
-                android:layout_marginTop="70dp"
+                android:layout_marginTop="60dp"
                 >
                 <RelativeLayout
                     android:layout_width="fill_parent"
@@ -377,29 +380,195 @@
             android:layout_marginTop="5dp"
             android:layout_marginLeft="15dp"
             android:layout_marginRight="15dp"
+            android:paddingBottom="10dp"
             android:layout_width="match_parent"
-            android:layout_height="380dp"
+            android:layout_height="wrap_content"
             android:background="@drawable/forms_example"
+            android:orientation="vertical"
+            android:id="@+id/todayLessonsView"
             >
+<!--            <RelativeLayout-->
+<!--                android:layout_height="wrap_content"-->
+<!--                android:layout_width="match_parent"-->
+<!--                android:layout_marginLeft="5dp"-->
+<!--                android:layout_marginRight="10dp"-->
+<!--                android:layout_marginBottom="10dp"-->
+<!--                android:layout_marginTop="15dp">-->
+<!--                <TextView-->
+<!--                android:layout_width="20dp"-->
+<!--                android:layout_height="20dp"-->
+<!--                android:background="@drawable/lesson_number"-->
+<!--                android:text="1"-->
+<!--                android:fontFamily="@font/montserrat_light"-->
+<!--                android:textColor="@color/white"-->
+<!--                android:gravity="center"-->
+<!--                android:textSize="14dp">-->
+<!--                </TextView>-->
+<!--&lt;!&ndash;                <TextView&ndash;&gt;-->
+<!--&lt;!&ndash;                    android:layout_width="wrap_content"&ndash;&gt;-->
+<!--&lt;!&ndash;                    android:layout_height="20dp"&ndash;&gt;-->
+<!--&lt;!&ndash;                    android:layout_alignParentRight="true"&ndash;&gt;-->
+<!--&lt;!&ndash;                    android:text="310"&ndash;&gt;-->
+<!--&lt;!&ndash;                    android:fontFamily="@font/montserrat_medium"&ndash;&gt;-->
+<!--&lt;!&ndash;                    android:textColor="@color/white"&ndash;&gt;-->
+<!--&lt;!&ndash;                    android:gravity="center_vertical"&ndash;&gt;-->
+<!--&lt;!&ndash;                    android:textSize="12dp"&ndash;&gt;-->
+<!--&lt;!&ndash;                    >&ndash;&gt;-->
+<!--&lt;!&ndash;                </TextView>&ndash;&gt;-->
+<!--                <TextView-->
+<!--                    android:layout_marginTop="-1dp"-->
+<!--                    android:layout_width="wrap_content"-->
+<!--                    android:layout_height="20dp"-->
+<!--                    android:layout_marginLeft="30dp"-->
+<!--                    android:text="8:20 - 9:50"-->
+<!--                    android:fontFamily="@font/montserrat_light"-->
+<!--                    android:textColor="@color/greyColor"-->
+<!--                    android:gravity="center_vertical"-->
+<!--                    android:textSize="12dp"-->
+<!--                    >-->
+<!--                </TextView>-->
+
+<!--                <TextView-->
+<!--                    android:layout_width="wrap_content"-->
+<!--                    android:layout_height="wrap_content"-->
+<!--                    android:layout_marginLeft="30dp"-->
+<!--                    android:layout_marginTop="20dp"-->
+<!--                    android:text="УП.04.01 Учебная практика"-->
+<!--                    android:fontFamily="@font/montserrat_medium"-->
+<!--                    android:textColor="@color/white"-->
+<!--                    android:gravity="center_vertical"-->
+<!--                    android:textSize="13dp"-->
+<!--                    >-->
+<!--                </TextView>-->
+
+<!--                <TextView-->
+<!--                    android:layout_width="wrap_content"-->
+<!--                    android:layout_height="wrap_content"-->
+<!--                    android:layout_marginLeft="30dp"-->
+<!--                    android:layout_marginTop="35dp"-->
+<!--                    android:text="Ищенко Алексей Петрович"-->
+<!--                    android:fontFamily="@font/montserrat_light"-->
+<!--                    android:textColor="@color/greyColor"-->
+<!--                    android:gravity="center_vertical"-->
+<!--                    android:textSize="12dp"-->
+<!--                    >-->
+<!--                </TextView>-->
+
+<!--                <LinearLayout-->
+<!--                    android:layout_width="match_parent"-->
+<!--                    android:layout_height="wrap_content"-->
+<!--                    android:layout_marginLeft="5dp"-->
+<!--                    android:layout_marginRight="5dp"-->
+<!--                    android:layout_marginTop="55dp"-->
+<!--                    >-->
+
+<!--                    <TextView-->
+<!--                        android:layout_width="match_parent"-->
+<!--                        android:layout_height="wrap_content"-->
+<!--                        android:text="присутствие"-->
+<!--                        android:layout_weight="1"-->
+<!--                        android:gravity="center"-->
+<!--                        android:fontFamily="@font/montserrat_light"-->
+<!--                        android:textSize="10dp"-->
+<!--                        android:textColor="@color/greyColor">-->
+
+<!--                    </TextView>-->
+<!--                    <TextView-->
+<!--                        android:layout_width="match_parent"-->
+<!--                        android:layout_height="wrap_content"-->
+<!--                        android:text="оценка"-->
+<!--                        android:layout_weight="1"-->
+<!--                        android:gravity="center"-->
+<!--                        android:background="@drawable/today_lessons_border"-->
+<!--                        android:fontFamily="@font/montserrat_light"-->
+<!--                        android:textSize="10dp"-->
+<!--                        android:textColor="@color/greyColor">-->
+<!--                    </TextView>-->
+<!--                    <TextView-->
+<!--                        android:layout_width="match_parent"-->
+<!--                        android:layout_height="wrap_content"-->
+<!--                        android:text="активность"-->
+<!--                        android:layout_weight="1"-->
+<!--                        android:gravity="center"-->
+<!--                        android:background="@drawable/today_lessons_border_right_only"-->
+<!--                        android:fontFamily="@font/montserrat_light"-->
+<!--                        android:textSize="10dp"-->
+<!--                        android:textColor="@color/greyColor">-->
+<!--                    </TextView>-->
+<!--                    <TextView-->
+<!--                        android:layout_width="match_parent"-->
+<!--                        android:layout_height="wrap_content"-->
+<!--                        android:text="опоздание"-->
+<!--                        android:layout_weight="1"-->
+<!--                        android:gravity="center"-->
+<!--                        android:fontFamily="@font/montserrat_light"-->
+<!--                        android:textSize="10dp"-->
+<!--                        android:textColor="@color/greyColor">-->
+<!--                    </TextView>-->
+
+<!--                </LinearLayout>-->
+<!--                <LinearLayout-->
+<!--                    android:layout_width="match_parent"-->
+<!--                    android:layout_height="wrap_content"-->
+<!--                    android:layout_marginLeft="5dp"-->
+<!--                    android:layout_marginRight="5dp"-->
+<!--                    android:layout_marginTop="68dp">-->
+
+<!--                    <TextView-->
+<!--                        android:layout_width="match_parent"-->
+<!--                        android:layout_height="wrap_content"-->
+<!--                        android:text="да"-->
+<!--                        android:layout_weight="1"-->
+<!--                        android:gravity="center"-->
+<!--                        android:fontFamily="@font/montserrat_semibold"-->
+<!--                        android:textSize="12dp"-->
+<!--                        android:textColor="@color/pinkColor">-->
+
+<!--                    </TextView>-->
+<!--                    <TextView-->
+<!--                        android:layout_width="match_parent"-->
+<!--                        android:layout_height="wrap_content"-->
+<!--                        android:text="да"-->
+<!--                        android:layout_weight="1"-->
+<!--                        android:gravity="center"-->
+<!--                        android:fontFamily="@font/montserrat_semibold"-->
+<!--                        android:textSize="12dp"-->
+<!--                        android:textColor="@color/pinkColor">-->
+
+<!--                    </TextView>-->
+<!--                    <TextView-->
+<!--                        android:layout_width="match_parent"-->
+<!--                        android:layout_height="wrap_content"-->
+<!--                        android:text="да"-->
+<!--                        android:layout_weight="1"-->
+<!--                        android:gravity="center"-->
+<!--                        android:fontFamily="@font/montserrat_semibold"-->
+<!--                        android:textSize="12dp"-->
+<!--                        android:textColor="@color/pinkColor">-->
+
+<!--                    </TextView>-->
+<!--                    <TextView-->
+<!--                        android:layout_width="match_parent"-->
+<!--                        android:layout_height="wrap_content"-->
+<!--                        android:text="да"-->
+<!--                        android:layout_weight="1"-->
+<!--                        android:gravity="center"-->
+<!--                        android:fontFamily="@font/montserrat_semibold"-->
+<!--                        android:textSize="12dp"-->
+<!--                        android:textColor="@color/pinkColor">-->
+
+<!--                    </TextView>-->
+
+<!--                </LinearLayout>-->
+<!--                -->
+<!--            </RelativeLayout>-->
+
 
         </LinearLayout>
 
 
-        <ScrollView
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:layout_marginTop="300dp">
-
-            <LinearLayout
-                android:id="@+id/todayLessonsView"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="vertical">
-
-
-            </LinearLayout>
-        </ScrollView>
     </LinearLayout>
+    </ScrollView>
 
     <RelativeLayout
         android:id="@+id/homeScreen"

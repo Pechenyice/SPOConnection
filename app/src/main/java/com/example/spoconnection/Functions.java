@@ -31,11 +31,12 @@ public class Functions {
         return "";
     }
 
-    public static HttpURLConnection setupGetAuthRequest(String address, String authCookie) throws IOException {
+    public static HttpURLConnection setupGetAuthRequest(String address, String authCookie, Integer timeout) throws IOException {
         URL url = new URL(address);
         HttpURLConnection con = (HttpURLConnection) url.openConnection();
-
         con.setRequestMethod("GET");
+
+        con.setReadTimeout(timeout * 1000);
         con.setRequestProperty("User-Agent", "Mozilla/5.0 (Windows NT 6.3; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/79.0.3945.130 Safari/537.36 OPR/66.0.3515.95");
         con.setRequestProperty("Cookie", authCookie);
         con.setUseCaches(false);
