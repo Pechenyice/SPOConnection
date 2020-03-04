@@ -1588,6 +1588,13 @@ public class MainActivity extends AppCompatActivity {
 
     void buildFrontend() {
 
+        int dp = (int) getResources().getDisplayMetrics().density;
+
+        Typeface light = ResourcesCompat.getFont(getApplicationContext(), R.font.montserrat_light);
+        Typeface medium = ResourcesCompat.getFont(getApplicationContext(), R.font.montserrat_medium);
+        Typeface semibold = ResourcesCompat.getFont(getApplicationContext(), R.font.montserrat_semibold);
+        Typeface regular = ResourcesCompat.getFont(getApplicationContext(), R.font.montserrat_regular);
+
         //заранее высираем контент в lessonsScreen
         main.addView(lessonsScreen);
 
@@ -1599,23 +1606,72 @@ public class MainActivity extends AppCompatActivity {
             JSONObject value;
             try {
                 value = studentLessons.getJSONObject(i);
-                TextView temp = new TextView(this);
-                LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, 150);
-                lp.setMargins(0,0,0, 50);
-                temp.setLayoutParams(lp);
-                temp.setText(value.getString("name") + " семестр " + value.getString("semester"));
-                temp.setBackgroundColor(127);
+
+
+                if (i == 0) {
+                    TextView semestrCounter = new TextView(getApplicationContext());
+                    LinearLayout.LayoutParams semestrCounterLP = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.WRAP_CONTENT);
+                    semestrCounterLP.setMargins(20 * dp, 15 * dp, 0, 0);
+                    semestrCounter.setLayoutParams(semestrCounterLP);
+                    semestrCounter.setText(value.getString("semester") + " семестр");
+                    semestrCounter.setTextSize(12);
+                    semestrCounter.setTextColor(getResources().getColor(R.color.pinkColor));
+                    semestrCounter.setTypeface(medium);
+                    lessonsList.addView(semestrCounter);
+                } else if (!studentLessons.getJSONObject(i-1).getString("semester").equals(value.getString("semester"))) {
+                    TextView semestrCounter = new TextView(getApplicationContext());
+                    LinearLayout.LayoutParams semestrCounterLP = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.WRAP_CONTENT);
+                    semestrCounterLP.setMargins(20*dp, 30*dp, 0, 0);
+                    semestrCounter.setLayoutParams(semestrCounterLP);
+                    semestrCounter.setText(value.getString("semester") + " семестр");
+                    semestrCounter.setTextSize(12);
+                    semestrCounter.setTextColor(getResources().getColor(R.color.pinkColor));
+                    semestrCounter.setTypeface(medium);
+                    lessonsList.addView(semestrCounter);
+                }
+
+                RelativeLayout studentLessonsFullInfoBox = new RelativeLayout(getApplicationContext());
+                RelativeLayout.LayoutParams studentLessonsFullInfoBoxLP = new RelativeLayout.LayoutParams(RelativeLayout.LayoutParams.MATCH_PARENT, RelativeLayout.LayoutParams.WRAP_CONTENT);
+                studentLessonsFullInfoBoxLP.setMargins(0,5*dp,0,0);
+                studentLessonsFullInfoBox.setLayoutParams(studentLessonsFullInfoBoxLP);
+                studentLessonsFullInfoBox.setBackgroundResource(R.drawable.forms_example);
+                lessonsList.addView(studentLessonsFullInfoBox);
+
+                TextView nameOfLessonForFullInfo = new TextView(getApplicationContext());
+                RelativeLayout.LayoutParams nameOfLessonForFullInfoLP = new RelativeLayout.LayoutParams(RelativeLayout.LayoutParams.WRAP_CONTENT, RelativeLayout.LayoutParams.WRAP_CONTENT);
+                nameOfLessonForFullInfoLP.setMargins(20*dp, 15*dp, 40 * dp, 15*dp);
+                nameOfLessonForFullInfo.setLayoutParams(nameOfLessonForFullInfoLP);
+                nameOfLessonForFullInfo.setGravity(Gravity.CENTER_VERTICAL);
+                nameOfLessonForFullInfo.setText(value.getString("name"));
+                nameOfLessonForFullInfo.setTextSize(11);
+                nameOfLessonForFullInfo.setTextColor(getResources().getColor(R.color.white));
+                nameOfLessonForFullInfo.setTypeface(medium);
+                studentLessonsFullInfoBox.addView(nameOfLessonForFullInfo);
+
+                TextView nameOfLessonForFullInfoDec = new TextView(getApplicationContext());
+                RelativeLayout.LayoutParams nameOfLessonForFullInfoDecLP = new RelativeLayout.LayoutParams(RelativeLayout.LayoutParams.WRAP_CONTENT, RelativeLayout.LayoutParams.WRAP_CONTENT);
+                nameOfLessonForFullInfoDecLP.setMargins(0, 0, 20*dp, 0);
+                nameOfLessonForFullInfoDecLP.addRule(RelativeLayout.ALIGN_PARENT_RIGHT);
+                nameOfLessonForFullInfoDecLP.addRule(RelativeLayout.CENTER_VERTICAL);
+                nameOfLessonForFullInfoDec.setLayoutParams(nameOfLessonForFullInfoDecLP);
+                nameOfLessonForFullInfoDec.setGravity(Gravity.CENTER);
+                nameOfLessonForFullInfoDec.setText(">");
+                nameOfLessonForFullInfoDec.setTextSize(16);
+                nameOfLessonForFullInfoDec.setTextColor(getResources().getColor(R.color.greyColor));
+                nameOfLessonForFullInfoDec.setTypeface(medium);
+                studentLessonsFullInfoBox.addView(nameOfLessonForFullInfoDec);
+
+
 
                 // самая важная вещь - id temp'а это id для JSONObject
 
-                temp.setId(Integer.parseInt(value.getString("id")));
+                studentLessonsFullInfoBox.setId(Integer.parseInt(value.getString("id")));
 
 
                 // вешаем универсальный обработчик кликов для каждого предмета
 
                 lessonInformationClickListener needMoreInfo = new lessonInformationClickListener();
-                temp.setOnClickListener(needMoreInfo);
-                lessonsList.addView(temp);
+                studentLessonsFullInfoBox.setOnClickListener(needMoreInfo);
 
             } catch (JSONException e) {
                 e.printStackTrace();
@@ -1684,13 +1740,6 @@ public class MainActivity extends AppCompatActivity {
             JSONObject value;
             try {
                 value = exercisesByDay.getJSONObject(i);
-
-                int dp = (int) getResources().getDisplayMetrics().density;
-
-                Typeface light = ResourcesCompat.getFont(getApplicationContext(), R.font.montserrat_light);
-                Typeface medium = ResourcesCompat.getFont(getApplicationContext(), R.font.montserrat_medium);
-                Typeface semibold = ResourcesCompat.getFont(getApplicationContext(), R.font.montserrat_semibold);
-                Typeface regular = ResourcesCompat.getFont(getApplicationContext(), R.font.montserrat_regular);
 
                 RelativeLayout mainTodayLessonsTmpBox = new RelativeLayout(getApplicationContext());
                 RelativeLayout.LayoutParams mainTodayLessonsTmpBoxLP = new RelativeLayout.LayoutParams(RelativeLayout.LayoutParams.MATCH_PARENT, RelativeLayout.LayoutParams.WRAP_CONTENT);
