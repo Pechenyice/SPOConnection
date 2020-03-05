@@ -11,6 +11,7 @@ import android.graphics.BitmapFactory;
 import android.graphics.Color;
 import android.graphics.Typeface;
 import android.graphics.drawable.BitmapDrawable;
+import android.graphics.drawable.GradientDrawable;
 import android.os.Bundle;
 import android.os.AsyncTask;
 import android.view.Gravity;
@@ -33,6 +34,7 @@ import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
+import org.w3c.dom.Text;
 
 import java.io.BufferedReader;
 import java.io.ByteArrayOutputStream;
@@ -616,10 +618,19 @@ public class MainActivity extends AppCompatActivity {
 
             }
 
+            System.out.println("exe "+exercisesByLesson.toString());
+
             // берем нужный предмет
             JSONArray buffer = exercisesByLesson;
             LinearLayout lessonsInformationList = findViewById(R.id.lessonsInformationList);
             lessonsInformationList.removeAllViews();
+
+            int dp = (int) getResources().getDisplayMetrics().density;
+
+            Typeface light = ResourcesCompat.getFont(getApplicationContext(), R.font.montserrat_light);
+            Typeface medium = ResourcesCompat.getFont(getApplicationContext(), R.font.montserrat_medium);
+            Typeface semibold = ResourcesCompat.getFont(getApplicationContext(), R.font.montserrat_semibold);
+            Typeface regular = ResourcesCompat.getFont(getApplicationContext(), R.font.montserrat_regular);
 
             // выкидываем информацию о паре
             for (int k = 0; k < buffer.length(); k++) {
@@ -627,55 +638,160 @@ public class MainActivity extends AppCompatActivity {
                 try {
 
                     value = buffer.getJSONObject(k);
-                    TextView temp = new TextView(getApplicationContext());
-                    LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, 150);
-                    lp.setMargins(0,0,0, 50);
-                    temp.setLayoutParams(lp);
-                    temp.setText(value.getString("topic") + " и эта пара была " + value.getString("day"));
-                    temp.setBackgroundColor(167);
 
+                    TextView allLessonsInformation = new TextView(getApplicationContext());
+                    LinearLayout.LayoutParams allLessonsInformationLP = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.WRAP_CONTENT);
+                    allLessonsInformationLP.setMargins(20*dp, 7*dp, 0, 2*dp);
+                    allLessonsInformation.setLayoutParams(allLessonsInformationLP);
+                    allLessonsInformation.setText(value.getString("day"));
+                    allLessonsInformation.setTextSize(12);
+                    allLessonsInformation.setTextColor(getResources().getColor(R.color.pinkColor));
+                    allLessonsInformation.setTypeface(medium);
+                    lessonsInformationList.addView(allLessonsInformation);
+
+                    LinearLayout allLessonsInformationAllInfoBox = new LinearLayout(getApplicationContext());
+                    LinearLayout.LayoutParams allLessonsInformationAllInfoBoxLP = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT);
+                    allLessonsInformationAllInfoBox.setLayoutParams(allLessonsInformationAllInfoBoxLP);
+                    allLessonsInformationAllInfoBox.setBackgroundResource(R.drawable.forms_example);
+                    allLessonsInformationAllInfoBox.setOrientation(LinearLayout.VERTICAL);
+                    lessonsInformationList.addView(allLessonsInformationAllInfoBox);
+
+                    TextView lessonsAllInformationTheme = new TextView(getApplicationContext());
+                    LinearLayout.LayoutParams lessonsAllInformationThemeLP = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.WRAP_CONTENT);
+                    lessonsAllInformationThemeLP.setMargins(30*dp, 10*dp, 30*dp, 0);
+                    lessonsAllInformationTheme.setLayoutParams(lessonsAllInformationThemeLP);
+                    lessonsAllInformationTheme.setText(value.getString("day"));
+                    lessonsAllInformationTheme.setGravity(Gravity.CENTER_VERTICAL);
+                    lessonsAllInformationTheme.setTextSize(14);
+                    lessonsAllInformationTheme.setText(value.getString("topic"));
+                    lessonsAllInformationTheme.setTextColor(getResources().getColor(R.color.white));
+                    lessonsAllInformationTheme.setTypeface(medium);
+                    allLessonsInformationAllInfoBox.addView(lessonsAllInformationTheme);
+
+
+                    LinearLayout todayLessonsForUserInformationBox = new LinearLayout(getApplicationContext());
+                    LinearLayout.LayoutParams todayLessonsForUserInformationBoxLP = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT);
+                    todayLessonsForUserInformationBoxLP.setMargins(5*dp, 5*dp, 5*dp, 0);
+                    todayLessonsForUserInformationBox.setLayoutParams(todayLessonsForUserInformationBoxLP);
+                    allLessonsInformationAllInfoBox.addView(todayLessonsForUserInformationBox);
+
+                    TextView todayLessonTmpBoxPris = new TextView(getApplicationContext());
+                    LinearLayout.LayoutParams todayLessonTmpBoxPrisLP = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT);
+                    todayLessonTmpBoxPrisLP.weight = 1;
+                    todayLessonTmpBoxPris.setLayoutParams(todayLessonTmpBoxPrisLP);
+                    todayLessonTmpBoxPris.setText("присутствие");
+                    todayLessonTmpBoxPris.setTextSize(10);
+                    todayLessonTmpBoxPris.setGravity(Gravity.CENTER);
+                    todayLessonTmpBoxPris.setTextColor(getResources().getColor(R.color.greyColor));
+                    todayLessonTmpBoxPris.setTypeface(light);
+                    todayLessonsForUserInformationBox.addView(todayLessonTmpBoxPris);
+
+                    TextView todayLessonTmpBoxMark = new TextView(getApplicationContext());
+                    LinearLayout.LayoutParams todayLessonTmpBoxMarkLP = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT);
+                    todayLessonTmpBoxMarkLP.weight = 1;
+                    todayLessonTmpBoxMark.setLayoutParams(todayLessonTmpBoxMarkLP);
+                    todayLessonTmpBoxMark.setText("оценка");
+                    todayLessonTmpBoxMark.setTextSize(10);
+                    todayLessonTmpBoxMark.setGravity(Gravity.CENTER);
+                    todayLessonTmpBoxMark.setBackgroundResource(R.drawable.today_lessons_border);
+                    todayLessonTmpBoxMark.setTextColor(getResources().getColor(R.color.greyColor));
+                    todayLessonTmpBoxMark.setTypeface(light);
+                    todayLessonsForUserInformationBox.addView(todayLessonTmpBoxMark);
+
+                    TextView todayLessonTmpBoxAct = new TextView(getApplicationContext());
+                    LinearLayout.LayoutParams todayLessonTmpBoxActLP = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT);
+                    todayLessonTmpBoxActLP.weight = 1;
+                    todayLessonTmpBoxAct.setLayoutParams(todayLessonTmpBoxActLP);
+                    todayLessonTmpBoxAct.setText("активность");
+                    todayLessonTmpBoxAct.setTextSize(10);
+                    todayLessonTmpBoxAct.setGravity(Gravity.CENTER);
+                    todayLessonTmpBoxAct.setBackgroundResource(R.drawable.today_lessons_border_right_only);
+                    todayLessonTmpBoxAct.setTextColor(getResources().getColor(R.color.greyColor));
+                    todayLessonTmpBoxAct.setTypeface(light);
+                    todayLessonsForUserInformationBox.addView(todayLessonTmpBoxAct);
+
+                    TextView todayLessonTmpBoxLate = new TextView(getApplicationContext());
+                    LinearLayout.LayoutParams todayLessonTmpBoxLateLP = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT);
+                    todayLessonTmpBoxLateLP.weight = 1;
+                    todayLessonTmpBoxLate.setLayoutParams(todayLessonTmpBoxLateLP);
+                    todayLessonTmpBoxLate.setText("опоздание");
+                    todayLessonTmpBoxLate.setTextSize(10);
+                    todayLessonTmpBoxLate.setGravity(Gravity.CENTER);
+                    todayLessonTmpBoxLate.setTextColor(getResources().getColor(R.color.greyColor));
+                    todayLessonTmpBoxLate.setTypeface(light);
+                    todayLessonsForUserInformationBox.addView(todayLessonTmpBoxLate);
+
+                    LinearLayout todayLessonsAboutUserInformationBox = new LinearLayout(getApplicationContext());
+                    LinearLayout.LayoutParams todayLessonsAboutUserInformationBoxLP = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT);
+                    todayLessonsAboutUserInformationBoxLP.setMargins(5*dp,0,5*dp,10*dp);
+                    todayLessonsAboutUserInformationBox.setLayoutParams(todayLessonsAboutUserInformationBoxLP);
+                    allLessonsInformationAllInfoBox.addView(todayLessonsAboutUserInformationBox);
 
                     // получаем подробную информацию о паре
 
                     JSONObject valueInfo;
                     try {
                         valueInfo = exercisesByLessonVisits.getJSONArray(value.getString("id")).getJSONObject(0);
+                        String presence = valueInfo.getString("presence").equals("0") ? "нет" : "да";
+                        String point = valueInfo.getString("point").toString().equals("null")  ? "нет" : valueInfo.getString("point");
+                        if (point.equals("1")) point = "зачет";
+                        String delay = valueInfo.getString("delay").toString().equals("null")  ? "нет" : "да";
+                        String performance = valueInfo.getString("performance").equals("null") ? "нет" : "да";
 
-                        String presence = valueInfo.getString("presence").equals("0") ? " присутствие: нет " : " присутствие: да ";
-                        String point = valueInfo.getString("point").toString().equals("null")  ? " оценка: нет " : " оценка: да ";
-                        switch (valueInfo.getString("point")) {
-                            case "2": {
-                                point = " оценка: 2";
-                                break;
-                            }
-                            case "3": {
-                                point = " оценка: 3";
-                                break;
-                            }
-                            case "4": {
-                                point = " оценка: 4";
-                                break;
-                            }
-                            case "5": {
-                                point = " оценка: 5";
-                                break;
-                            }
-                        }
-                        String delay = valueInfo.getString("delay").toString().equals("null")  ? " опоздание: нет " : " опоздание: да ";
-                        String performance = valueInfo.getString("performance").toString().equals("null") ? " активность: нет " : " активность: да ";
 
-                        temp.setText(temp.getText() + presence + point + delay + performance);
+
+                        TextView todayLessonTmpBoxPrisInfo = new TextView(getApplicationContext());
+                        LinearLayout.LayoutParams todayLessonTmpBoxPrisInfoLP = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT);
+                        todayLessonTmpBoxPrisInfoLP.weight = 1;
+                        todayLessonTmpBoxPrisInfo.setLayoutParams(todayLessonTmpBoxPrisInfoLP);
+                        todayLessonTmpBoxPrisInfo.setText(presence);
+                        todayLessonTmpBoxPrisInfo.setTextSize(12);
+                        todayLessonTmpBoxPrisInfo.setGravity(Gravity.CENTER);
+                        todayLessonTmpBoxPrisInfo.setTextColor(getResources().getColor(R.color.pinkColor));
+                        todayLessonTmpBoxPrisInfo.setTypeface(semibold);
+                        todayLessonsAboutUserInformationBox.addView(todayLessonTmpBoxPrisInfo);
+
+                        TextView todayLessonTmpBoxMarkInfo = new TextView(getApplicationContext());
+                        LinearLayout.LayoutParams todayLessonTmpBoxMarkInfoLP = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT);
+                        todayLessonTmpBoxMarkInfoLP.weight = 1;
+                        todayLessonTmpBoxMarkInfo.setLayoutParams(todayLessonTmpBoxMarkInfoLP);
+                        todayLessonTmpBoxMarkInfo.setText(point);
+                        todayLessonTmpBoxMarkInfo.setTextSize(12);
+                        todayLessonTmpBoxMarkInfo.setGravity(Gravity.CENTER);
+                        todayLessonTmpBoxMarkInfo.setTextColor(getResources().getColor(R.color.pinkColor));
+                        todayLessonTmpBoxMarkInfo.setTypeface(semibold);
+                        todayLessonsAboutUserInformationBox.addView(todayLessonTmpBoxMarkInfo);
+
+                        TextView todayLessonTmpBoxActInfo = new TextView(getApplicationContext());
+                        LinearLayout.LayoutParams todayLessonTmpBoxActInfoLP = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT);
+                        todayLessonTmpBoxActInfoLP.weight = 1;
+                        todayLessonTmpBoxActInfo.setLayoutParams(todayLessonTmpBoxActInfoLP);
+                        todayLessonTmpBoxActInfo.setText(performance);
+                        todayLessonTmpBoxActInfo.setTextSize(12);
+                        todayLessonTmpBoxActInfo.setGravity(Gravity.CENTER);
+                        todayLessonTmpBoxActInfo.setTextColor(getResources().getColor(R.color.pinkColor));
+                        todayLessonTmpBoxActInfo.setTypeface(semibold);
+                        todayLessonsAboutUserInformationBox.addView(todayLessonTmpBoxActInfo);
+
+                        TextView todayLessonTmpBoxLateInfo = new TextView(getApplicationContext());
+                        LinearLayout.LayoutParams todayLessonTmpBoxLateInfoLP = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT);
+                        todayLessonTmpBoxLateInfoLP.weight = 1;
+                        todayLessonTmpBoxLateInfo.setLayoutParams(todayLessonTmpBoxLateInfoLP);
+                        todayLessonTmpBoxLateInfo.setText(delay);
+                        todayLessonTmpBoxLateInfo.setTextSize(12);
+                        todayLessonTmpBoxLateInfo.setGravity(Gravity.CENTER);
+                        todayLessonTmpBoxLateInfo.setTextColor(getResources().getColor(R.color.pinkColor));
+                        todayLessonTmpBoxLateInfo.setTypeface(semibold);
+                        todayLessonsAboutUserInformationBox.addView(todayLessonTmpBoxLateInfo);
                     } catch (JSONException e) {
                         e.printStackTrace();
                     }
 
 
 
-
                     // опять же id - ключ для следующего массива
 
-                    temp.setId(Integer.parseInt(value.getString("id")));
-                    lessonsInformationList.addView(temp);
+//                        temp.setId(Integer.parseInt(value.getString("id")));
 
                 } catch (JSONException e) {
                     e.printStackTrace();
@@ -1892,6 +2008,7 @@ public class MainActivity extends AppCompatActivity {
 
                     String presence = valueInfo.getString("presence").equals("0") ? "нет" : "да";
                     String point = valueInfo.getString("point").toString().equals("null")  ? "нет" : valueInfo.getString("point");
+                    if (point.equals("1")) point = "зачет";
                     String delay = valueInfo.getString("delay").toString().equals("null")  ? "нет" : "да";
                     String performance = valueInfo.getString("performance").equals("null") ? "нет" : "да";
 
@@ -1934,7 +2051,7 @@ public class MainActivity extends AppCompatActivity {
                     LinearLayout.LayoutParams todayLessonTmpBoxLateInfoLP = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT);
                     todayLessonTmpBoxLateInfoLP.weight = 1;
                     todayLessonTmpBoxLateInfo.setLayoutParams(todayLessonTmpBoxLateInfoLP);
-                    todayLessonTmpBoxLateInfo.setText(performance);
+                    todayLessonTmpBoxLateInfo.setText(delay);
                     todayLessonTmpBoxLateInfo.setTextSize(12);
                     todayLessonTmpBoxLateInfo.setGravity(Gravity.CENTER);
                     todayLessonTmpBoxLateInfo.setTextColor(getResources().getColor(R.color.pinkColor));
@@ -2071,6 +2188,7 @@ public class MainActivity extends AppCompatActivity {
 
     }
 
+
     // обработчик нажатий на предметы в lessons
 
     class lessonInformationClickListener implements View.OnClickListener {
@@ -2078,17 +2196,43 @@ public class MainActivity extends AppCompatActivity {
         public void onClick(View v)
         {
 
+            int dp = (int) getResources().getDisplayMetrics().density;
+
+            Typeface light = ResourcesCompat.getFont(getApplicationContext(), R.font.montserrat_light);
+            Typeface medium = ResourcesCompat.getFont(getApplicationContext(), R.font.montserrat_medium);
+            Typeface semibold = ResourcesCompat.getFont(getApplicationContext(), R.font.montserrat_semibold);
+            Typeface regular = ResourcesCompat.getFont(getApplicationContext(), R.font.montserrat_regular);
+
+
             // обновляем активный экран
 
             main.removeView(lessonsScreen);
             activeContainer = ContainerName.LESSONS_INFORMATION;
             main.addView(lessonsInformationScreen);
 
+            JSONArray checkArray = studentLessons;
+            for (int i = 0; i < checkArray.length(); i++) {
+                try {
+                    JSONObject tmp = checkArray.getJSONObject(i);
+                    if (tmp.getString("id").equals(v.getId()+"")) {
+                        TextView nameView = findViewById(R.id.lessonsInformationName);
+                        nameView.setText(tmp.getString("name"));
+                        TextView semesterView = findViewById(R.id.lessonsInformationSemester);
+                        semesterView.setText(tmp.getString("semester") + " семестр");
+                    }
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+
+            }
+
 
             LinearLayout lessonsInformationList = findViewById(R.id.lessonsInformationList);
 
             // очищаем scrollview
 
+
+            lessonsInformationList.removeAllViews();
 
             JSONArray buffer = null;
             try {
@@ -2102,50 +2246,159 @@ public class MainActivity extends AppCompatActivity {
                 sendGetExercisesByLessonRequest(new String[] {v.getId()+""});
             } else {
 
-
                 for (int k = 0; k < buffer.length(); k++) {
                     JSONObject value;
                     try {
 
                         value = buffer.getJSONObject(k);
-                        TextView temp = new TextView(getApplicationContext());
-                        LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, 150);
-                        lp.setMargins(0,0,0, 50);
-                        temp.setLayoutParams(lp);
-                        temp.setText(value.getString("topic") + " и эта пара была " + value.getString("day"));
-                        temp.setBackgroundColor(167);
 
+                        TextView allLessonsInformation = new TextView(getApplicationContext());
+                        LinearLayout.LayoutParams allLessonsInformationLP = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.WRAP_CONTENT);
+                        allLessonsInformationLP.setMargins(20*dp, 7*dp, 0, 2*dp);
+                        allLessonsInformation.setLayoutParams(allLessonsInformationLP);
+                        allLessonsInformation.setText(value.getString("day"));
+                        allLessonsInformation.setTextSize(12);
+                        allLessonsInformation.setTextColor(getResources().getColor(R.color.pinkColor));
+                        allLessonsInformation.setTypeface(medium);
+                        lessonsInformationList.addView(allLessonsInformation);
+
+                        LinearLayout allLessonsInformationAllInfoBox = new LinearLayout(getApplicationContext());
+                        LinearLayout.LayoutParams allLessonsInformationAllInfoBoxLP = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT);
+                        allLessonsInformationAllInfoBox.setLayoutParams(allLessonsInformationAllInfoBoxLP);
+                        allLessonsInformationAllInfoBox.setBackgroundResource(R.drawable.forms_example);
+                        allLessonsInformationAllInfoBox.setOrientation(LinearLayout.VERTICAL);
+                        lessonsInformationList.addView(allLessonsInformationAllInfoBox);
+
+                        TextView lessonsAllInformationTheme = new TextView(getApplicationContext());
+                        LinearLayout.LayoutParams lessonsAllInformationThemeLP = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.WRAP_CONTENT);
+                        lessonsAllInformationThemeLP.setMargins(30*dp, 10*dp, 30*dp, 0);
+                        lessonsAllInformationTheme.setLayoutParams(lessonsAllInformationThemeLP);
+                        lessonsAllInformationTheme.setText(value.getString("day"));
+                        lessonsAllInformationTheme.setGravity(Gravity.CENTER_VERTICAL);
+                        lessonsAllInformationTheme.setTextSize(14);
+                        lessonsAllInformationTheme.setText(value.getString("topic"));
+                        lessonsAllInformationTheme.setTextColor(getResources().getColor(R.color.white));
+                        lessonsAllInformationTheme.setTypeface(medium);
+                        allLessonsInformationAllInfoBox.addView(lessonsAllInformationTheme);
+
+
+                        LinearLayout todayLessonsForUserInformationBox = new LinearLayout(getApplicationContext());
+                        LinearLayout.LayoutParams todayLessonsForUserInformationBoxLP = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT);
+                        todayLessonsForUserInformationBoxLP.setMargins(5*dp, 5*dp, 5*dp, 0);
+                        todayLessonsForUserInformationBox.setLayoutParams(todayLessonsForUserInformationBoxLP);
+                        allLessonsInformationAllInfoBox.addView(todayLessonsForUserInformationBox);
+
+                        TextView todayLessonTmpBoxPris = new TextView(getApplicationContext());
+                        LinearLayout.LayoutParams todayLessonTmpBoxPrisLP = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT);
+                        todayLessonTmpBoxPrisLP.weight = 1;
+                        todayLessonTmpBoxPris.setLayoutParams(todayLessonTmpBoxPrisLP);
+                        todayLessonTmpBoxPris.setText("присутствие");
+                        todayLessonTmpBoxPris.setTextSize(10);
+                        todayLessonTmpBoxPris.setGravity(Gravity.CENTER);
+                        todayLessonTmpBoxPris.setTextColor(getResources().getColor(R.color.greyColor));
+                        todayLessonTmpBoxPris.setTypeface(light);
+                        todayLessonsForUserInformationBox.addView(todayLessonTmpBoxPris);
+
+                        TextView todayLessonTmpBoxMark = new TextView(getApplicationContext());
+                        LinearLayout.LayoutParams todayLessonTmpBoxMarkLP = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT);
+                        todayLessonTmpBoxMarkLP.weight = 1;
+                        todayLessonTmpBoxMark.setLayoutParams(todayLessonTmpBoxMarkLP);
+                        todayLessonTmpBoxMark.setText("оценка");
+                        todayLessonTmpBoxMark.setTextSize(10);
+                        todayLessonTmpBoxMark.setGravity(Gravity.CENTER);
+                        todayLessonTmpBoxMark.setBackgroundResource(R.drawable.today_lessons_border);
+                        todayLessonTmpBoxMark.setTextColor(getResources().getColor(R.color.greyColor));
+                        todayLessonTmpBoxMark.setTypeface(light);
+                        todayLessonsForUserInformationBox.addView(todayLessonTmpBoxMark);
+
+                        TextView todayLessonTmpBoxAct = new TextView(getApplicationContext());
+                        LinearLayout.LayoutParams todayLessonTmpBoxActLP = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT);
+                        todayLessonTmpBoxActLP.weight = 1;
+                        todayLessonTmpBoxAct.setLayoutParams(todayLessonTmpBoxActLP);
+                        todayLessonTmpBoxAct.setText("активность");
+                        todayLessonTmpBoxAct.setTextSize(10);
+                        todayLessonTmpBoxAct.setGravity(Gravity.CENTER);
+                        todayLessonTmpBoxAct.setBackgroundResource(R.drawable.today_lessons_border_right_only);
+                        todayLessonTmpBoxAct.setTextColor(getResources().getColor(R.color.greyColor));
+                        todayLessonTmpBoxAct.setTypeface(light);
+                        todayLessonsForUserInformationBox.addView(todayLessonTmpBoxAct);
+
+                        TextView todayLessonTmpBoxLate = new TextView(getApplicationContext());
+                        LinearLayout.LayoutParams todayLessonTmpBoxLateLP = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT);
+                        todayLessonTmpBoxLateLP.weight = 1;
+                        todayLessonTmpBoxLate.setLayoutParams(todayLessonTmpBoxLateLP);
+                        todayLessonTmpBoxLate.setText("опоздание");
+                        todayLessonTmpBoxLate.setTextSize(10);
+                        todayLessonTmpBoxLate.setGravity(Gravity.CENTER);
+                        todayLessonTmpBoxLate.setTextColor(getResources().getColor(R.color.greyColor));
+                        todayLessonTmpBoxLate.setTypeface(light);
+                        todayLessonsForUserInformationBox.addView(todayLessonTmpBoxLate);
+
+                        LinearLayout todayLessonsAboutUserInformationBox = new LinearLayout(getApplicationContext());
+                        LinearLayout.LayoutParams todayLessonsAboutUserInformationBoxLP = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT);
+                        todayLessonsAboutUserInformationBoxLP.setMargins(5*dp,0,5*dp,10*dp);
+                        todayLessonsAboutUserInformationBox.setLayoutParams(todayLessonsAboutUserInformationBoxLP);
+                        allLessonsInformationAllInfoBox.addView(todayLessonsAboutUserInformationBox);
 
                         // получаем подробную информацию о паре
 
+                        System.out.println("1: " +  readyExercisesByLesson);
+                        System.out.println("2: " +  readyExercisesByLessonVisits);
+
                         JSONObject valueInfo;
                         try {
-                            valueInfo = readyExercisesByLessonVisits.getJSONArray(value.getString("id")).getJSONObject(0);
+                            valueInfo = readyExercisesByLessonVisits.getJSONObject(v.getId()+"").getJSONArray(value.getString("id")).getJSONObject(0);
+                            String presence = valueInfo.getString("presence").equals("0") ? "нет" : "да";
+                            String point = valueInfo.getString("point").toString().equals("null")  ? "нет" : valueInfo.getString("point");
+                            if (point.equals("1")) point = "зачет";
+                            String delay = valueInfo.getString("delay").toString().equals("null")  ? "нет" : "да";
+                            String performance = valueInfo.getString("performance").equals("null") ? "нет" : "да";
 
-                            String presence = valueInfo.getString("presence").equals("0") ? " присутствие: нет " : " присутствие: да ";
-                            String point = valueInfo.getString("point").toString().equals("null")  ? " оценка: нет " : " оценка: да ";
-                            switch (valueInfo.getString("point")) {
-                                case "2": {
-                                    point = " оценка: 2";
-                                    break;
-                                }
-                                case "3": {
-                                    point = " оценка: 3";
-                                    break;
-                                }
-                                case "4": {
-                                    point = " оценка: 4";
-                                    break;
-                                }
-                                case "5": {
-                                    point = " оценка: 5";
-                                    break;
-                                }
-                            }
-                            String delay = valueInfo.getString("delay").toString().equals("null")  ? " опоздание: нет " : " опоздание: да ";
-                            String performance = valueInfo.getString("performance").toString().equals("null") ? " активность: нет " : " активность: да ";
 
-                            temp.setText(temp.getText() + presence + point + delay + performance);
+
+                            TextView todayLessonTmpBoxPrisInfo = new TextView(getApplicationContext());
+                            LinearLayout.LayoutParams todayLessonTmpBoxPrisInfoLP = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT);
+                            todayLessonTmpBoxPrisInfoLP.weight = 1;
+                            todayLessonTmpBoxPrisInfo.setLayoutParams(todayLessonTmpBoxPrisInfoLP);
+                            todayLessonTmpBoxPrisInfo.setText(presence);
+                            todayLessonTmpBoxPrisInfo.setTextSize(12);
+                            todayLessonTmpBoxPrisInfo.setGravity(Gravity.CENTER);
+                            todayLessonTmpBoxPrisInfo.setTextColor(getResources().getColor(R.color.pinkColor));
+                            todayLessonTmpBoxPrisInfo.setTypeface(semibold);
+                            todayLessonsAboutUserInformationBox.addView(todayLessonTmpBoxPrisInfo);
+
+                            TextView todayLessonTmpBoxMarkInfo = new TextView(getApplicationContext());
+                            LinearLayout.LayoutParams todayLessonTmpBoxMarkInfoLP = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT);
+                            todayLessonTmpBoxMarkInfoLP.weight = 1;
+                            todayLessonTmpBoxMarkInfo.setLayoutParams(todayLessonTmpBoxMarkInfoLP);
+                            todayLessonTmpBoxMarkInfo.setText(point);
+                            todayLessonTmpBoxMarkInfo.setTextSize(12);
+                            todayLessonTmpBoxMarkInfo.setGravity(Gravity.CENTER);
+                            todayLessonTmpBoxMarkInfo.setTextColor(getResources().getColor(R.color.pinkColor));
+                            todayLessonTmpBoxMarkInfo.setTypeface(semibold);
+                            todayLessonsAboutUserInformationBox.addView(todayLessonTmpBoxMarkInfo);
+
+                            TextView todayLessonTmpBoxActInfo = new TextView(getApplicationContext());
+                            LinearLayout.LayoutParams todayLessonTmpBoxActInfoLP = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT);
+                            todayLessonTmpBoxActInfoLP.weight = 1;
+                            todayLessonTmpBoxActInfo.setLayoutParams(todayLessonTmpBoxActInfoLP);
+                            todayLessonTmpBoxActInfo.setText(performance);
+                            todayLessonTmpBoxActInfo.setTextSize(12);
+                            todayLessonTmpBoxActInfo.setGravity(Gravity.CENTER);
+                            todayLessonTmpBoxActInfo.setTextColor(getResources().getColor(R.color.pinkColor));
+                            todayLessonTmpBoxActInfo.setTypeface(semibold);
+                            todayLessonsAboutUserInformationBox.addView(todayLessonTmpBoxActInfo);
+
+                            TextView todayLessonTmpBoxLateInfo = new TextView(getApplicationContext());
+                            LinearLayout.LayoutParams todayLessonTmpBoxLateInfoLP = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT);
+                            todayLessonTmpBoxLateInfoLP.weight = 1;
+                            todayLessonTmpBoxLateInfo.setLayoutParams(todayLessonTmpBoxLateInfoLP);
+                            todayLessonTmpBoxLateInfo.setText(delay);
+                            todayLessonTmpBoxLateInfo.setTextSize(12);
+                            todayLessonTmpBoxLateInfo.setGravity(Gravity.CENTER);
+                            todayLessonTmpBoxLateInfo.setTextColor(getResources().getColor(R.color.pinkColor));
+                            todayLessonTmpBoxLateInfo.setTypeface(semibold);
+                            todayLessonsAboutUserInformationBox.addView(todayLessonTmpBoxLateInfo);
                         } catch (JSONException e) {
                             e.printStackTrace();
                         }
@@ -2154,8 +2407,7 @@ public class MainActivity extends AppCompatActivity {
 
                         // опять же id - ключ для следующего массива
 
-                        temp.setId(Integer.parseInt(value.getString("id")));
-                        lessonsInformationList.addView(temp);
+//                        temp.setId(Integer.parseInt(value.getString("id")));
 
                     } catch (JSONException e) {
                         e.printStackTrace();
