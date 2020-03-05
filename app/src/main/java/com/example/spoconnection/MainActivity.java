@@ -834,11 +834,20 @@ public class MainActivity extends AppCompatActivity {
 
             }
 
+            int dp = (int) getResources().getDisplayMetrics().density;
+
+            Typeface light = ResourcesCompat.getFont(getApplicationContext(), R.font.montserrat_light);
+            Typeface medium = ResourcesCompat.getFont(getApplicationContext(), R.font.montserrat_medium);
+            Typeface semibold = ResourcesCompat.getFont(getApplicationContext(), R.font.montserrat_semibold);
+            Typeface regular = ResourcesCompat.getFont(getApplicationContext(), R.font.montserrat_regular);
+
             JSONArray value;
             try {
                 value = vkWallPosts.getJSONArray("items");
                 LinearLayout notificationList = findViewById(R.id.notificationList);
+
                 notificationList.removeAllViews();
+
 
                 for (int i = 0; i < value.length(); i++) {
 
@@ -852,15 +861,37 @@ public class MainActivity extends AppCompatActivity {
                         long stamp = System.currentTimeMillis()/1000;
                         System.out.println("current time: " + stamp);
 
-                        //и выкидывем его на форму если он моложе двух дней
-                        if (stamp - Long.parseLong(tmp.getString("date")) <= 2*24*3600) {
+                        //и выкидывем его на форму если он моложе недели
+                        if (stamp - Long.parseLong(tmp.getString("date")) <= 7*24*3600) {
 
-                            LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.WRAP_CONTENT);
-                            lp.setMargins(25, 25, 25, 50);
-                            TextView note = new TextView(getApplicationContext());
-                            note.setLayoutParams(lp);
-                            note.setText( (i+1) + " пост (" + new Date(Long.parseLong(tmp.getString("date"))*1000) + "):    " + tmp.getString("text"));
-                            notificationList.addView(note);
+//                            Date date = new Date(Long.parseLong(tmp.getString("date"))*1000);
+//                            String data = new SimpleDateFormat("y-M-d H:m:s.S").parse(date);
+//                            System.out.println(data);
+
+
+                            TextView vkPostCurrentInformationTime = new TextView(getApplicationContext());
+                            LinearLayout.LayoutParams vkPostCurrentInformationTimeLP = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.WRAP_CONTENT);
+                            vkPostCurrentInformationTimeLP.setMargins(10*dp, 20*dp, 0, 3*dp);
+                            vkPostCurrentInformationTime.setLayoutParams(vkPostCurrentInformationTimeLP);
+                            vkPostCurrentInformationTime.setTextSize(12);
+                            vkPostCurrentInformationTime.setText(new Date(Long.parseLong(tmp.getString("date"))*1000).toString());
+                            vkPostCurrentInformationTime.setTextColor(getResources().getColor(R.color.pinkColor));
+                            vkPostCurrentInformationTime.setTypeface(medium);
+                            notificationList.addView(vkPostCurrentInformationTime);
+
+                            TextView vkPostCurrentInformation = new TextView(getApplicationContext());
+                            LinearLayout.LayoutParams vkPostCurrentInformationLP = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT);
+                            vkPostCurrentInformation.setLayoutParams(vkPostCurrentInformationLP);
+                            vkPostCurrentInformation.setPadding(15*dp,15*dp,15*dp,15*dp);
+                            vkPostCurrentInformation.setText(tmp.getString("text"));
+                            vkPostCurrentInformation.setTextSize(12);
+                            vkPostCurrentInformation.setTextColor(getResources().getColor(R.color.greyColor));
+                            vkPostCurrentInformation.setBackgroundResource(R.drawable.forms_example);
+                            vkPostCurrentInformation.setTypeface(regular);
+                            notificationList.addView(vkPostCurrentInformation);
+
+//                            note.setText( (i+1) + " пост (" + new Date(Long.parseLong(tmp.getString("date"))*1000) + "):    " + tmp.getString("text"));
+//                            notificationList.addView(note);
                         }
 
                     } catch (JSONException e) {
@@ -2176,7 +2207,7 @@ public class MainActivity extends AppCompatActivity {
 
             if (activeContainer == ContainerName.NOTIFICATION) {
 
-                sendGetVKWallPostsRequest(new String[] {"10"});
+                sendGetVKWallPostsRequest(new String[] {"40"});
                 setLoadingToList(ContainerName.NOTIFICATION);
 
 

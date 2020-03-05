@@ -153,8 +153,8 @@
 
                     <ImageView
                         android:id="@+id/profileImage"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
                         android:background="@drawable/profile_image"
                         android:scaleType="centerCrop"
                         android:src="@drawable/ic_launcher_background" />
@@ -730,7 +730,7 @@
         android:layout_height="match_parent"
         android:layout_marginTop="60dp"
         android:layout_marginBottom="60dp"
-        tools:visibility="visible">
+        tools:visibility="invisible">
 
         <ScrollView
             android:layout_width="match_parent"
@@ -740,9 +740,9 @@
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:orientation="vertical"
+                android:layout_marginLeft="15dp"
                 android:layout_marginRight="15dp"
-                android:layout_marginLeft="15dp">
+                android:orientation="vertical">
 
                 <TextView
                     android:layout_width="match_parent"
@@ -753,8 +753,10 @@
                     android:gravity="center"
                     android:text="Информация о парах"
                     android:textColor="@color/pinkColor"
-                    android:textSize="16dp"/>
+                    android:textSize="16dp" />
+
                 <TextView
+                    android:id="@+id/lessonsInformationName"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_centerHorizontal="true"
@@ -762,174 +764,170 @@
                     android:fontFamily="@font/montserrat_regular"
                     android:gravity="center"
                     android:text="Операционные системы"
-                    android:id="@+id/lessonsInformationName"
                     android:textColor="@color/greyColor"
-                    android:textSize="14dp"/>
+                    android:textSize="14dp" />
+
                 <TextView
+                    android:id="@+id/lessonsInformationSemester"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_centerHorizontal="true"
-                    android:fontFamily="@font/montserrat_regular"
-                    android:id="@+id/lessonsInformationSemester"
-                    android:gravity="center"
                     android:layout_marginTop="-2dp"
                     android:layout_marginBottom="10dp"
+                    android:fontFamily="@font/montserrat_regular"
+                    android:gravity="center"
                     android:text="4 семестр"
                     android:textColor="@color/greyColor"
-                    android:textSize="12dp"/>
+                    android:textSize="12dp" />
 
-                <LinearLayout
-                    android:id="@+id/lessonsInformationList"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:orientation="vertical">
+                                <LinearLayout
+                                    android:id="@+id/lessonsInformationList"
+                                    android:layout_width="match_parent"
+                                    android:layout_height="wrap_content"
+                                    android:orientation="vertical">
 
-                                        <TextView
-                                            android:layout_width="wrap_content"
-                                            android:layout_height="wrap_content"
-                                            android:layout_marginTop="5dp"
-                                            android:layout_marginLeft="20dp"
-                                            android:layout_marginBottom="2dp"
-                                            android:text="20.30.40"
-                                            android:textSize="12dp"
-                                            android:textColor="@color/pinkColor"
-                                            android:fontFamily="@font/montserrat_medium">
-                                        </TextView>
+                <!--                                        <TextView-->
+                <!--                                            android:layout_width="wrap_content"-->
+                <!--                                            android:layout_height="wrap_content"-->
+                <!--                                            android:layout_marginTop="5dp"-->
+                <!--                                            android:layout_marginLeft="20dp"-->
+                <!--                                            android:layout_marginBottom="2dp"-->
+                <!--                                            android:text="20.30.40"-->
+                <!--                                            android:textSize="12dp"-->
+                <!--                                            android:textColor="@color/pinkColor"-->
+                <!--                                            android:fontFamily="@font/montserrat_medium">-->
+                <!--                                        </TextView>-->
 
-                                        <LinearLayout
-                                        android:layout_width="match_parent"
-                                        android:layout_height="wrap_content"
-                                        android:background="@drawable/forms_example"
-                                            android:orientation="vertical">
-                                        <TextView
-                                            android:layout_width="wrap_content"
-                                            android:layout_height="wrap_content"
-                                            android:layout_marginLeft="30dp"
-                                            android:layout_marginTop="10dp"
-                                            android:gravity="center_vertical"
-                                            android:textSize="14dp"
-                                            android:text="Марьяна сосет пе н ис"
-                                            android:fontFamily="@font/montserrat_medium"
-                                            android:textColor="@color/white">
-                                        </TextView>
-
-
+                <!--                                        <LinearLayout-->
+                <!--                                        android:layout_width="match_parent"-->
+                <!--                                        android:layout_height="wrap_content"-->
+                <!--                                        android:background="@drawable/forms_example"-->
+                <!--                                            android:orientation="vertical">-->
+                <!--                                        <TextView-->
+                <!--                                            android:layout_width="wrap_content"-->
+                <!--                                            android:layout_height="wrap_content"-->
+                <!--                                            android:layout_marginLeft="30dp"-->
+                <!--                                            android:layout_marginTop="10dp"-->
+                <!--                                            android:gravity="center_vertical"-->
+                <!--                                            android:textSize="14dp"-->
+                <!--                                            android:text="Марьяна сосет пе н ис"-->
+                <!--                                            android:fontFamily="@font/montserrat_medium"-->
+                <!--                                            android:textColor="@color/white">-->
+                <!--                                        </TextView>-->
 
 
-                                                            <LinearLayout
-                                                                android:layout_width="match_parent"
-                                                                android:layout_height="wrap_content"
-                                                                android:layout_marginLeft="5dp"
-                                                                android:layout_marginRight="5dp"
-                                                                android:layout_marginTop="5dp"
-                                                                >
+                <!--                                                            <LinearLayout-->
+                <!--                                                                android:layout_width="match_parent"-->
+                <!--                                                                android:layout_height="wrap_content"-->
+                <!--                                                                android:layout_marginLeft="5dp"-->
+                <!--                                                                android:layout_marginRight="5dp"-->
+                <!--                                                                android:layout_marginTop="5dp"-->
+                <!--                                                                >-->
 
-                                                                <TextView
-                                                                    android:layout_width="match_parent"
-                                                                    android:layout_height="wrap_content"
-                                                                    android:text="присутствие"
-                                                                    android:layout_weight="1"
-                                                                    android:gravity="center"
-                                                                    android:fontFamily="@font/montserrat_light"
-                                                                    android:textSize="10dp"
-                                                                    android:textColor="@color/greyColor">
+                <!--                                                                <TextView-->
+                <!--                                                                    android:layout_width="match_parent"-->
+                <!--                                                                    android:layout_height="wrap_content"-->
+                <!--                                                                    android:text="присутствие"-->
+                <!--                                                                    android:layout_weight="1"-->
+                <!--                                                                    android:gravity="center"-->
+                <!--                                                                    android:fontFamily="@font/montserrat_light"-->
+                <!--                                                                    android:textSize="10dp"-->
+                <!--                                                                    android:textColor="@color/greyColor">-->
 
-                                                                </TextView>
-                                                                <TextView
-                                                                    android:layout_width="match_parent"
-                                                                    android:layout_height="wrap_content"
-                                                                    android:text="оценка"
-                                                                    android:layout_weight="1"
-                                                                    android:gravity="center"
-                                                                    android:background="@drawable/today_lessons_border"
-                                                                    android:fontFamily="@font/montserrat_light"
-                                                                    android:textSize="10dp"
-                                                                    android:textColor="@color/greyColor">
-                                                                </TextView>
-                                                                <TextView
-                                                                    android:layout_width="match_parent"
-                                                                    android:layout_height="wrap_content"
-                                                                    android:text="активность"
-                                                                    android:layout_weight="1"
-                                                                    android:gravity="center"
-                                                                    android:background="@drawable/today_lessons_border_right_only"
-                                                                    android:fontFamily="@font/montserrat_light"
-                                                                    android:textSize="10dp"
-                                                                    android:textColor="@color/greyColor">
-                                                                </TextView>
-                                                                <TextView
-                                                                    android:layout_width="match_parent"
-                                                                    android:layout_height="wrap_content"
-                                                                    android:text="опоздание"
-                                                                    android:layout_weight="1"
-                                                                    android:gravity="center"
-                                                                    android:fontFamily="@font/montserrat_light"
-                                                                    android:textSize="10dp"
-                                                                    android:textColor="@color/greyColor">
-                                                                </TextView>
+                <!--                                                                </TextView>-->
+                <!--                                                                <TextView-->
+                <!--                                                                    android:layout_width="match_parent"-->
+                <!--                                                                    android:layout_height="wrap_content"-->
+                <!--                                                                    android:text="оценка"-->
+                <!--                                                                    android:layout_weight="1"-->
+                <!--                                                                    android:gravity="center"-->
+                <!--                                                                    android:background="@drawable/today_lessons_border"-->
+                <!--                                                                    android:fontFamily="@font/montserrat_light"-->
+                <!--                                                                    android:textSize="10dp"-->
+                <!--                                                                    android:textColor="@color/greyColor">-->
+                <!--                                                                </TextView>-->
+                <!--                                                                <TextView-->
+                <!--                                                                    android:layout_width="match_parent"-->
+                <!--                                                                    android:layout_height="wrap_content"-->
+                <!--                                                                    android:text="активность"-->
+                <!--                                                                    android:layout_weight="1"-->
+                <!--                                                                    android:gravity="center"-->
+                <!--                                                                    android:background="@drawable/today_lessons_border_right_only"-->
+                <!--                                                                    android:fontFamily="@font/montserrat_light"-->
+                <!--                                                                    android:textSize="10dp"-->
+                <!--                                                                    android:textColor="@color/greyColor">-->
+                <!--                                                                </TextView>-->
+                <!--                                                                <TextView-->
+                <!--                                                                    android:layout_width="match_parent"-->
+                <!--                                                                    android:layout_height="wrap_content"-->
+                <!--                                                                    android:text="опоздание"-->
+                <!--                                                                    android:layout_weight="1"-->
+                <!--                                                                    android:gravity="center"-->
+                <!--                                                                    android:fontFamily="@font/montserrat_light"-->
+                <!--                                                                    android:textSize="10dp"-->
+                <!--                                                                    android:textColor="@color/greyColor">-->
+                <!--                                                                </TextView>-->
 
-                                                            </LinearLayout>
-                                                            <LinearLayout
-                                                                android:layout_width="match_parent"
-                                                                android:layout_height="wrap_content"
-                                                                android:layout_marginLeft="5dp"
-                                                                android:layout_marginRight="5dp"
-                                                                android:layout_marginBottom="10dp">
+                <!--                                                            </LinearLayout>-->
+                <!--                                                            <LinearLayout-->
+                <!--                                                                android:layout_width="match_parent"-->
+                <!--                                                                android:layout_height="wrap_content"-->
+                <!--                                                                android:layout_marginLeft="5dp"-->
+                <!--                                                                android:layout_marginRight="5dp"-->
+                <!--                                                                android:layout_marginBottom="10dp">-->
 
-                                                                <TextView
-                                                                    android:layout_width="match_parent"
-                                                                    android:layout_height="wrap_content"
-                                                                    android:text="да"
-                                                                    android:layout_weight="1"
-                                                                    android:gravity="center"
-                                                                    android:fontFamily="@font/montserrat_semibold"
-                                                                    android:textSize="12dp"
-                                                                    android:textColor="@color/pinkColor">
+                <!--                                                                <TextView-->
+                <!--                                                                    android:layout_width="match_parent"-->
+                <!--                                                                    android:layout_height="wrap_content"-->
+                <!--                                                                    android:text="да"-->
+                <!--                                                                    android:layout_weight="1"-->
+                <!--                                                                    android:gravity="center"-->
+                <!--                                                                    android:fontFamily="@font/montserrat_semibold"-->
+                <!--                                                                    android:textSize="12dp"-->
+                <!--                                                                    android:textColor="@color/pinkColor">-->
 
-                                                                </TextView>
-                                                                <TextView
-                                                                    android:layout_width="match_parent"
-                                                                    android:layout_height="wrap_content"
-                                                                    android:text="да"
-                                                                    android:layout_weight="1"
-                                                                    android:gravity="center"
-                                                                    android:fontFamily="@font/montserrat_semibold"
-                                                                    android:textSize="12dp"
-                                                                    android:textColor="@color/pinkColor">
+                <!--                                                                </TextView>-->
+                <!--                                                                <TextView-->
+                <!--                                                                    android:layout_width="match_parent"-->
+                <!--                                                                    android:layout_height="wrap_content"-->
+                <!--                                                                    android:text="да"-->
+                <!--                                                                    android:layout_weight="1"-->
+                <!--                                                                    android:gravity="center"-->
+                <!--                                                                    android:fontFamily="@font/montserrat_semibold"-->
+                <!--                                                                    android:textSize="12dp"-->
+                <!--                                                                    android:textColor="@color/pinkColor">-->
 
-                                                                </TextView>
-                                                                <TextView
-                                                                    android:layout_width="match_parent"
-                                                                    android:layout_height="wrap_content"
-                                                                    android:text="да"
-                                                                    android:layout_weight="1"
-                                                                    android:gravity="center"
-                                                                    android:fontFamily="@font/montserrat_semibold"
-                                                                    android:textSize="12dp"
-                                                                    android:textColor="@color/pinkColor">
+                <!--                                                                </TextView>-->
+                <!--                                                                <TextView-->
+                <!--                                                                    android:layout_width="match_parent"-->
+                <!--                                                                    android:layout_height="wrap_content"-->
+                <!--                                                                    android:text="да"-->
+                <!--                                                                    android:layout_weight="1"-->
+                <!--                                                                    android:gravity="center"-->
+                <!--                                                                    android:fontFamily="@font/montserrat_semibold"-->
+                <!--                                                                    android:textSize="12dp"-->
+                <!--                                                                    android:textColor="@color/pinkColor">-->
 
-                                                                </TextView>
-                                                                <TextView
-                                                                    android:layout_width="match_parent"
-                                                                    android:layout_height="wrap_content"
-                                                                    android:text="да"
-                                                                    android:layout_weight="1"
-                                                                    android:gravity="center"
-                                                                    android:fontFamily="@font/montserrat_semibold"
-                                                                    android:textSize="12dp"
-                                                                    android:textColor="@color/pinkColor">
+                <!--                                                                </TextView>-->
+                <!--                                                                <TextView-->
+                <!--                                                                    android:layout_width="match_parent"-->
+                <!--                                                                    android:layout_height="wrap_content"-->
+                <!--                                                                    android:text="да"-->
+                <!--                                                                    android:layout_weight="1"-->
+                <!--                                                                    android:gravity="center"-->
+                <!--                                                                    android:fontFamily="@font/montserrat_semibold"-->
+                <!--                                                                    android:textSize="12dp"-->
+                <!--                                                                    android:textColor="@color/pinkColor">-->
 
-                                                                </TextView>
+                <!--                                                                </TextView>-->
 
-                                                            </LinearLayout>
-
-
-
-                                    </LinearLayout>
+                <!--                                                            </LinearLayout>-->
 
 
+                <!--                                    </LinearLayout>-->
 
-                </LinearLayout>
+
+                                </LinearLayout>
 
             </LinearLayout>
         </ScrollView>
@@ -940,11 +938,10 @@
         android:id="@+id/notificationListScreen"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_marginTop="50dp"
-        android:layout_marginBottom="50dp"
+        android:layout_marginTop="60dp"
+        android:layout_marginBottom="60dp"
         android:orientation="vertical"
-        android:paddingTop="25dp"
-        tools:visibility="invisible">
+        tools:visibility="visible">
 
         <ScrollView
             android:layout_width="match_parent"
@@ -954,7 +951,51 @@
                 android:id="@+id/notificationList"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:orientation="vertical" />
+                android:layout_marginLeft="15dp"
+                android:layout_marginRight="15dp"
+                android:orientation="vertical" >
+
+                <TextView
+                    android:id="@+id/notificationListHint"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_centerHorizontal="true"
+                    android:layout_marginTop="5dp"
+                    android:fontFamily="@font/montserrat_semibold"
+                    android:gravity="center"
+                    android:text="Новости и изменения"
+                    android:textColor="@color/pinkColor"
+                    android:textSize="16dp" />
+
+<!--                <TextView-->
+<!--                    android:layout_width="wrap_content"-->
+<!--                    android:layout_height="wrap_content"-->
+<!--                    android:layout_marginTop="15dp"-->
+<!--                    android:layout_marginLeft="10dp"-->
+<!--                    android:layout_marginBottom="3dp"-->
+<!--                    android:text="12 июня бла-бла-бла"-->
+<!--                    android:fontFamily="@font/montserrat_medium"-->
+<!--                    android:textColor="@color/pinkColor">-->
+
+<!--                </TextView>-->
+
+<!--                <TextView-->
+<!--                    android:layout_width="match_parent"-->
+<!--                    android:layout_height="wrap_content"-->
+<!--                    android:paddingTop="10dp"-->
+<!--                    android:paddingLeft="10dp"-->
+<!--                    android:paddingRight="10dp"-->
+<!--                    android:paddingBottom="10dp"-->
+<!--                    android:background="@drawable/forms_example"-->
+<!--                    android:text="12 июня бла-бла-бла"-->
+<!--                    android:fontFamily="@font/montserrat_regular"-->
+<!--                    android:textColor="@color/greyColor">-->
+
+<!--                </TextView>-->
+
+
+
+            </LinearLayout>
         </ScrollView>
     </LinearLayout>
 
@@ -987,7 +1028,7 @@
             android:layout_marginRight="15dp"
             android:layout_width="23dp"
             android:layout_height="25dp"
-            app:srcCompat="@drawable/notification_passive" />
+            app:srcCompat="@drawable/bell" />
 
         <TextView
             android:fontFamily="@font/montserrat_regular"
@@ -1031,47 +1072,45 @@
 
 
             <ImageView
-                android:layout_marginLeft="10dp"
-                android:layout_marginTop="5dp"
-                android:layout_marginBottom="5dp"
+                android:layout_marginTop="10dp"
+                android:layout_marginBottom="10dp"
                 android:id="@+id/home"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
-                app:srcCompat="@drawable/home_passive" />
+                app:srcCompat="@drawable/main" />
             <ImageView
-                android:layout_marginTop="5dp"
-                android:layout_marginBottom="5dp"
+                android:layout_marginTop="10dp"
+                android:layout_marginBottom="10dp"
                 android:id="@+id/schedule"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
-                app:srcCompat="@drawable/messages_passive" />
+                app:srcCompat="@drawable/schedule" />
             <ImageView
-                android:layout_marginTop="5dp"
-                android:layout_marginBottom="5dp"
+                android:layout_marginTop="10dp"
+                android:layout_marginBottom="10dp"
                 android:id="@+id/profile"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
-                app:srcCompat="@drawable/profile" />
+                app:srcCompat="@drawable/profile_active" />
             <ImageView
-                android:layout_marginTop="5dp"
-                android:layout_marginBottom="5dp"
+                android:layout_marginTop="10dp"
+                android:layout_marginBottom="10dp"
                 android:id="@+id/lessons"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
-                app:srcCompat="@drawable/marks_passive" />
+                app:srcCompat="@drawable/subject" />
             <ImageView
-                android:layout_marginTop="5dp"
-                android:layout_marginBottom="5dp"
-                android:layout_marginRight="10dp"
+                android:layout_marginTop="10dp"
+                android:layout_marginBottom="10dp"
                 android:id="@+id/exit"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
-                app:srcCompat="@drawable/exit_passive" />
+                app:srcCompat="@drawable/settings" />
 
 
         </LinearLayout>
