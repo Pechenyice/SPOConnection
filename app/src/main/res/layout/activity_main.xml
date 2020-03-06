@@ -398,181 +398,183 @@
                 android:background="@drawable/forms_example"
                 android:orientation="vertical"
                 android:paddingBottom="10dp">
-                <!--            <RelativeLayout-->
-                <!--                android:layout_height="wrap_content"-->
-                <!--                android:layout_width="match_parent"-->
-                <!--                android:layout_marginLeft="5dp"-->
-                <!--                android:layout_marginRight="10dp"-->
-                <!--                android:layout_marginBottom="10dp"-->
-                <!--                android:layout_marginTop="15dp">-->
-                <!--                <TextView-->
-                <!--                android:layout_width="20dp"-->
-                <!--                android:layout_height="20dp"-->
-                <!--                android:background="@drawable/lesson_number"-->
-                <!--                android:text="1"-->
-                <!--                android:fontFamily="@font/montserrat_light"-->
-                <!--                android:textColor="@color/white"-->
-                <!--                android:gravity="center"-->
-                <!--                android:textSize="14dp">-->
-                <!--                </TextView>-->
-                <!--&lt;!&ndash;                <TextView&ndash;&gt;-->
-                <!--&lt;!&ndash;                    android:layout_width="wrap_content"&ndash;&gt;-->
-                <!--&lt;!&ndash;                    android:layout_height="20dp"&ndash;&gt;-->
-                <!--&lt;!&ndash;                    android:layout_alignParentRight="true"&ndash;&gt;-->
-                <!--&lt;!&ndash;                    android:text="310"&ndash;&gt;-->
-                <!--&lt;!&ndash;                    android:fontFamily="@font/montserrat_medium"&ndash;&gt;-->
-                <!--&lt;!&ndash;                    android:textColor="@color/white"&ndash;&gt;-->
-                <!--&lt;!&ndash;                    android:gravity="center_vertical"&ndash;&gt;-->
-                <!--&lt;!&ndash;                    android:textSize="12dp"&ndash;&gt;-->
-                <!--&lt;!&ndash;                    >&ndash;&gt;-->
-                <!--&lt;!&ndash;                </TextView>&ndash;&gt;-->
-                <!--                <TextView-->
-                <!--                    android:layout_marginTop="-1dp"-->
-                <!--                    android:layout_width="wrap_content"-->
-                <!--                    android:layout_height="20dp"-->
-                <!--                    android:layout_marginLeft="30dp"-->
-                <!--                    android:text="8:20 - 9:50"-->
-                <!--                    android:fontFamily="@font/montserrat_light"-->
-                <!--                    android:textColor="@color/greyColor"-->
-                <!--                    android:gravity="center_vertical"-->
-                <!--                    android:textSize="12dp"-->
-                <!--                    >-->
-                <!--                </TextView>-->
 
-                <!--                <TextView-->
-                <!--                    android:layout_width="wrap_content"-->
-                <!--                    android:layout_height="wrap_content"-->
-                <!--                    android:layout_marginLeft="30dp"-->
-                <!--                    android:layout_marginTop="20dp"-->
-                <!--                    android:text="УП.04.01 Учебная практика"-->
-                <!--                    android:fontFamily="@font/montserrat_medium"-->
-                <!--                    android:textColor="@color/white"-->
-                <!--                    android:gravity="center_vertical"-->
-                <!--                    android:textSize="13dp"-->
-                <!--                    >-->
-                <!--                </TextView>-->
+<!--                            <LinearLayout-->
+<!--                                android:layout_height="wrap_content"-->
+<!--                                android:layout_width="match_parent"-->
+<!--                                android:layout_marginBottom="7dp"-->
+<!--                                android:layout_marginTop="15dp"-->
+<!--                                android:orientation="vertical">-->
+<!--                                <TextView-->
+<!--                                android:layout_width="20dp"-->
+<!--                                android:layout_height="20dp"-->
+<!--                                    android:layout_marginLeft="12dp"-->
+<!--                                android:background="@drawable/lesson_number"-->
+<!--                                android:text="1"-->
+<!--                                android:fontFamily="@font/montserrat_light"-->
+<!--                                android:textColor="@color/white"-->
+<!--                                android:gravity="center"-->
+<!--                                android:textSize="14dp">-->
+<!--                                </TextView>-->
+<!--                &lt;!&ndash;                <TextView&ndash;&gt;-->
+<!--                &lt;!&ndash;                    android:layout_width="wrap_content"&ndash;&gt;-->
+<!--                &lt;!&ndash;                    android:layout_height="20dp"&ndash;&gt;-->
+<!--                &lt;!&ndash;                    android:layout_alignParentRight="true"&ndash;&gt;-->
+<!--                &lt;!&ndash;                    android:text="310"&ndash;&gt;-->
+<!--                &lt;!&ndash;                    android:fontFamily="@font/montserrat_medium"&ndash;&gt;-->
+<!--                &lt;!&ndash;                    android:textColor="@color/white"&ndash;&gt;-->
+<!--                &lt;!&ndash;                    android:gravity="center_vertical"&ndash;&gt;-->
+<!--                &lt;!&ndash;                    android:textSize="12dp"&ndash;&gt;-->
+<!--                &lt;!&ndash;                    >&ndash;&gt;-->
+<!--                &lt;!&ndash;                </TextView>&ndash;&gt;-->
+<!--                                <TextView-->
+<!--                                    android:layout_marginTop="-21dp"-->
+<!--                                    android:layout_width="wrap_content"-->
+<!--                                    android:layout_height="20dp"-->
+<!--                                    android:layout_marginLeft="40dp"-->
+<!--                                    android:text="8:20 - 9:50"-->
+<!--                                    android:fontFamily="@font/montserrat_light"-->
+<!--                                    android:textColor="@color/greyColor"-->
+<!--                                    android:gravity="center_vertical"-->
+<!--                                    android:textSize="12dp"-->
+<!--                                    >-->
+<!--                                </TextView>-->
 
-                <!--                <TextView-->
-                <!--                    android:layout_width="wrap_content"-->
-                <!--                    android:layout_height="wrap_content"-->
-                <!--                    android:layout_marginLeft="30dp"-->
-                <!--                    android:layout_marginTop="35dp"-->
-                <!--                    android:text="Ищенко Алексей Петрович"-->
-                <!--                    android:fontFamily="@font/montserrat_light"-->
-                <!--                    android:textColor="@color/greyColor"-->
-                <!--                    android:gravity="center_vertical"-->
-                <!--                    android:textSize="12dp"-->
-                <!--                    >-->
-                <!--                </TextView>-->
+<!--                                <TextView-->
+<!--                                    android:layout_width="wrap_content"-->
+<!--                                    android:layout_height="wrap_content"-->
+<!--                                    android:layout_marginLeft="40dp"-->
+<!--                                    android:layout_marginTop="5dp"-->
+<!--                                    android:layout_marginRight="40dp"-->
+<!--                                    android:text="Элементы высшей математики и математическая статистика"-->
+<!--                                    android:fontFamily="@font/montserrat_medium"-->
+<!--                                    android:textColor="@color/white"-->
+<!--                                    android:gravity="center_vertical"-->
+<!--                                    android:textSize="13dp"-->
+<!--                                    >-->
+<!--                                </TextView>-->
 
-                <!--                <LinearLayout-->
-                <!--                    android:layout_width="match_parent"-->
-                <!--                    android:layout_height="wrap_content"-->
-                <!--                    android:layout_marginLeft="5dp"-->
-                <!--                    android:layout_marginRight="5dp"-->
-                <!--                    android:layout_marginTop="55dp"-->
-                <!--                    >-->
+<!--                                <TextView-->
+<!--                                    android:layout_width="wrap_content"-->
+<!--                                    android:layout_height="wrap_content"-->
+<!--                                    android:layout_marginLeft="40dp"-->
+<!--                                    android:layout_marginRight="40dp"-->
+<!--                                    android:text="Ищенко Алексей Петрович"-->
+<!--                                    android:fontFamily="@font/montserrat_light"-->
+<!--                                    android:textColor="@color/greyColor"-->
+<!--                                    android:gravity="center_vertical"-->
+<!--                                    android:textSize="12dp"-->
+<!--                                    >-->
+<!--                                </TextView>-->
 
-                <!--                    <TextView-->
-                <!--                        android:layout_width="match_parent"-->
-                <!--                        android:layout_height="wrap_content"-->
-                <!--                        android:text="присутствие"-->
-                <!--                        android:layout_weight="1"-->
-                <!--                        android:gravity="center"-->
-                <!--                        android:fontFamily="@font/montserrat_light"-->
-                <!--                        android:textSize="10dp"-->
-                <!--                        android:textColor="@color/greyColor">-->
+<!--                                <LinearLayout-->
+<!--                                    android:layout_width="match_parent"-->
+<!--                                    android:layout_height="wrap_content"-->
+<!--                                    android:layout_marginLeft="5dp"-->
+<!--                                    android:layout_marginRight="5dp"-->
+<!--                                    android:layout_marginTop="5dp"-->
+<!--                                    >-->
 
-                <!--                    </TextView>-->
-                <!--                    <TextView-->
-                <!--                        android:layout_width="match_parent"-->
-                <!--                        android:layout_height="wrap_content"-->
-                <!--                        android:text="оценка"-->
-                <!--                        android:layout_weight="1"-->
-                <!--                        android:gravity="center"-->
-                <!--                        android:background="@drawable/today_lessons_border"-->
-                <!--                        android:fontFamily="@font/montserrat_light"-->
-                <!--                        android:textSize="10dp"-->
-                <!--                        android:textColor="@color/greyColor">-->
-                <!--                    </TextView>-->
-                <!--                    <TextView-->
-                <!--                        android:layout_width="match_parent"-->
-                <!--                        android:layout_height="wrap_content"-->
-                <!--                        android:text="активность"-->
-                <!--                        android:layout_weight="1"-->
-                <!--                        android:gravity="center"-->
-                <!--                        android:background="@drawable/today_lessons_border_right_only"-->
-                <!--                        android:fontFamily="@font/montserrat_light"-->
-                <!--                        android:textSize="10dp"-->
-                <!--                        android:textColor="@color/greyColor">-->
-                <!--                    </TextView>-->
-                <!--                    <TextView-->
-                <!--                        android:layout_width="match_parent"-->
-                <!--                        android:layout_height="wrap_content"-->
-                <!--                        android:text="опоздание"-->
-                <!--                        android:layout_weight="1"-->
-                <!--                        android:gravity="center"-->
-                <!--                        android:fontFamily="@font/montserrat_light"-->
-                <!--                        android:textSize="10dp"-->
-                <!--                        android:textColor="@color/greyColor">-->
-                <!--                    </TextView>-->
+<!--                                    <TextView-->
+<!--                                        android:layout_width="match_parent"-->
+<!--                                        android:layout_height="wrap_content"-->
+<!--                                        android:text="присутствие"-->
+<!--                                        android:layout_weight="1"-->
+<!--                                        android:gravity="center"-->
+<!--                                        android:fontFamily="@font/montserrat_light"-->
+<!--                                        android:textSize="10dp"-->
+<!--                                        android:textColor="@color/greyColor">-->
 
-                <!--                </LinearLayout>-->
-                <!--                <LinearLayout-->
-                <!--                    android:layout_width="match_parent"-->
-                <!--                    android:layout_height="wrap_content"-->
-                <!--                    android:layout_marginLeft="5dp"-->
-                <!--                    android:layout_marginRight="5dp"-->
-                <!--                    android:layout_marginTop="68dp">-->
+<!--                                    </TextView>-->
+<!--                                    <TextView-->
+<!--                                        android:layout_width="match_parent"-->
+<!--                                        android:layout_height="wrap_content"-->
+<!--                                        android:text="оценка"-->
+<!--                                        android:layout_weight="1"-->
+<!--                                        android:gravity="center"-->
+<!--                                        android:background="@drawable/today_lessons_border"-->
+<!--                                        android:fontFamily="@font/montserrat_light"-->
+<!--                                        android:textSize="10dp"-->
+<!--                                        android:textColor="@color/greyColor">-->
+<!--                                    </TextView>-->
+<!--                                    <TextView-->
+<!--                                        android:layout_width="match_parent"-->
+<!--                                        android:layout_height="wrap_content"-->
+<!--                                        android:text="активность"-->
+<!--                                        android:layout_weight="1"-->
+<!--                                        android:gravity="center"-->
+<!--                                        android:background="@drawable/today_lessons_border_right_only"-->
+<!--                                        android:fontFamily="@font/montserrat_light"-->
+<!--                                        android:textSize="10dp"-->
+<!--                                        android:textColor="@color/greyColor">-->
+<!--                                    </TextView>-->
+<!--                                    <TextView-->
+<!--                                        android:layout_width="match_parent"-->
+<!--                                        android:layout_height="wrap_content"-->
+<!--                                        android:text="опоздание"-->
+<!--                                        android:layout_weight="1"-->
+<!--                                        android:gravity="center"-->
+<!--                                        android:fontFamily="@font/montserrat_light"-->
+<!--                                        android:textSize="10dp"-->
+<!--                                        android:textColor="@color/greyColor">-->
+<!--                                    </TextView>-->
 
-                <!--                    <TextView-->
-                <!--                        android:layout_width="match_parent"-->
-                <!--                        android:layout_height="wrap_content"-->
-                <!--                        android:text="да"-->
-                <!--                        android:layout_weight="1"-->
-                <!--                        android:gravity="center"-->
-                <!--                        android:fontFamily="@font/montserrat_semibold"-->
-                <!--                        android:textSize="12dp"-->
-                <!--                        android:textColor="@color/pinkColor">-->
+<!--                                </LinearLayout>-->
+<!--                                <LinearLayout-->
+<!--                                    android:layout_width="match_parent"-->
+<!--                                    android:layout_height="wrap_content"-->
+<!--                                    android:layout_marginLeft="5dp"-->
+<!--                                    android:layout_marginRight="5dp"-->
+<!--                                    >-->
 
-                <!--                    </TextView>-->
-                <!--                    <TextView-->
-                <!--                        android:layout_width="match_parent"-->
-                <!--                        android:layout_height="wrap_content"-->
-                <!--                        android:text="да"-->
-                <!--                        android:layout_weight="1"-->
-                <!--                        android:gravity="center"-->
-                <!--                        android:fontFamily="@font/montserrat_semibold"-->
-                <!--                        android:textSize="12dp"-->
-                <!--                        android:textColor="@color/pinkColor">-->
+<!--                                    <TextView-->
+<!--                                        android:layout_width="match_parent"-->
+<!--                                        android:layout_height="wrap_content"-->
+<!--                                        android:text="да"-->
+<!--                                        android:layout_weight="1"-->
+<!--                                        android:gravity="center"-->
+<!--                                        android:fontFamily="@font/montserrat_semibold"-->
+<!--                                        android:textSize="12dp"-->
+<!--                                        android:textColor="@color/pinkColor">-->
 
-                <!--                    </TextView>-->
-                <!--                    <TextView-->
-                <!--                        android:layout_width="match_parent"-->
-                <!--                        android:layout_height="wrap_content"-->
-                <!--                        android:text="да"-->
-                <!--                        android:layout_weight="1"-->
-                <!--                        android:gravity="center"-->
-                <!--                        android:fontFamily="@font/montserrat_semibold"-->
-                <!--                        android:textSize="12dp"-->
-                <!--                        android:textColor="@color/pinkColor">-->
+<!--                                    </TextView>-->
+<!--                                    <TextView-->
+<!--                                        android:layout_width="match_parent"-->
+<!--                                        android:layout_height="wrap_content"-->
+<!--                                        android:text="да"-->
+<!--                                        android:layout_weight="1"-->
+<!--                                        android:gravity="center"-->
+<!--                                        android:fontFamily="@font/montserrat_semibold"-->
+<!--                                        android:textSize="12dp"-->
+<!--                                        android:textColor="@color/pinkColor">-->
 
-                <!--                    </TextView>-->
-                <!--                    <TextView-->
-                <!--                        android:layout_width="match_parent"-->
-                <!--                        android:layout_height="wrap_content"-->
-                <!--                        android:text="да"-->
-                <!--                        android:layout_weight="1"-->
-                <!--                        android:gravity="center"-->
-                <!--                        android:fontFamily="@font/montserrat_semibold"-->
-                <!--                        android:textSize="12dp"-->
-                <!--                        android:textColor="@color/pinkColor">-->
+<!--                                    </TextView>-->
+<!--                                    <TextView-->
+<!--                                        android:layout_width="match_parent"-->
+<!--                                        android:layout_height="wrap_content"-->
+<!--                                        android:text="да"-->
+<!--                                        android:layout_weight="1"-->
+<!--                                        android:gravity="center"-->
+<!--                                        android:fontFamily="@font/montserrat_semibold"-->
+<!--                                        android:textSize="12dp"-->
+<!--                                        android:textColor="@color/pinkColor">-->
 
-                <!--                    </TextView>-->
+<!--                                    </TextView>-->
+<!--                                    <TextView-->
+<!--                                        android:layout_width="match_parent"-->
+<!--                                        android:layout_height="wrap_content"-->
+<!--                                        android:text="да"-->
+<!--                                        android:layout_weight="1"-->
+<!--                                        android:gravity="center"-->
+<!--                                        android:fontFamily="@font/montserrat_semibold"-->
+<!--                                        android:textSize="12dp"-->
+<!--                                        android:textColor="@color/pinkColor">-->
 
-                <!--                </LinearLayout>-->
-                <!--                -->
-                <!--            </RelativeLayout>-->
+<!--                                    </TextView>-->
+
+<!--                                </LinearLayout>-->
+
+<!--                            </LinearLayout>-->
 
 
             </LinearLayout>
@@ -606,7 +608,7 @@
         android:layout_marginBottom="60dp"
         android:layout_marginLeft="15dp"
         android:layout_marginRight="15dp"
-        tools:visibility="visible">
+        tools:visibility="invisible">
 
 
         <ScrollView
@@ -788,78 +790,79 @@
                         android:paddingBottom="5dp"
                         android:layout_marginBottom="10dp"
                         android:orientation="vertical">
-                                <RelativeLayout
-                                    android:layout_height="wrap_content"
-                                    android:layout_width="match_parent"
-                                    android:layout_marginBottom="5dp"
-                                    android:layout_marginTop="5dp"
-                                    android:background="@drawable/forms_example">
-                                    <TextView
-                                    android:layout_width="20dp"
-                                    android:layout_height="20dp"
-                                        android:layout_marginTop="10dp"
-                                        android:layout_marginLeft="7dp"
-                                    android:background="@drawable/lesson_number"
-                                    android:text="1"
-                                    android:fontFamily="@font/montserrat_light"
-                                    android:textColor="@color/white"
-                                    android:gravity="center"
-                                    android:textSize="14dp">
-                                    </TextView>
-                                    <TextView
-                                        android:layout_width="wrap_content"
-                                        android:layout_height="20dp"
-                                        android:layout_marginTop="10dp"
-                                        android:layout_marginRight="10dp"
-                                        android:layout_alignParentRight="true"
-                                        android:text="310"
-                                        android:fontFamily="@font/montserrat_medium"
-                                        android:textColor="@color/white"
-                                        android:gravity="center_vertical"
-                                        android:textSize="12dp"
-                                        >
-                                    </TextView>
-                                    <TextView
-                                        android:layout_marginTop="10dp"
-                                        android:layout_width="wrap_content"
-                                        android:layout_height="20dp"
-                                        android:layout_marginLeft="35dp"
-                                        android:text="8:20 - 9:50"
-                                        android:fontFamily="@font/montserrat_light"
-                                        android:textColor="@color/greyColor"
-                                        android:gravity="center_vertical"
-                                        android:textSize="12dp"
-                                        >
-                                    </TextView>
+<!--                                <LinearLayout-->
+<!--                                    android:layout_height="wrap_content"-->
+<!--                                    android:layout_width="match_parent"-->
+<!--                                    android:layout_marginBottom="5dp"-->
+<!--                                    android:layout_marginTop="5dp"-->
+<!--                                    android:background="@drawable/forms_example"-->
+<!--                                    android:orientation="vertical">-->
+<!--                                    <TextView-->
+<!--                                    android:layout_width="20dp"-->
+<!--                                    android:layout_height="20dp"-->
+<!--                                        android:layout_marginTop="10dp"-->
+<!--                                        android:layout_marginLeft="10dp"-->
+<!--                                    android:background="@drawable/lesson_number"-->
+<!--                                    android:text="1"-->
+<!--                                    android:fontFamily="@font/montserrat_light"-->
+<!--                                    android:textColor="@color/white"-->
+<!--                                    android:gravity="center"-->
+<!--                                    android:textSize="14dp">-->
+<!--                                    </TextView>-->
+<!--                                    <TextView-->
+<!--                                        android:layout_width="match_parent"-->
+<!--                                        android:layout_height="20dp"-->
+<!--                                        android:layout_marginTop="-20dp"-->
+<!--                                        android:layout_marginRight="10dp"-->
+<!--                                        android:text="310"-->
+<!--                                        android:fontFamily="@font/montserrat_medium"-->
+<!--                                        android:textColor="@color/white"-->
+<!--                                        android:gravity="right|center_vertical"-->
+<!--                                        android:textSize="12dp"-->
+<!--                                        >-->
+<!--                                    </TextView>-->
+<!--                                    <TextView-->
+<!--                                        android:layout_marginTop="-20dp"-->
+<!--                                        android:layout_width="wrap_content"-->
+<!--                                        android:layout_height="20dp"-->
+<!--                                        android:layout_marginLeft="40dp"-->
+<!--                                        android:text="8:20 - 9:50"-->
+<!--                                        android:fontFamily="@font/montserrat_light"-->
+<!--                                        android:textColor="@color/greyColor"-->
+<!--                                        android:gravity="center_vertical"-->
+<!--                                        android:textSize="12dp"-->
+<!--                                        >-->
+<!--                                    </TextView>-->
 
-                                    <TextView
-                                        android:layout_width="wrap_content"
-                                        android:layout_height="wrap_content"
-                                        android:layout_marginLeft="35dp"
-                                        android:layout_marginTop="30dp"
-                                        android:text="УП.04.01 Учебная практика"
-                                        android:fontFamily="@font/montserrat_medium"
-                                        android:textColor="@color/white"
-                                        android:gravity="center_vertical"
-                                        android:textSize="13dp"
-                                        >
-                                    </TextView>
+<!--                                    <TextView-->
+<!--                                        android:layout_width="wrap_content"-->
+<!--                                        android:layout_height="wrap_content"-->
+<!--                                        android:layout_marginLeft="40dp"-->
+<!--                                        android:layout_marginTop="5dp"-->
+<!--                                        android:layout_marginRight="35dp"-->
+<!--                                        android:text="Элементы высшей математики и математическая статистика"-->
+<!--                                        android:fontFamily="@font/montserrat_medium"-->
+<!--                                        android:textColor="@color/white"-->
+<!--                                        android:gravity="center_vertical"-->
+<!--                                        android:textSize="13dp"-->
+<!--                                        >-->
+<!--                                    </TextView>-->
 
-                                    <TextView
-                                        android:layout_width="wrap_content"
-                                        android:layout_height="wrap_content"
-                                        android:layout_marginLeft="35dp"
-                                        android:layout_marginTop="45dp"
-                                        android:layout_marginBottom="5dp"
-                                        android:text="Ищенко Алексей Петрович"
-                                        android:fontFamily="@font/montserrat_light"
-                                        android:textColor="@color/greyColor"
-                                        android:gravity="center_vertical"
-                                        android:textSize="12dp"
-                                        >
-                                    </TextView>
+<!--                                    <TextView-->
+<!--                                        android:layout_width="wrap_content"-->
+<!--                                        android:layout_height="wrap_content"-->
+<!--                                        android:layout_marginLeft="40dp"-->
+<!--                                        android:layout_marginRight="35dp"-->
+<!--                                        android:layout_marginBottom="5dp"-->
+<!--                                        android:text="Ищенко Алексей Петрович"-->
+<!--                                        android:fontFamily="@font/montserrat_light"-->
+<!--                                        android:textColor="@color/greyColor"-->
+<!--                                        android:gravity="center_vertical"-->
+<!--                                        android:textSize="12dp"-->
+<!--                                        >-->
+<!--                                    </TextView>-->
 
-                                </RelativeLayout>
+<!--                                </LinearLayout>-->
                     </LinearLayout>
 
                 </LinearLayout>

@@ -1,6 +1,7 @@
 package com.example.spoconnection;
 
 import java.io.BufferedReader;
+import java.io.DataOutputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
@@ -8,6 +9,7 @@ import java.net.MalformedURLException;
 import java.net.ProtocolException;
 import java.net.URL;
 import java.net.URLDecoder;
+import java.nio.charset.Charset;
 
 public class Functions {
 
@@ -31,12 +33,15 @@ public class Functions {
         return "";
     }
 
-    public static HttpURLConnection setupGetAuthRequest(String address, String authCookie, Integer timeout) throws IOException {
+    public static HttpURLConnection setupGETAuthRequest(String address, String authCookie, Integer connectTimeout, Integer readTimeout) throws IOException {
+
         URL url = new URL(address);
         HttpURLConnection con = (HttpURLConnection) url.openConnection();
         con.setRequestMethod("GET");
 
-        con.setReadTimeout(timeout * 1000);
+        con.setConnectTimeout(connectTimeout * 1000);
+        con.setReadTimeout(readTimeout * 1000);
+
         con.setRequestProperty("User-Agent", "Mozilla/5.0 (Windows NT 6.3; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/79.0.3945.130 Safari/537.36 OPR/66.0.3515.95");
         con.setRequestProperty("Cookie", authCookie);
         con.setUseCaches(false);
@@ -46,6 +51,7 @@ public class Functions {
     }
 
     public static String getResponseFromGetRequest(HttpURLConnection con) throws IOException{
+
         StringBuilder response = new StringBuilder();
         String currentLine;
 
@@ -60,28 +66,38 @@ public class Functions {
     }
 
     public static String getStudentIdFromCookie(String cookie) {
+
         String[] decoded_cookie = URLDecoder.decode(cookie).split("s:");
         String userIdDirty = decoded_cookie[decoded_cookie.length - 5].split(":")[1];
         return userIdDirty.substring(1, userIdDirty.length() - 2);
     }
 
-//
-//    public static String getResponseFromGetRequest(HttpURLConnection con, Integer responseLength) throws IOException{
-//        StringBuilder response = new StringBuilder();
-//        String currentLine;
-//
-//        BufferedReader in = new BufferedReader(
-//                new InputStreamReader(con.getInputStream())
-//        );
-////        int i = 0;
-//        while (((currentLine = in.readLine()) != null) && responseLength > 0) {
-//            response.append(currentLine);
-//            responseLength -= currentLine.length();
-////            i += currentLine.length();
-//        }
-////        System.out.println(i);
-//        in.close();
-//
-//        return response.toString();
-//    }
+    public static HttpURLConnection setupPOSTAuthRequest(String address, String urlParameters, String authCookie, Integer connectTimeout, Integer readTimeout) throws IOException {
+
+        URL url = new URL(address);
+        HttpURLConnection urlConnection = (HttpURLConnection) url.openConnection();
+
+        byte[] postData = urlParameters.getBytes(Charset.forName("UTF-8"));
+        int postDataLength = postData.length;
+
+        urlConnection.setRequestMethod("POST");
+        urlConnection.setConnectTimeout(connectTimeout * 1000);
+        urlConnection.setReadTimeout(readTimeout * 1000);
+
+        urlConnection.setRequestProperty("Content-Type", "application/x-www-form-urlencoded; charset=UTF-8");
+        urlConnection.setRequestProperty("User-Agent", "Mozilla/5.0 (Windows NT 6.3; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/79.0.3945.130 Safari/537.36 OPR/66.0.3515.95");
+        urlConnection.setRequestProperty("Content-Length", Integer.toString(postDataLength));
+        urlConnection.setRequestProperty("Accept", "text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.9");
+        urlConnection.setRequestProperty("Cookie", authCookie);
+        urlConnection.setDoOutput(true);
+        urlConnection.setUseCaches(false);
+        urlConnection.setInstanceFollowRedirects(false);
+
+        try (DataOutputStream wr = new DataOutputStream(urlConnection.getOutputStream())) {
+            wr.write(postData);
+        }
+
+        return urlConnection;
+    }
+
 }
