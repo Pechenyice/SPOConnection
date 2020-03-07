@@ -608,7 +608,7 @@
         android:layout_marginBottom="60dp"
         android:layout_marginLeft="15dp"
         android:layout_marginRight="15dp"
-        tools:visibility="invisible">
+        tools:visibility="visible">
 
 
         <ScrollView
@@ -650,6 +650,7 @@
                         android:textColor="@color/greyColor"
                         android:textSize="12dp"
                         android:text="Пн"
+                        android:id="@+id/monday"
                         />
                     <TextView
                         android:layout_width="match_parent"
@@ -662,6 +663,7 @@
                         android:textColor="@color/greyColor"
                         android:textSize="12dp"
                         android:text="Вт"
+                        android:id="@+id/tuesday"
                         android:background="@drawable/today_lessons_border"
                         />
                     <TextView
@@ -675,6 +677,7 @@
                         android:textColor="@color/greyColor"
                         android:textSize="12dp"
                         android:text="Ср"
+                        android:id="@+id/wednesday"
                         android:background="@drawable/today_lessons_border_right_only"
                         />
                     <TextView
@@ -688,6 +691,7 @@
                         android:textColor="@color/greyColor"
                         android:textSize="12dp"
                         android:text="Чт"
+                        android:id="@+id/thursday"
                         android:background="@drawable/today_lessons_border_right_only"
                         />
                     <TextView
@@ -701,6 +705,7 @@
                         android:textColor="@color/greyColor"
                         android:textSize="12dp"
                         android:text="Пт"
+                        android:id="@+id/friday"
                         android:background="@drawable/today_lessons_border_right_only"
                         />
                     <TextView
@@ -714,6 +719,7 @@
                         android:textColor="@color/greyColor"
                         android:textSize="12dp"
                         android:text="Сб"
+                        android:id="@+id/saturday"
                         />
 
                 </LinearLayout>
@@ -747,6 +753,9 @@
                     <TextView
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
+                        android:layout_marginTop="3dp"
+                        android:layout_marginBottom="3dp"
+                        android:layout_marginRight="3dp"
                         android:id="@+id/next"
                         android:fontFamily="@font/montserrat_light"
                         android:paddingTop="10dp"
@@ -773,23 +782,23 @@
                     android:layout_marginTop="20dp"
                     android:orientation="vertical" >
 
-                    <TextView
-                                        android:layout_width="wrap_content"
-                                        android:layout_height="wrap_content"
-                                        android:layout_marginLeft="10dp"
-                                        android:layout_marginBottom="3dp"
-                                        android:text="понедельник"
-                                        android:fontFamily="@font/montserrat_medium"
-                                        android:textColor="@color/pinkColor">
+<!--                    <TextView-->
+<!--                                        android:layout_width="wrap_content"-->
+<!--                                        android:layout_height="wrap_content"-->
+<!--                                        android:layout_marginLeft="10dp"-->
+<!--                                        android:layout_marginBottom="3dp"-->
+<!--                                        android:text="понедельник"-->
+<!--                                        android:fontFamily="@font/montserrat_medium"-->
+<!--                                        android:textColor="@color/pinkColor">-->
 
-                                    </TextView>
-                    <LinearLayout
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:background="@drawable/forms_example"
-                        android:paddingBottom="5dp"
-                        android:layout_marginBottom="10dp"
-                        android:orientation="vertical">
+<!--                                    </TextView>-->
+<!--                    <LinearLayout-->
+<!--                        android:layout_width="match_parent"-->
+<!--                        android:layout_height="wrap_content"-->
+<!--                        android:background="@drawable/forms_example"-->
+<!--                        android:paddingBottom="5dp"-->
+<!--                        android:layout_marginBottom="10dp"-->
+<!--                        android:orientation="vertical">-->
 <!--                                <LinearLayout-->
 <!--                                    android:layout_height="wrap_content"-->
 <!--                                    android:layout_width="match_parent"-->
@@ -863,7 +872,7 @@
 <!--                                    </TextView>-->
 
 <!--                                </LinearLayout>-->
-                    </LinearLayout>
+<!--                    </LinearLayout>-->
 
                 </LinearLayout>
 
@@ -1252,20 +1261,37 @@
         android:orientation="horizontal"
         tools:visibility="visible">
 
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:layout_marginLeft="15dp"
+            android:orientation="vertical"
+            android:id="@+id/notification">
         <ImageView
-            android:id="@+id/notification"
-            android:layout_marginBottom="8dp"
-            android:layout_marginTop="9dp"
-            android:layout_marginLeft="25dp"
-            android:layout_marginRight="15dp"
+            android:id="@+id/notificationNavImg"
             android:layout_width="23dp"
             android:layout_height="25dp"
+            android:layout_marginTop="4dp"
+            android:layout_marginBottom="-2dp"
+            android:layout_marginLeft="16dp"
             app:srcCompat="@drawable/bell" />
+            <TextView
+                android:layout_marginTop="3dp"
+                android:id="@+id/notificationNavText"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Изменения"
+                android:textColor="@color/white"
+                android:fontFamily="@font/montserrat_light"
+                android:shadowColor="@color/greyColor"
+                android:textSize="9dp"
+                android:gravity="center" />
+        </LinearLayout>
 
         <TextView
             android:fontFamily="@font/montserrat_regular"
             android:layout_marginRight="10dp"
-            android:layout_marginLeft="10dp"
+            android:layout_marginLeft="15dp"
             android:layout_marginTop="8dp"
             android:layout_marginBottom="8dp"
             android:gravity="center_vertical"
@@ -1306,16 +1332,17 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
-                android:orientation="vertical">
+                android:orientation="vertical"
+                android:id="@+id/home">
                 <ImageView
-                    android:layout_marginTop="2dp"
-                    android:id="@+id/home"
+                    android:id="@+id/homeNavImg"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
                     app:srcCompat="@drawable/main" />
                 <TextView
-                    android:layout_marginBottom="4dp"
+                    android:id="@+id/homeNavText"
+                    android:layout_marginBottom="3dp"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:text="Главная"
@@ -1330,16 +1357,17 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
-                android:orientation="vertical">
+                android:orientation="vertical"
+                android:id="@+id/schedule">
                 <ImageView
-                    android:layout_marginTop="2dp"
-                    android:id="@+id/schedule"
+                    android:id="@+id/scheduleNavImg"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
                     app:srcCompat="@drawable/schedule" />
                 <TextView
-                    android:layout_marginBottom="4dp"
+                    android:id="@+id/scheduleNavText"
+                    android:layout_marginBottom="3dp"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:text="Расписание"
@@ -1354,16 +1382,17 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
-                android:orientation="vertical">
+                android:orientation="vertical"
+                android:id="@+id/profile">
                 <ImageView
-                    android:layout_marginTop="2dp"
-                    android:id="@+id/profile"
+                    android:id="@+id/profileNavImg"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
                     app:srcCompat="@drawable/profile_active" />
                 <TextView
-                    android:layout_marginBottom="4dp"
+                    android:id="@+id/profileNavText"
+                    android:layout_marginBottom="3dp"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:text="Профиль"
@@ -1382,16 +1411,17 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
-                android:orientation="vertical">
+                android:orientation="vertical"
+                android:id="@+id/lessons">
                 <ImageView
-                    android:layout_marginTop="2dp"
-                    android:id="@+id/lessons"
+                    android:id="@+id/lessonsNavImg"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
                     app:srcCompat="@drawable/subject" />
                 <TextView
-                    android:layout_marginBottom="4dp"
+                    android:id="@+id/lessonsNavText"
+                    android:layout_marginBottom="3dp"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:text="Журнал"
@@ -1406,16 +1436,17 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
-                android:orientation="vertical">
+                android:orientation="vertical"
+                android:id="@+id/settings">
                 <ImageView
-                    android:layout_marginTop="2dp"
-                    android:id="@+id/exit"
+                    android:id="@+id/settingsNavImg"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
                     app:srcCompat="@drawable/settings" />
                 <TextView
-                    android:layout_marginBottom="4dp"
+                    android:id="@+id/settingsNavText"
+                    android:layout_marginBottom="3dp"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:text="Настройки"

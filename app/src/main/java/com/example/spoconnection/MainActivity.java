@@ -136,6 +136,8 @@ public class MainActivity extends AppCompatActivity {
     // Переменная, чтобы buildFrontend не вызвался дважды (и после getMainData и после getByDay)
 //    Boolean buildFrontendCalled = false;
 
+    int activeScheduleWeek = 0; // для мониторинга текущей недели при вызове сортировки по дню 0 - тек, 1 - след
+
     Boolean nowWeekScheduleCalled = false;
     Boolean nextWeekScheduleCalled = false;
 
@@ -173,6 +175,13 @@ public class MainActivity extends AppCompatActivity {
     SharedPreferences preferences;
     SharedPreferences.Editor preferencesEditor;
 
+    TextView monday;
+    TextView tuesday;
+    TextView wednesday;
+    TextView thursday;
+    TextView friday;
+    TextView saturday;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -201,6 +210,30 @@ public class MainActivity extends AppCompatActivity {
         notificationListScreen = findViewById(R.id.notificationListScreen);
         loadingScreen = findViewById(R.id.loadingScreen);
 
+        // Инициализируем навигацию
+
+        homeNavImg = findViewById(R.id.homeNavImg);
+        homeNavText = findViewById(R.id.homeNavText);
+        scheduleNavImg = findViewById(R.id.scheduleNavImg);
+        scheduleNavText = findViewById(R.id.scheduleNavText);
+        profileNavImg = findViewById(R.id.profileNavImg);
+        profileNavText = findViewById(R.id.profileNavText);
+        lessonsNavImg = findViewById(R.id.lessonsNavImg);
+        lessonsNavText = findViewById(R.id.lessonsNavText);
+        settingsNavImg = findViewById(R.id.settingsNavImg);
+        settingsNavText = findViewById(R.id.settingsNavText);
+        notificationNavImg = findViewById(R.id.notificationNavImg);
+        notificationNavText = findViewById(R.id.notificationNavText);
+
+        // и кнопки расписания
+
+        monday = findViewById(R.id.monday);
+        tuesday = findViewById(R.id.tuesday);
+        wednesday = findViewById(R.id.wednesday);
+        thursday = findViewById(R.id.thursday);
+        friday = findViewById(R.id.friday);
+        saturday = findViewById(R.id.saturday);
+
         // локальные кнопки экранов
 
 //        scheduleChanges = findViewById(R.id.notificationSchedule);
@@ -223,10 +256,27 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 if (!nowWeekScheduleCalled) {
+                    activeScheduleWeek = 0;
+                    TextView nextView = findViewById(R.id.next);
+                    nextView.setBackgroundResource(R.drawable.passive_schedule);
+                    nextView.setTextColor(getResources().getColor(R.color.pinkColor));
+                    TextView nowView = findViewById(v.getId());
+                    nowView.setBackgroundResource(R.drawable.active_schedule);
+                    nowView.setTextColor(getResources().getColor(R.color.backgroundMainColor));
                     sendGetScheduleParsingRequest("now");
                     setLoadingToList(ContainerName.SCHEDULE);
                     nowWeekScheduleCalled = true;
                 } else {
+                    activeScheduleWeek = 0;
+                    TextView nextView = findViewById(R.id.next);
+                    nextView.setBackgroundResource(R.drawable.passive_schedule);
+                    nextView.setTextColor(getResources().getColor(R.color.pinkColor));
+                    TextView nowView = findViewById(v.getId());
+                    nowView.setBackgroundResource(R.drawable.active_schedule);
+                    nowView.setTextColor(getResources().getColor(R.color.backgroundMainColor));
+                    LinearLayout scheduleList = findViewById(R.id.scheduleList);
+                    scheduleList.removeAllViews();
+                    setLoadingToList(ContainerName.SCHEDULE);
                     onGetScheduleRequestCompleted("now");
                 }
             }
@@ -236,10 +286,27 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 if (!nextWeekScheduleCalled) {
+                    activeScheduleWeek = 1;
+                    TextView nextView = findViewById(R.id.now);
+                    nextView.setBackgroundResource(R.drawable.passive_schedule);
+                    nextView.setTextColor(getResources().getColor(R.color.pinkColor));
+                    TextView nowView = findViewById(v.getId());
+                    nowView.setBackgroundResource(R.drawable.active_schedule);
+                    nowView.setTextColor(getResources().getColor(R.color.backgroundMainColor));
                     sendGetScheduleParsingRequest("next");
                     setLoadingToList(ContainerName.SCHEDULE);
                     nextWeekScheduleCalled = true;
                 } else {
+                    activeScheduleWeek = 1;
+                    TextView nextView = findViewById(R.id.now);
+                    nextView.setBackgroundResource(R.drawable.passive_schedule);
+                    nextView.setTextColor(getResources().getColor(R.color.pinkColor));
+                    TextView nowView = findViewById(v.getId());
+                    nowView.setBackgroundResource(R.drawable.active_schedule);
+                    nowView.setTextColor(getResources().getColor(R.color.backgroundMainColor));
+                    LinearLayout scheduleList = findViewById(R.id.scheduleList);
+                    scheduleList.removeAllViews();
+                    setLoadingToList(ContainerName.SCHEDULE);
                     onGetScheduleRequestCompleted("next");
                 }
             }
@@ -1844,13 +1911,13 @@ public class MainActivity extends AppCompatActivity {
 
     // кнопки нужны глобально
 
-    ImageView home;
-    ImageView schedule;
-    ImageView profile;
-    ImageView lessons;
-    ImageView exit;
+    LinearLayout home;
+    LinearLayout schedule;
+    LinearLayout profile;
+    LinearLayout lessons;
+    LinearLayout settings;
 
-    ImageView userHelp;
+    LinearLayout userHelp;
     TextView scheduleNow;
     TextView scheduleNext;
 
@@ -1864,6 +1931,21 @@ public class MainActivity extends AppCompatActivity {
     TextView profileUserBills;
     LinearLayout todayLessonsView;
 
+    // Все для анимации навигации
+
+    ImageView homeNavImg;
+    TextView homeNavText;
+    ImageView scheduleNavImg;
+    TextView scheduleNavText;
+    ImageView profileNavImg;
+    TextView profileNavText;
+    ImageView lessonsNavImg;
+    TextView lessonsNavText;
+    ImageView settingsNavImg;
+    TextView settingsNavText;
+    ImageView notificationNavImg;
+    TextView notificationNavText;
+
 
 
     // переменная для мониторинга активного контейнера
@@ -1875,26 +1957,44 @@ public class MainActivity extends AppCompatActivity {
     public void setContainer(ContainerName newContainer) { // функция обновления активного контейнера
         switch (activeContainer) {
             case PROFILE: {
+                profileNavImg.setImageResource(R.drawable.profile);
+                profileNavText.setTextColor(getResources().getColor(R.color.greyColor));
+                profileNavText.setShadowLayer(0,0,0,0);
                 main.removeView(profileScreen);
                 break;
             }
             case HOME: {
+                homeNavImg.setImageResource(R.drawable.main);
+                homeNavText.setTextColor(getResources().getColor(R.color.greyColor));
+                homeNavText.setShadowLayer(0,0,0,0);
                 main.removeView(homeScreen);
                 break;
             }
             case SCHEDULE: {
+                scheduleNavImg.setImageResource(R.drawable.schedule);
+                scheduleNavText.setTextColor(getResources().getColor(R.color.greyColor));
+                scheduleNavText.setShadowLayer(0,0,0,0);
                 main.removeView(scheduleScreen);
                 break;
             }
             case LESSONS: {
+                lessonsNavImg.setImageResource(R.drawable.subject);
+                lessonsNavText.setTextColor(getResources().getColor(R.color.greyColor));
+                lessonsNavText.setShadowLayer(0,0,0,0);
                 main.removeView(lessonsScreen);
                 break;
             }
             case LESSONS_INFORMATION: {
+                lessonsNavImg.setImageResource(R.drawable.subject);
+                lessonsNavText.setTextColor(getResources().getColor(R.color.greyColor));
+                lessonsNavText.setShadowLayer(0,0,0,0);
                 main.removeView(lessonsInformationScreen);
                 break;
             }
             case NOTIFICATION: {
+                notificationNavImg.setImageResource(R.drawable.bell);
+                notificationNavText.setTextColor(getResources().getColor(R.color.greyColor));
+                notificationNavText.setShadowLayer(0,0,0,0);
                 main.removeView(notificationListScreen);
                 break;
             }
@@ -1909,31 +2009,54 @@ public class MainActivity extends AppCompatActivity {
 
         switch (newContainer) {
             case PROFILE: {
+                profileNavImg.setImageResource(R.drawable.profile_active);
+                profileNavText.setTextColor(getResources().getColor(R.color.white));
+                profileNavText.setShadowLayer(5,0,0,getResources().getColor(R.color.white));
                 main.addView(profileScreen);
                 activeContainer = ContainerName.PROFILE;
                 break;
             }
             case HOME: {
+                homeNavImg.setImageResource(R.drawable.main_active);
+                homeNavText.setTextColor(getResources().getColor(R.color.white));
+                homeNavText.setShadowLayer(5,0,0,getResources().getColor(R.color.white));
                 main.addView(homeScreen);
                 activeContainer = ContainerName.HOME;
                 break;
             }
             case SCHEDULE: {
+                scheduleNavImg.setImageResource(R.drawable.schedule_active);
+                scheduleNavText.setTextColor(getResources().getColor(R.color.white));
+                scheduleNavText.setShadowLayer(5,0,0,getResources().getColor(R.color.white));
                 main.addView(scheduleScreen);
                 activeContainer = ContainerName.SCHEDULE;
+                if (!nowWeekScheduleCalled) {
+                    sendGetScheduleParsingRequest("now");
+                    setLoadingToList(ContainerName.SCHEDULE);
+                    nowWeekScheduleCalled = true;
+                }
                 break;
             }
             case LESSONS: {
+                lessonsNavImg.setImageResource(R.drawable.subject_active);
+                lessonsNavText.setTextColor(getResources().getColor(R.color.white));
+                lessonsNavText.setShadowLayer(5,0,0,getResources().getColor(R.color.white));
                 main.addView(lessonsScreen);
                 activeContainer = ContainerName.LESSONS;
                 break;
             }
             case LESSONS_INFORMATION: {
+                lessonsNavImg.setImageResource(R.drawable.subject_active);
+                lessonsNavText.setTextColor(getResources().getColor(R.color.white));
+                lessonsNavText.setShadowLayer(5,0,0,getResources().getColor(R.color.white));
                 main.addView(lessonsInformationScreen);
                 activeContainer = ContainerName.LESSONS_INFORMATION;
                 break;
             }
             case NOTIFICATION: {
+                notificationNavImg.setImageResource(R.drawable.bell);
+                notificationNavText.setTextColor(getResources().getColor(R.color.white));
+                notificationNavText.setShadowLayer(5,0,0,getResources().getColor(R.color.white));
                 main.addView(notificationListScreen);
                 activeContainer = ContainerName.NOTIFICATION;
                 break;
@@ -2107,7 +2230,7 @@ public class MainActivity extends AppCompatActivity {
         schedule = findViewById(R.id.schedule);
         profile = findViewById(R.id.profile);
         lessons = findViewById(R.id.lessons);
-        exit = findViewById(R.id.exit);
+        settings = findViewById(R.id.settings);
         userHelp = findViewById(R.id.notification);
 
 
@@ -2122,7 +2245,7 @@ public class MainActivity extends AppCompatActivity {
         schedule.setOnClickListener(wasClicked);
         profile.setOnClickListener(wasClicked);
         lessons.setOnClickListener(wasClicked);
-        exit.setOnClickListener(wasClicked);
+        settings.setOnClickListener(wasClicked);
 
 //        scheduleChanges.setOnClickListener(wasClicked);
 
@@ -2432,7 +2555,7 @@ public class MainActivity extends AppCompatActivity {
                 setContainer(ContainerName.NOTIFICATION);
             }
 
-            if (v.getId() == exit.getId()) {
+            if (v.getId() == settings.getId()) {
                 resetApp();
                 setLoginFormContainer();
             }
