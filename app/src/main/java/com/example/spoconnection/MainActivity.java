@@ -246,6 +246,7 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 resetApp();
+//                setContainer(ContainerName.LOGIN);
                 setLoginFormContainer();
             }
         });
@@ -718,6 +719,8 @@ public class MainActivity extends AppCompatActivity {
 
     private void sendLoginRequest(String[] params) {
         setContainer(ContainerName.LOADING);
+        main.removeView(errorScreen);
+        main.removeView(itogScreen);
 //        loadingScreen.setBackgroundResource(R.drawable.anim_loading);
 //        AnimationDrawable anim = (AnimationDrawable) loadingScreen.getBackground();
 //        anim.setEnterFadeDuration(500);
