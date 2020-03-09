@@ -77,6 +77,7 @@ public class MainActivity extends AppCompatActivity {
     final Integer EXERCISES_BY_DAY_REQUEST_CONNECT_TIMEOUT      = 5;
     final Integer EXERCISES_BY_LESSON_REQUEST_CONNECT_TIMEOUT   = 5;
     final Integer VK_POSTS_REQUEST_CONNECT_TIMEOUT              = 5;
+    final Integer FINAL_MARKS_REQUEST_CONNECT_TIMEOUT           = 5;
 
     final Integer STATS_REQUEST_READ_TIMEOUT                 = 5;  // в секундах
     final Integer LOGIN_REQUEST_READ_TIMEOUT                 = 5;
@@ -86,6 +87,7 @@ public class MainActivity extends AppCompatActivity {
     final Integer EXERCISES_BY_DAY_REQUEST_READ_TIMEOUT      = 5;
     final Integer EXERCISES_BY_LESSON_REQUEST_READ_TIMEOUT   = 5;
     final Integer VK_POSTS_REQUEST_READ_TIMEOUT              = 5;
+    final Integer FINAL_MARKS_REQUEST_READ_TIMEOUT           = 5;
 
     // Переменные, получаемые с запросов
 
@@ -111,6 +113,8 @@ public class MainActivity extends AppCompatActivity {
     public JSONObject readyExercisesByLesson = new JSONObject();
     public JSONObject readyExercisesByLessonVisits = new JSONObject();
 
+    public JSONArray studentFinalMarks = new JSONArray();
+
     // by vk api
     public JSONObject vkWallPosts;
 
@@ -133,6 +137,7 @@ public class MainActivity extends AppCompatActivity {
     RequestStatus getStudentProfileDataRequestStatus;
     RequestStatus getScheduleRequestStatus;
     RequestStatus getStudentStatsRequestStatus;
+    RequestStatus getFinalMarksRequestStatus;
 
 
     // Переменная, чтобы buildFrontend не вызвался дважды (и после getMainData и после getByDay)
@@ -161,6 +166,10 @@ public class MainActivity extends AppCompatActivity {
     public LinearLayout userHelpScreen;
     public LinearLayout notificationListScreen;
     public RelativeLayout loadingScreen;
+    public RelativeLayout settingsScreen;
+    public RelativeLayout itogScreen;
+    public RelativeLayout errorScreen;
+    public RelativeLayout backConnectScreen;
 
 
     // массив расписания
@@ -218,7 +227,28 @@ public class MainActivity extends AppCompatActivity {
         userHelpScreen = findViewById(R.id.userHelp);
         notificationListScreen = findViewById(R.id.notificationListScreen);
         loadingScreen = findViewById(R.id.loadingScreen);
+        settingsScreen = findViewById(R.id.settingsScreen);
+        itogScreen = findViewById(R.id.itogScreen);
+        errorScreen = findViewById(R.id.errorScreen);
+        backConnectScreen = findViewById(R.id.backConnectScreen);
 
+        // издержки
+
+        TextView settingsSyncUnicodeField = findViewById(R.id.settingsSyncUnicodeField);
+        settingsSyncUnicodeField.setText("↻");
+        TextView settingsExitUnicodeField = findViewById(R.id.settingsExitUnicodeField);
+        settingsExitUnicodeField.setText("\uD83D\uDEAA");
+
+        //Выход из аккаунта
+
+        RelativeLayout settingsExit = findViewById(R.id.settingsExit);
+        settingsExit.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                resetApp();
+                setLoginFormContainer();
+            }
+        });
 
         // Инициализируем навигацию
 
@@ -383,6 +413,10 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
+        // ссылки с настроек
+
+        RelativeLayout settingsBackConnectLink = findViewById(R.id.settingsBackConnectLink);
+
         // ссылки с главной
 
         RelativeLayout homeProfileLink = findViewById(R.id.homeProfileLink);
@@ -390,7 +424,7 @@ public class MainActivity extends AppCompatActivity {
         RelativeLayout homeLessonsLink = findViewById(R.id.homeLessonsLink);
         RelativeLayout homeNotificationLink = findViewById(R.id.homeNotificationLink);
         RelativeLayout homeItogLink = findViewById(R.id.homeItogLink);
-        RelativeLayout homeAchivLink = findViewById(R.id.homeAchivLink);
+//        RelativeLayout homeAchivLink = findViewById(R.id.homeAchivLink);
 
         homeProfileLink.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -418,6 +452,20 @@ public class MainActivity extends AppCompatActivity {
                 setLoadingToList(ContainerName.NOTIFICATION);
             }
         });
+        homeItogLink.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                setContainer(ContainerName.ITOG);
+//                setLoadingToList(ContainerName.ITOG);
+            }
+        });
+
+        settingsBackConnectLink.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                setContainer(ContainerName.BACKCONNECT);
+            }
+        });
 
 
         // в начале убираем все экраны
@@ -431,6 +479,10 @@ public class MainActivity extends AppCompatActivity {
         main.removeView(userHelpScreen);
         main.removeView(notificationListScreen);
         main.removeView(loginForm);
+        main.removeView(settingsScreen);
+        main.removeView(itogScreen);
+        main.removeView(errorScreen);
+        main.removeView(backConnectScreen);
         activeContainer = ContainerName.LOADING;
 
         resetRequestsStatuses();
@@ -523,6 +575,7 @@ public class MainActivity extends AppCompatActivity {
                     String day = new SimpleDateFormat("dd").format(date);
 
                     sendGetStudentStatsRequest();
+                    sendGetFinalMarksRequest();
                     sendGetStudentMainDataRequest(new String[]{ year, month });
                     sendGetExercisesByDayRequest(new String[] { year + "-" + month + "-" + day }); // 2020-02-26
                 }
@@ -565,8 +618,8 @@ public class MainActivity extends AppCompatActivity {
         getStudentProfileDataRequestStatus    = RequestStatus.NOT_CALLED;
         getScheduleRequestStatus              = RequestStatus.NOT_CALLED;
         getStudentStatsRequestStatus          = RequestStatus.NOT_CALLED;
+        getFinalMarksRequestStatus            = RequestStatus.NOT_CALLED;
     }
-
 
     public void resetApp() {
 
@@ -634,6 +687,7 @@ public class MainActivity extends AppCompatActivity {
 
         System.out.println("---------");
         System.out.println("Stats request: " + getStudentStatsRequestStatus);
+        System.out.println("Final marks request: " + getFinalMarksRequestStatus);
         System.out.println("Main data request: " + getStudentMainDataRequestStatus);
         System.out.println("Student profile data request: " + getStudentProfileDataRequestStatus);
         System.out.println("Exercises by day request: " + getExercisesByDayRequestStatus);
@@ -642,6 +696,7 @@ public class MainActivity extends AppCompatActivity {
         if (getStudentStatsRequestStatus == RequestStatus.COMPLETED
                 && getStudentMainDataRequestStatus == RequestStatus.COMPLETED
                 && getExercisesByDayRequestStatus  == RequestStatus.COMPLETED
+                && getFinalMarksRequestStatus      == RequestStatus.COMPLETED
         ) {
             preferences = MainActivity.this.getPreferences(Context.MODE_PRIVATE);
             preferencesEditor = preferences.edit();
@@ -715,6 +770,11 @@ public class MainActivity extends AppCompatActivity {
         request.execute();
     }
 
+    private void sendGetFinalMarksRequest() {
+        getFinalMarksRequest request = new getFinalMarksRequest();
+        getFinalMarksRequestStatus = RequestStatus.CALLED;
+        request.execute();
+    }
 
     // Колбеки, которые вызываются при завершении определенного запроса
 
@@ -758,6 +818,7 @@ public class MainActivity extends AppCompatActivity {
             String day = new SimpleDateFormat("dd").format(date);
 
             sendGetStudentStatsRequest();
+            sendGetFinalMarksRequest();
             sendGetStudentMainDataRequest(new String[]{ year, month });
             if (getStudentProfileDataRequestStatus != RequestStatus.COMPLETED) sendGetStudentProfileDataRequest();
             sendGetExercisesByDayRequest(new String[] { year + "-" + month + "-" + day }); // 2020-02-26
@@ -1665,6 +1726,21 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
+    public void onGetFinalMarksRequestCompleted() {
+        if (getFinalMarksRequestStatus == RequestStatus.CALLED) {
+            getFinalMarksRequestStatus = RequestStatus.COMPLETED;
+        }
+        else if (getFinalMarksRequestStatus == RequestStatus.FAILED) {
+
+        }
+        else if (getFinalMarksRequestStatus == RequestStatus.TIMEOUT) {
+
+        }
+        else {
+
+        }
+    }
+
     // Сами асинхронные запросы
 
     // [name, password]
@@ -2183,6 +2259,100 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
+    String finalMarksSemestr = "";
+
+    class getFinalMarksRequest extends AsyncTask<Void, Void, Void> {
+
+        protected Void doInBackground(Void... params) {
+            HttpURLConnection urlConnection = null;
+            String responseBody = "";
+            Document html = new Document(responseBody);
+
+            try {
+                String url_address = "https://ifspo.ifmo.ru/profile/statistic?user=" + studentId;
+
+                urlConnection = Functions.setupGETAuthRequest(url_address, authCookie, FINAL_MARKS_REQUEST_CONNECT_TIMEOUT, FINAL_MARKS_REQUEST_READ_TIMEOUT);
+                responseBody = Functions.getResponseFromGetRequest(urlConnection);
+
+                html = Jsoup.parse(responseBody);
+
+                finalMarksSemestr = html.body()
+                        .getElementsByClass("container").get(0)
+                        .getElementsByClass("row").get(1)
+                        .getElementsByClass("span12").get(0)
+                        .select("p").get(0).text();
+
+                System.out.println("sem: " + finalMarksSemestr);
+
+                Element container = html.body()
+                        .getElementsByClass("container").get(0)
+                        .getElementsByClass("row").get(1)
+                        .getElementsByClass("span12").get(1)
+                        .getElementsByTag("table").get(0)
+                        .getElementsByTag("tbody").get(0);
+
+//                System.out.println(container.toString());
+
+                String lesson;
+                String count;
+                String visits;
+                String absences;
+                String certification;
+                String finalMark;
+
+                JSONArray array = new JSONArray();
+
+                for (Element tr : container.getElementsByTag("tr")) {
+                    Elements tds = tr.getElementsByTag("td");
+
+                    lesson          = tds.get(0).text();
+                    count           = tds.get(1).text();
+                    visits          = tds.get(2).text();
+                    absences        = tds.get(3).text();
+                    certification   = tds.get(4).text();
+                    finalMark       = tds.get(5).text();
+
+                    JSONObject temp = new JSONObject();
+                    temp.put("name", lesson);
+                    temp.put("all", count);
+                    temp.put("was", visits);
+                    temp.put("absences", absences);
+                    temp.put("certification", certification);
+                    temp.put("mark", finalMark);
+
+                    array.put(temp);
+                }
+
+                System.out.println("final marks: " + array);
+
+                studentFinalMarks = array;
+
+            } catch (SocketTimeoutException e) {
+                System.out.println("Final marks request timeout!");
+                getFinalMarksRequestStatus = RequestStatus.TIMEOUT;
+//                return;
+            } catch (Exception e) {
+                System.out.println("Problems with final marks request");
+                System.out.println(e.toString());
+                getFinalMarksRequestStatus = RequestStatus.FAILED;
+//                return;
+            } finally {
+                if (urlConnection != null) urlConnection.disconnect();
+            }
+
+//            return;
+//            System.out.println("GetProfileParsing Success!");
+
+            return null;
+        }
+
+        protected void onPostExecute(Void result) {
+            super.onPostExecute(result);
+            onGetFinalMarksRequestCompleted();
+
+        }
+    }
+
 
 
 
@@ -2240,11 +2410,12 @@ public class MainActivity extends AppCompatActivity {
 
     // переменная для мониторинга активного контейнера
 
-    enum ContainerName { PROFILE, HOME, SCHEDULE, LESSONS, LESSONS_INFORMATION, NOTIFICATION, LOADING, LOGIN }
+    enum ContainerName { PROFILE, HOME, SCHEDULE, LESSONS, LESSONS_INFORMATION, NOTIFICATION, LOADING, LOGIN, SETTINGS, ITOG, ERROR, BACKCONNECT }
     ContainerName activeContainer;
 
 
     public void setContainer(ContainerName newContainer) { // функция обновления активного контейнера
+
         switch (activeContainer) {
             case PROFILE: {
                 profileNavImg.setImageResource(R.drawable.profile);
@@ -2288,12 +2459,37 @@ public class MainActivity extends AppCompatActivity {
                 main.removeView(notificationListScreen);
                 break;
             }
+            case SETTINGS: {
+                settingsNavImg.setImageResource(R.drawable.settings);
+                settingsNavText.setTextColor(getResources().getColor(R.color.greyColor));
+                settingsNavText.setShadowLayer(0,0,0,0);
+                main.removeView(settingsScreen);
+                break;
+            }
+            case ITOG: {
+                lessonsNavImg.setImageResource(R.drawable.subject);
+                lessonsNavText.setTextColor(getResources().getColor(R.color.greyColor));
+                lessonsNavText.setShadowLayer(0,0,0,0);
+                main.removeView(itogScreen);
+                break;
+            }
+            case BACKCONNECT: {
+                settingsNavImg.setImageResource(R.drawable.settings);
+                settingsNavText.setTextColor(getResources().getColor(R.color.greyColor));
+                settingsNavText.setShadowLayer(0,0,0,0);
+                main.removeView(backConnectScreen);
+                break;
+            }
             case LOGIN: {
                 main.removeView(loginForm);
                 break;
             }
             case LOADING: {
                 main.removeView(loadingScreen);
+            }
+            case ERROR: {
+                main.removeView(errorScreen);
+                break;
             }
         }
 
@@ -2351,6 +2547,22 @@ public class MainActivity extends AppCompatActivity {
                 activeContainer = ContainerName.NOTIFICATION;
                 break;
             }
+            case SETTINGS: {
+                settingsNavImg.setImageResource(R.drawable.settings_active);
+                settingsNavText.setTextColor(getResources().getColor(R.color.white));
+                settingsNavText.setShadowLayer(5,0,0,getResources().getColor(R.color.white));
+                main.addView(settingsScreen);
+                activeContainer = ContainerName.SETTINGS;
+                break;
+            }
+            case BACKCONNECT: {
+                settingsNavImg.setImageResource(R.drawable.settings_active);
+                settingsNavText.setTextColor(getResources().getColor(R.color.white));
+                settingsNavText.setShadowLayer(5,0,0,getResources().getColor(R.color.white));
+                main.addView(backConnectScreen);
+                activeContainer = ContainerName.BACKCONNECT;
+                break;
+            }
             case LOGIN: {
                 main.removeAllViews();
                 main.addView(loginForm);
@@ -2361,10 +2573,97 @@ public class MainActivity extends AppCompatActivity {
                 main.addView(loadingScreen);
                 activeContainer = ContainerName.LOADING;
             }
+            case ERROR: {
+                main.addView(errorScreen);
+                activeContainer = ContainerName.ERROR;
+            }
+            case ITOG: {
+                lessonsNavImg.setImageResource(R.drawable.subject_active);
+                lessonsNavText.setTextColor(getResources().getColor(R.color.white));
+                lessonsNavText.setShadowLayer(5,0,0,getResources().getColor(R.color.white));
+                main.addView(itogScreen);
+                activeContainer = ContainerName.ITOG;
+                TextView itogLessonsSem = findViewById(R.id.itogLessonsSem);
+                itogLessonsSem.setText(finalMarksSemestr);
+
+                int dp = (int) getResources().getDisplayMetrics().density;
+                Typeface light = ResourcesCompat.getFont(getApplicationContext(), R.font.montserrat_light);
+                Typeface medium = ResourcesCompat.getFont(getApplicationContext(), R.font.montserrat_medium);
+                Typeface semibold = ResourcesCompat.getFont(getApplicationContext(), R.font.montserrat_semibold);
+                Typeface regular = ResourcesCompat.getFont(getApplicationContext(), R.font.montserrat_regular);
+
+                LinearLayout itogList = findViewById(R.id.itogList);
+                itogList.removeAllViews();
+
+                for (int i = 0; i < studentFinalMarks.length(); i++) {
+
+                    RelativeLayout tmp = new RelativeLayout(getApplicationContext());
+                    RelativeLayout.LayoutParams tmpLP = new RelativeLayout.LayoutParams(RelativeLayout.LayoutParams.MATCH_PARENT, RelativeLayout.LayoutParams.WRAP_CONTENT);
+                    tmpLP.setMargins(0, 5*dp,0,0);
+                    tmp.setLayoutParams(tmpLP);
+                    tmp.setBackgroundResource(R.drawable.forms_example);
+                    itogList.addView(tmp);
+
+                    LinearLayout tempBox = new LinearLayout(getApplicationContext());
+                    LinearLayout.LayoutParams tempBoxLP = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT,LinearLayout.LayoutParams.WRAP_CONTENT);
+                    tempBoxLP.setMargins(5*dp,15*dp,5*dp,15*dp);
+                    tempBox.setLayoutParams(tempBoxLP);
+                    tempBox.setOrientation(LinearLayout.HORIZONTAL);
+                    tmp.addView(tempBox);
+
+                    TextView tempName = new TextView(getApplicationContext());
+                    LinearLayout.LayoutParams tempNameLP = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT, 2);
+                    tempName.setLayoutParams(tempNameLP);
+                    tempName.setTextSize(12);
+                    tempName.setTextColor(getResources().getColor(R.color.white));
+                    tempName.setTypeface(medium);
+                    try {
+                        tempName.setText(studentFinalMarks.getJSONObject(i).getString("name"));
+                    } catch (JSONException e) {
+                        e.printStackTrace();
+                    }
+                    tempBox.addView(tempName);
+
+                    TextView tempAbs = new TextView(getApplicationContext());
+                    LinearLayout.LayoutParams tempAbsLP = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.MATCH_PARENT, 3);
+                    tempAbs.setLayoutParams(tempAbsLP);
+                    tempAbs.setTextSize(12);
+                    tempAbs.setTextColor(getResources().getColor(R.color.pinkColor));
+                    tempAbs.setTypeface(semibold);
+                    tempAbs.setGravity(Gravity.CENTER);
+                    try {
+                        String was = studentFinalMarks.getJSONObject(i).getString("was");
+                        was = was.split(" ")[0];
+                        String all = studentFinalMarks.getJSONObject(i).getString("all");
+                        all = all.split(" ")[0];
+                        tempAbs.setText(was + "/" + all);
+                    } catch (JSONException e) {
+                        e.printStackTrace();
+                    }
+                    tempBox.addView(tempAbs);
+
+                    TextView tempMark = new TextView(getApplicationContext());
+                    LinearLayout.LayoutParams tempMarkLP = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.MATCH_PARENT, 3);
+                    tempMark.setLayoutParams(tempMarkLP);
+                    tempMark.setTextSize(12);
+                    tempMark.setTextColor(getResources().getColor(R.color.pinkColor));
+                    tempMark.setTypeface(semibold);
+                    tempMark.setGravity(Gravity.CENTER);
+                    try {
+                        tempMark.setText(studentFinalMarks.getJSONObject(i).getString("mark"));
+                    } catch (JSONException e) {
+                        e.printStackTrace();
+                    }
+                    tempBox.addView(tempMark);
+                }
+
+                break;
+            }
         }
     }
 
     public void setLoadingToList(ContainerName neededContainer) { // функция обновления активного контейнера
+
         switch (neededContainer) {
             case SCHEDULE: {
                 LinearLayout box = findViewById(R.id.scheduleList);
@@ -2503,6 +2802,10 @@ public class MainActivity extends AppCompatActivity {
         // убираем регистрацию и подрубаем стартовый экран
         main.removeView(loadingScreen);
         main.removeView(loginForm);
+        main.removeView(errorScreen);
+        main.removeView(itogScreen);
+        main.removeView(settingsScreen);
+        main.removeView(backConnectScreen);
         setContainer(ContainerName.PROFILE);
         main.addView(navigation);
         main.addView(userHelpScreen);
@@ -2817,6 +3120,23 @@ public class MainActivity extends AppCompatActivity {
                     main.removeView(notificationListScreen);
                     break;
                 }
+                case SETTINGS: {
+                    if (v.getId() == settings.getId()) return;
+                    main.removeView(settingsScreen);
+                    break;
+                }
+                case BACKCONNECT: {
+                    main.removeView(backConnectScreen);
+                    break;
+                }
+                case ERROR: {
+                    main.removeView(errorScreen);
+                    break;
+                }
+                case ITOG: {
+                    main.removeView(itogScreen);
+                    break;
+                }
             }
 
             // и добавляем новый
@@ -2847,8 +3167,10 @@ public class MainActivity extends AppCompatActivity {
             }
 
             if (v.getId() == settings.getId()) {
-                resetApp();
-                setLoginFormContainer();
+                System.out.println("You clicked settings");
+                setContainer(ContainerName.SETTINGS);
+//                resetApp();
+//                setLoginFormContainer();
             }
 
             // но если кликнута кнопка изменений в расписании, нужно еще выкинуть контент от вк

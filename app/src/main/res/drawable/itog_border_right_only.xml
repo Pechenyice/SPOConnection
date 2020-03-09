@@ -15,7 +15,7 @@
         android:left="0dp"
         android:bottom="0dp">
         <shape android:shape="rectangle">
-            <solid android:color="#263859"></solid>
+            <solid android:color="@color/backgroundMainColor"></solid>
         </shape>
     </item>
 </layer-list>
