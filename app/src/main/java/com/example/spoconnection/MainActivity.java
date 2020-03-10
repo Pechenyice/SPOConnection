@@ -291,11 +291,14 @@ public class MainActivity extends AppCompatActivity {
         scheduleNext = findViewById(R.id.next);
 
         // инициаизируем переменные для очистки их при выходе (важно)
+
         profileUserName = findViewById(R.id.profileUserName);
         profileUserGroup = findViewById(R.id.profileUserGroup);
         profileUserCalendar = findViewById(R.id.profileUserCalendar);
         profileUserBalls = findViewById(R.id.profileUserBalls);
         profileUserBills = findViewById(R.id.profileUserBills);
+        scheduleList = findViewById(R.id.scheduleList);
+        lessonsList = findViewById(R.id.lessonsList);
 
         // локальные кнопки экранов
 //        scheduleChanges = findViewById(R.id.notificationSchedule);
@@ -623,6 +626,16 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public void resetApp() {
+
+        profileUserName.setText("");
+        profileUserGroup.setText("");
+        profileUserCalendar.setText("");
+        profileUserBalls.setText("");
+        profileUserBills.setText("");
+        todayLessonsView.removeAllViews();
+        todayLessonsView.removeAllViews();
+        scheduleList.removeAllViews();
+        lessonsList.removeAllViews();
 
         preferences = MainActivity.this.getPreferences(Context.MODE_PRIVATE);
         preferencesEditor = preferences.edit();
@@ -2393,6 +2406,8 @@ public class MainActivity extends AppCompatActivity {
     TextView profileUserBalls;
     TextView profileUserBills;
     LinearLayout todayLessonsView;
+    LinearLayout scheduleList;
+    LinearLayout lessonsList;
 
     // Все для анимации навигации
 
