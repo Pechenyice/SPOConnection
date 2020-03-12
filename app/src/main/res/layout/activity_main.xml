@@ -17,15 +17,33 @@
         tools:visibility="invisible">
 
 
+        <WebView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerInParent="true"
+            android:id="@+id/loadingWebView">
+
+        </WebView>
+<!--        <TextView-->
+<!--            android:id="@+id/loadingText"-->
+<!--            android:layout_width="wrap_content"-->
+<!--            android:layout_height="wrap_content"-->
+<!--            android:layout_centerHorizontal="true"-->
+<!--            android:layout_centerVertical="true"-->
+<!--            android:textColor="@color/white"-->
+<!--            android:text="loading, please wait" />-->
 
         <TextView
-            android:id="@+id/loadingText"
+            android:id="@+id/loadingInfoText"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_centerHorizontal="true"
-            android:layout_centerVertical="true"
+            android:layout_alignParentBottom="true"
+            android:layout_marginTop="50dp"
+            android:layout_marginBottom="50dp"
             android:textColor="@color/white"
-            android:text="loading, please wait" />
+            android:textSize="18dp"
+            android:text="" />
     </RelativeLayout>
 
     <RelativeLayout
@@ -177,7 +195,7 @@
         android:layout_marginTop="60dp"
         android:layout_marginBottom="60dp"
         android:orientation="vertical"
-        tools:visibility="visible">
+        tools:visibility="invisible">
 
 
 
@@ -338,11 +356,12 @@
                                             android:layout_marginLeft="5dp"
                                             android:layout_marginRight="5dp"
                                             android:orientation="horizontal"
+                                            android:id="@+id/onClickItogInfo"
                                             >
                                             <TextView
                                                 android:layout_width="match_parent"
                                                 android:layout_height="wrap_content"
-                                                android:text="1 семестр"
+                                                android:text=""
                                                 android:textSize="12dp"
                                                 android:id="@+id/itogLessonsSem"
                                                 android:textColor="@color/pinkColor"
@@ -374,6 +393,7 @@
                         android:id="@+id/itogList"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
+                        android:paddingBottom="10dp"
                         android:orientation="vertical">
 <!--                                        <RelativeLayout-->
 <!--                                        android:layout_width="match_parent"-->
@@ -615,6 +635,7 @@
                         android:background="@drawable/forms_example">
 
                         <TextView
+                            android:id="@+id/ratePlace"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:layout_centerVertical="true"
@@ -630,14 +651,31 @@
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:layout_alignParentRight="true"
-                            android:layout_centerVertical="true"
+                            android:layout_marginTop="7dp"
                             android:layout_marginLeft="25dp"
                             android:layout_marginRight="10dp"
                             android:fontFamily="@font/montserrat_regular"
                             android:gravity="left"
-                            android:text="место в\nрейтинге"
+                            android:text="рейтинг курса"
                             android:textColor="@color/pinkColor"
-                            android:textSize="12dp">
+                            android:textSize="10dp">
+
+                        </TextView>
+
+                        <TextView
+                            android:id="@+id/rateCount"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_alignParentRight="true"
+                            android:layout_alignParentBottom="true"
+                            android:layout_marginBottom="7dp"
+                            android:layout_marginLeft="25dp"
+                            android:layout_marginRight="10dp"
+                            android:fontFamily="@font/montserrat_regular"
+                            android:gravity="left"
+                            android:text="/123 участников"
+                            android:textColor="@color/pinkColor"
+                            android:textSize="10dp">
 
                         </TextView>
                     </RelativeLayout>
@@ -1502,6 +1540,48 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:orientation="vertical">
+
+                                        <TextView
+                                            android:layout_width="wrap_content"
+                                            android:layout_height="wrap_content"
+                                            android:layout_marginTop="15dp"
+                                            android:layout_marginLeft="20dp"
+                                            android:text="аттестация"
+                                            android:textSize="12dp"
+                                            android:textColor="@color/pinkColor"
+                                            android:fontFamily="@font/montserrat_medium">
+                                        </TextView>
+
+                    <RelativeLayout
+                        android:id="@+id/lessonsScreenItogLink"
+                                        android:layout_width="match_parent"
+                                        android:layout_height="wrap_content"
+                                            android:layout_marginTop="5dp"
+                                        android:background="@drawable/forms_example">
+                                        <TextView
+                                            android:layout_width="wrap_content"
+                                            android:layout_height="wrap_content"
+                                            android:layout_marginLeft="20dp"
+                                            android:layout_marginTop="15dp"
+                                            android:layout_marginBottom="15dp"
+                                            android:gravity="center"
+                                            android:textSize="11dp"
+                                            android:text="Итоговые оценки"
+                                            android:fontFamily="@font/montserrat_medium"
+                                            android:textColor="@color/white">
+                                        </TextView>
+                                        <TextView
+                                            android:layout_width="wrap_content"
+                                            android:layout_height="wrap_content"
+                                            android:layout_marginRight="20dp"
+                                            android:gravity="center"
+                                            android:textSize="16dp"
+                                            android:text=">"
+                                            android:fontFamily="@font/montserrat_medium"
+                                            android:layout_alignParentRight="true"
+                                            android:layout_centerVertical="true"
+                                            android:textColor="@color/greyColor" />
+                                    </RelativeLayout>
 
                     <!--                    <TextView-->
                     <!--                        android:layout_width="wrap_content"-->

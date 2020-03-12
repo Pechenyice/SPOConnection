@@ -22,6 +22,7 @@ import android.view.View;
 import android.view.Window;
 import android.view.WindowManager;
 
+import android.webkit.WebSettings;
 import android.webkit.WebView;
 import android.widget.Button;
 import android.widget.ImageView;
@@ -72,22 +73,26 @@ public class MainActivity extends AppCompatActivity {
     final Integer STATS_REQUEST_CONNECT_TIMEOUT                 = 5;  // в секундах
     final Integer LOGIN_REQUEST_CONNECT_TIMEOUT                 = 5;
     final Integer MAIN_DATA_REQUEST_CONNECT_TIMEOUT             = 5;
-    final Integer STUDENT_PROFILE_REQUEST_CONNECT_TIMEOUT       = 5;
+    final Integer STUDENT_PROFILE_REQUEST_CONNECT_TIMEOUT       = 8;
     final Integer SCHEDULE_REQUEST_CONNECT_TIMEOUT              = 5;
     final Integer EXERCISES_BY_DAY_REQUEST_CONNECT_TIMEOUT      = 5;
     final Integer EXERCISES_BY_LESSON_REQUEST_CONNECT_TIMEOUT   = 5;
     final Integer VK_POSTS_REQUEST_CONNECT_TIMEOUT              = 5;
     final Integer FINAL_MARKS_REQUEST_CONNECT_TIMEOUT           = 5;
+    final Integer ALL_FINAL_MARKS_REQUEST_CONNECT_TIMEOUT       = 5;
+    final Integer RATING_REQUEST_CONNECT_TIMEOUT                = 5;
 
     final Integer STATS_REQUEST_READ_TIMEOUT                 = 5;  // в секундах
     final Integer LOGIN_REQUEST_READ_TIMEOUT                 = 5;
     final Integer MAIN_DATA_REQUEST_READ_TIMEOUT             = 5;
-    final Integer STUDENT_PROFILE_REQUEST_READ_TIMEOUT       = 5;
+    final Integer STUDENT_PROFILE_REQUEST_READ_TIMEOUT       = 8;
     final Integer SCHEDULE_REQUEST_READ_TIMEOUT              = 5;
     final Integer EXERCISES_BY_DAY_REQUEST_READ_TIMEOUT      = 5;
     final Integer EXERCISES_BY_LESSON_REQUEST_READ_TIMEOUT   = 5;
     final Integer VK_POSTS_REQUEST_READ_TIMEOUT              = 5;
     final Integer FINAL_MARKS_REQUEST_READ_TIMEOUT           = 5;
+    final Integer ALL_FINAL_MARKS_REQUEST_READ_TIMEOUT       = 5;
+    final Integer RATING_REQUEST_READ_TIMEOUT                = 5;
 
     // Переменные, получаемые с запросов
 
@@ -114,9 +119,12 @@ public class MainActivity extends AppCompatActivity {
     public JSONObject readyExercisesByLessonVisits = new JSONObject();
 
     public JSONArray studentFinalMarks = new JSONArray();
+    public JSONArray studentAllFinalMarks = new JSONArray();
 
     // by vk api
     public JSONObject vkWallPosts;
+
+    public JSONObject ratingInfo;
 
     // Handlers для проверки на выполнение запроса
 
@@ -138,6 +146,8 @@ public class MainActivity extends AppCompatActivity {
     RequestStatus getScheduleRequestStatus;
     RequestStatus getStudentStatsRequestStatus;
     RequestStatus getFinalMarksRequestStatus;
+    RequestStatus getAllFinalMarksRequestStatus;
+    RequestStatus ratingRequestStatus;
 
 
     // Переменная, чтобы buildFrontend не вызвался дважды (и после getMainData и после getByDay)
@@ -147,8 +157,14 @@ public class MainActivity extends AppCompatActivity {
 
     Boolean nowWeekScheduleCalled = false;
     Boolean nextWeekScheduleCalled = false;
+    Boolean itogMarksAreReady = false;
 
     Boolean appFirstRun = false;
+
+    // рейтинг
+
+    TextView ratingPlace;
+    TextView ratingCount;
 
 
     // контейнеры
@@ -232,7 +248,18 @@ public class MainActivity extends AppCompatActivity {
         errorScreen = findViewById(R.id.errorScreen);
         backConnectScreen = findViewById(R.id.backConnectScreen);
 
+
+        // webView
+
+        WebView gif = findViewById(R.id.loadingWebView);
+//        WebSettings ws = gif.getSettings();
+//        ws.setJavaScriptEnabled(true);
+        gif.loadUrl("file:android_res/drawable/preloader.gif");
+
         // издержки
+
+        ratingPlace = findViewById(R.id.ratePlace);
+        ratingCount = findViewById(R.id.rateCount);
 
         TextView settingsSyncUnicodeField = findViewById(R.id.settingsSyncUnicodeField);
         settingsSyncUnicodeField.setText("↻");
@@ -417,6 +444,10 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
+        // ссылки с lessons
+
+        RelativeLayout lessonsItogLink = findViewById(R.id.lessonsScreenItogLink);
+
         // ссылки с настроек
 
         RelativeLayout settingsBackConnectLink = findViewById(R.id.settingsBackConnectLink);
@@ -456,11 +487,28 @@ public class MainActivity extends AppCompatActivity {
                 setLoadingToList(ContainerName.NOTIFICATION);
             }
         });
+
+
         homeItogLink.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 setContainer(ContainerName.ITOG);
-//                setLoadingToList(ContainerName.ITOG);
+                // оценки за последний семестр
+                if (!itogMarksAreReady) {
+                    LinearLayout box = findViewById(R.id.itogList);
+                    box.removeAllViews();
+                    LinearLayout checker = findViewById(R.id.onClickItogInfo);
+                    checker.setVisibility(View.INVISIBLE);
+                    setLoadingToList(ContainerName.ITOG);
+
+                    sendGetFinalMarksRequest();
+                    // оценки за все семестры
+                    sendGetAllFinalMarksRequest();
+                    itogMarksAreReady = true;
+                } else {
+                    onGetFinalMarksRequestCompleted();
+                    onGetAllFinalMarksRequestCompleted();
+                }
             }
         });
 
@@ -468,6 +516,29 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 setContainer(ContainerName.BACKCONNECT);
+            }
+        });
+
+        lessonsItogLink.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                setContainer(ContainerName.ITOG);
+                // оценки за последний семестр
+                if (!itogMarksAreReady) {
+                    LinearLayout box = findViewById(R.id.itogList);
+                    box.removeAllViews();
+                    LinearLayout checker = findViewById(R.id.onClickItogInfo);
+                    checker.setVisibility(View.INVISIBLE);
+                    setLoadingToList(ContainerName.ITOG);
+
+                    sendGetFinalMarksRequest();
+                    // оценки за все семестры
+                    sendGetAllFinalMarksRequest();
+                    itogMarksAreReady = true;
+                } else {
+                    onGetFinalMarksRequestCompleted();
+                    onGetAllFinalMarksRequestCompleted();
+                }
             }
         });
 
@@ -558,7 +629,8 @@ public class MainActivity extends AppCompatActivity {
                     getStudentProfileDataRequestStatus = RequestStatus.COMPLETED;
 
                     sendLoginRequest(new String[] { name, password });
-                    // иначе пропускаем вход в аккаунт
+
+                // иначе пропускаем вход в аккаунт, вместо этого берем данные из хранилища
                 } else {
                     System.out.println("Cookie lifetime is less then " + COOKIE_LIFETIME + " minutes. Continue");
                     authCookie = preferences.getString("authCookie", "");
@@ -573,15 +645,7 @@ public class MainActivity extends AppCompatActivity {
                     statsPercentageOfVisits = preferences.getString("studentStatsPercentageOfVisits", "");
                     getStudentProfileDataRequestStatus = RequestStatus.COMPLETED;
 
-                    Date date = new Date();
-                    String year = new SimpleDateFormat("yyyy").format(date);
-                    String month = new SimpleDateFormat("MM").format(date);
-                    String day = new SimpleDateFormat("dd").format(date);
-
-                    sendGetStudentStatsRequest();
-                    sendGetFinalMarksRequest();
-                    sendGetStudentMainDataRequest(new String[]{ year, month });
-                    sendGetExercisesByDayRequest(new String[] { year + "-" + month + "-" + day }); // 2020-02-26
+                    afterLoginRequest();
                 }
 
             } else {
@@ -611,7 +675,52 @@ public class MainActivity extends AppCompatActivity {
 
     }
 
+    @Override
+    public void onBackPressed() {
+
+        if (activeContainer == ContainerName.PROFILE) {
+            super.onBackPressed();
+        }
+
+        if (activeContainer == ContainerName.LESSONS_INFORMATION) {
+            setContainer(ContainerName.LESSONS);
+        } else if (activeContainer == ContainerName.BACKCONNECT) {
+            setContainer(ContainerName.SETTINGS);
+        } else if (activeContainer == ContainerName.ITOG) {
+            setContainer(ContainerName.LESSONS);
+        } else {
+            setContainer(ContainerName.PROFILE);
+        }
+    }
+
     /* -------------------------------------------- BackEnd -------------------------------------------- */
+
+    public void afterLoginRequest() {
+
+        Date date = new Date();
+        String year = new SimpleDateFormat("yyyy").format(date);
+        String month = new SimpleDateFormat("MM").format(date);
+        String day = new SimpleDateFormat("dd").format(date);
+
+        preferences = MainActivity.this.getPreferences(Context.MODE_PRIVATE);
+
+        String name = preferences.getString("studentName", "");
+        String password = preferences.getString("studentPassword", "");
+
+        System.out.println(studentFIO);
+
+        // долги, посещения, средний балл
+        sendGetStudentStatsRequest();
+        // если необходимо, парсим страницу с профилем
+        if (getStudentProfileDataRequestStatus != RequestStatus.COMPLETED)
+            sendGetStudentProfileDataRequest();
+        // получение рейтинга
+        sendRatingRequest(new String[] { name, password });
+        // учителя, предметы
+        sendGetStudentMainDataRequest(new String[]{ year, month });
+        // пары за сегодня
+        sendGetExercisesByDayRequest(new String[] { year + "-" + month + "-" + day }); // 2020-02-26
+    }
 
     public void resetRequestsStatuses() {
         loginRequestStatus                    = RequestStatus.NOT_CALLED;
@@ -623,6 +732,8 @@ public class MainActivity extends AppCompatActivity {
         getScheduleRequestStatus              = RequestStatus.NOT_CALLED;
         getStudentStatsRequestStatus          = RequestStatus.NOT_CALLED;
         getFinalMarksRequestStatus            = RequestStatus.NOT_CALLED;
+        getAllFinalMarksRequestStatus         = RequestStatus.NOT_CALLED;
+        ratingRequestStatus                   = RequestStatus.NOT_CALLED;
     }
 
     public void resetApp() {
@@ -632,7 +743,7 @@ public class MainActivity extends AppCompatActivity {
         profileUserCalendar.setText("");
         profileUserBalls.setText("");
         profileUserBills.setText("");
-        todayLessonsView.removeAllViews();
+//        todayLessonsView.removeAllViews();
         todayLessonsView.removeAllViews();
         scheduleList.removeAllViews();
         lessonsList.removeAllViews();
@@ -696,21 +807,35 @@ public class MainActivity extends AppCompatActivity {
         });
     }
 
-    // Когда отпраили все запросы для входа в акаунт
-    public void onAuthCompleted() {
+    //вывод на экран лоадинга текста
 
-        System.out.println("---------");
-        System.out.println("Stats request: " + getStudentStatsRequestStatus);
-        System.out.println("Final marks request: " + getFinalMarksRequestStatus);
-        System.out.println("Main data request: " + getStudentMainDataRequestStatus);
-        System.out.println("Student profile data request: " + getStudentProfileDataRequestStatus);
-        System.out.println("Exercises by day request: " + getExercisesByDayRequestStatus);
-        System.out.println("---------");
+    public void loadingLog(String text) {
+        if (activeContainer == ContainerName.LOADING) {
+            TextView box = findViewById(R.id.loadingInfoText);
+            box.setText(text);
+        }
+    }
+
+    // Когда отпраили все запросы для входа в акаунт
+    public void onFirstRequestsFinished() {
+
+        System.out.println("+--------");
+        System.out.println("| Stats request: " + getStudentStatsRequestStatus);
+        System.out.println("| Final marks request: " + getFinalMarksRequestStatus);
+        System.out.println("| All final marks request: " + getAllFinalMarksRequestStatus);
+        System.out.println("| Main data request: " + getStudentMainDataRequestStatus);
+        System.out.println("| Student profile data request: " + getStudentProfileDataRequestStatus);
+        System.out.println("| Rating request: " + ratingRequestStatus);
+        System.out.println("| Exercises by day request: " + getExercisesByDayRequestStatus);
+        System.out.println("+--------");
 
         if (getStudentStatsRequestStatus == RequestStatus.COMPLETED
-                && getStudentMainDataRequestStatus == RequestStatus.COMPLETED
-                && getExercisesByDayRequestStatus  == RequestStatus.COMPLETED
-                && getFinalMarksRequestStatus      == RequestStatus.COMPLETED
+                && getStudentMainDataRequestStatus    == RequestStatus.COMPLETED
+                && getExercisesByDayRequestStatus     == RequestStatus.COMPLETED
+//                && getFinalMarksRequestStatus         == RequestStatus.COMPLETED
+//                && getAllFinalMarksRequestStatus      == RequestStatus.COMPLETED
+//                && ratingRequestStatus                == RequestStatus.COMPLETED
+                && getStudentProfileDataRequestStatus == RequestStatus.COMPLETED
         ) {
             preferences = MainActivity.this.getPreferences(Context.MODE_PRIVATE);
             preferencesEditor = preferences.edit();
@@ -723,8 +848,13 @@ public class MainActivity extends AppCompatActivity {
             String name = preferences.getString("studentName", "");
             String password = preferences.getString("studentPassword", "");
 
+//            resetApp();
+            resetRequestsStatuses();
+            preferencesEditor = preferences.edit();
+            preferencesEditor.clear();
+            preferencesEditor.apply();
+
             setLoginFormContainer(name, password);
-            resetApp();
         }
     }
 
@@ -792,6 +922,18 @@ public class MainActivity extends AppCompatActivity {
         request.execute();
     }
 
+    private void sendGetAllFinalMarksRequest() {
+        getAllFinalMarksRequest request = new getAllFinalMarksRequest();
+        getAllFinalMarksRequestStatus = RequestStatus.CALLED;
+        request.execute();
+    }
+
+    private void sendRatingRequest(String[] params) {
+        RatingRequest request = new RatingRequest();
+        ratingRequestStatus = RequestStatus.CALLED;
+        request.execute(params);
+    }
+
     // Колбеки, которые вызываются при завершении определенного запроса
 
     public void onLoginRequestCompleted(String[] response) {
@@ -826,25 +968,22 @@ public class MainActivity extends AppCompatActivity {
             preferencesEditor.putString("studentPassword", studentPassword);
             preferencesEditor.apply();
 
-            // После входа в акк загружаем предметы, учителей и пары за сегодня
-
-            Date date = new Date();
-            String year = new SimpleDateFormat("yyyy").format(date);
-            String month = new SimpleDateFormat("MM").format(date);
-            String day = new SimpleDateFormat("dd").format(date);
-
-            sendGetStudentStatsRequest();
-            sendGetFinalMarksRequest();
-            sendGetStudentMainDataRequest(new String[]{ year, month });
-            if (getStudentProfileDataRequestStatus != RequestStatus.COMPLETED) sendGetStudentProfileDataRequest();
-            sendGetExercisesByDayRequest(new String[] { year + "-" + month + "-" + day }); // 2020-02-26
+            afterLoginRequest();
 
         } else {
             loginRequestStatus = RequestStatus.EMPTY_RESPONSE;
             System.out.println("Login request empty response!");
 
+//            setLoginFormContainer(studentName, studentPassword);
+//            resetApp();
+
+            resetRequestsStatuses();
+            preferences = MainActivity.this.getPreferences(Context.MODE_PRIVATE);
+            preferencesEditor = preferences.edit();
+            preferencesEditor.clear();
+            preferencesEditor.apply();
+
             setLoginFormContainer(studentName, studentPassword);
-            resetApp();
         }
     }
 
@@ -926,7 +1065,7 @@ public class MainActivity extends AppCompatActivity {
             System.out.println("Exercises by day request empty response!");
         }
 
-        onAuthCompleted();
+        onFirstRequestsFinished();
     }
 
     public void onGetExercisesByLessonRequestCompleted (String[] response) {
@@ -935,10 +1074,14 @@ public class MainActivity extends AppCompatActivity {
         String lessonId = response[1];
 
         if (getExercisesByLessonRequestStatus == RequestStatus.TIMEOUT) {
-
+            LinearLayout lessonsInformationList = findViewById(R.id.lessonsInformationList);
+            lessonsInformationList.removeAllViews();
+            setError(ContainerName.LESSONS_INFORMATION);
         }
         else if (getExercisesByLessonRequestStatus == RequestStatus.FAILED) {
-
+            LinearLayout lessonsInformationList = findViewById(R.id.lessonsInformationList);
+            lessonsInformationList.removeAllViews();
+            setError(ContainerName.LESSONS_INFORMATION);
         }
         else if (!responseBody.isEmpty() && activeContainer == ContainerName.LESSONS_INFORMATION) {
             getExercisesByLessonRequestStatus = RequestStatus.COMPLETED;
@@ -1169,18 +1312,47 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
+    public void setError(ContainerName check) {
+        switch (check) {
+            case NOTIFICATION: {
+                LinearLayout notificationList = findViewById(R.id.notificationList);
+                notificationList.addView(errorScreen);
+            }
+            case SCHEDULE: {
+                LinearLayout scheduleList = findViewById(R.id.scheduleList);
+                scheduleList.addView(errorScreen);
+                nowWeekScheduleCalled = false;
+                nextWeekScheduleCalled = false;
+            }
+            case ITOG: {
+                LinearLayout itogList = findViewById(R.id.itogList);
+                itogList.addView(errorScreen);
+            }
+            case LESSONS_INFORMATION: {
+                LinearLayout lessonsInformationList = findViewById(R.id.lessonsInformationList);
+                lessonsInformationList.addView(errorScreen);
+            }
+        }
+    }
+
     public void onGetVKWallPostsRequestCompleted (String responseBody) {
 
-        LinearLayout notificationList = findViewById(R.id.notificationList);
-        notificationList.removeAllViews();
+        if (activeContainer != ContainerName.NOTIFICATION) return;
 
         if (getVKWallPostsRequestStatus == RequestStatus.TIMEOUT) {
-
+            LinearLayout notificationList = findViewById(R.id.notificationList);
+            notificationList.removeAllViews();
+            setError(ContainerName.NOTIFICATION);
         }
         else if (getVKWallPostsRequestStatus == RequestStatus.FAILED) {
-
+            LinearLayout notificationList = findViewById(R.id.notificationList);
+            notificationList.removeAllViews();
+            setError(ContainerName.NOTIFICATION);
         }
         else if (!responseBody.isEmpty() && activeContainer == ContainerName.NOTIFICATION) {
+
+            LinearLayout notificationList = findViewById(R.id.notificationList);
+            notificationList.removeAllViews();
             getVKWallPostsRequestStatus = RequestStatus.COMPLETED;
 
             System.out.println("GetVKWallPosts Success!");
@@ -1298,22 +1470,22 @@ public class MainActivity extends AppCompatActivity {
         else if ( !(studentFIO.isEmpty() || studentGroup.isEmpty() || studentAvatarSrc.isEmpty()) ) {
             getStudentProfileDataRequestStatus = RequestStatus.COMPLETED;
 
-            preferences = MainActivity.this.getPreferences(Context.MODE_PRIVATE);
-            preferencesEditor = preferences.edit();
-
-            preferencesEditor.putString("studentFIO", studentFIO);
-            preferencesEditor.putString("studentGroup", studentGroup);
-            preferencesEditor.putString("studentAvatarSrc", studentAvatarSrc);
-
-            preferencesEditor.putString("studentStatsMidMark", statsMidMark);
-            preferencesEditor.putString("studentStatsDebtsCount", statsDebtsCount);
-            preferencesEditor.putString("studentStatsPercentageOfVisits", statsPercentageOfVisits);
-
-            preferencesEditor.apply();
-
-            this.studentFIO = studentFIO;
-            this.studentGroup = studentGroup;
-            this.studentAvatarSrc = studentAvatarSrc;
+//            preferences = MainActivity.this.getPreferences(Context.MODE_PRIVATE);
+//            preferencesEditor = preferences.edit();
+//
+//            preferencesEditor.putString("studentFIO", studentFIO);
+//            preferencesEditor.putString("studentGroup", studentGroup);
+//            preferencesEditor.putString("studentAvatarSrc", studentAvatarSrc);
+//
+//            preferencesEditor.putString("studentStatsMidMark", statsMidMark);
+//            preferencesEditor.putString("studentStatsDebtsCount", statsDebtsCount);
+//            preferencesEditor.putString("studentStatsPercentageOfVisits", statsPercentageOfVisits);
+//
+//            preferencesEditor.apply();
+//
+//            this.studentFIO = studentFIO;
+//            this.studentGroup = studentGroup;
+//            this.studentAvatarSrc = studentAvatarSrc;
 
 //            if (getExercisesByDayRequestStatus == RequestStatus.COMPLETED && getStudentMainDataRequestStatus == RequestStatus.COMPLETED && !buildFrontendCalled) {
 //                buildFrontendCalled = true;
@@ -1327,19 +1499,25 @@ public class MainActivity extends AppCompatActivity {
 
     public void onGetScheduleRequestCompleted(String param, String filter) {
 
-        LinearLayout box = findViewById(R.id.scheduleList);
-        box.removeAllViews();
-
-        TextView text = new TextView(getApplicationContext());
-        text.setText(text.getText() + "Problems with schedule request");
+        if (activeContainer != ContainerName.SCHEDULE) {
+            if (param == "now") nowWeekScheduleCalled = false;
+            if (param == "false") nextWeekScheduleCalled = false;
+            return;
+        }
 
         if (getScheduleRequestStatus == RequestStatus.TIMEOUT) {
-
+            LinearLayout box = findViewById(R.id.scheduleList);
+            box.removeAllViews();
+            setError(ContainerName.SCHEDULE);
         }
         else if (getScheduleRequestStatus == RequestStatus.FAILED) {
-
+            LinearLayout box = findViewById(R.id.scheduleList);
+            box.removeAllViews();
+            setError(ContainerName.SCHEDULE);
         }
         else if (getScheduleRequestStatus == RequestStatus.COMPLETED && activeContainer == ContainerName.SCHEDULE) {
+            LinearLayout box = findViewById(R.id.scheduleList);
+            box.removeAllViews();
 
             int dp = (int) getResources().getDisplayMetrics().density;
 
@@ -1736,6 +1914,16 @@ public class MainActivity extends AppCompatActivity {
             this.statsMidMark = statsMidMark;
             this.statsDebtsCount = statsDebtsCount;
             this.statsPercentageOfVisits = statsPercentageOfVisits;
+
+            preferences = MainActivity.this.getPreferences(Context.MODE_PRIVATE);
+            preferencesEditor = preferences.edit();
+
+            preferencesEditor.putString("studentStatsMidMark", statsMidMark);
+            preferencesEditor.putString("studentStatsDebtsCount", statsDebtsCount);
+            preferencesEditor.putString("studentStatsPercentageOfVisits", statsPercentageOfVisits);
+
+            preferencesEditor.apply();
+
         } else {
             getStudentStatsRequestStatus = RequestStatus.EMPTY_RESPONSE;
             System.out.println("Student stats request empty response!");
@@ -1745,15 +1933,388 @@ public class MainActivity extends AppCompatActivity {
     public void onGetFinalMarksRequestCompleted() {
         if (getFinalMarksRequestStatus == RequestStatus.CALLED) {
             getFinalMarksRequestStatus = RequestStatus.COMPLETED;
+
+            if (activeContainer != ContainerName.ITOG) {
+                itogMarksAreReady = false;
+
+                return;
+            }
+
+            if (getFinalMarksRequestStatus == RequestStatus.COMPLETED && getAllFinalMarksRequestStatus == RequestStatus.COMPLETED) {
+                LinearLayout checker = findViewById(R.id.onClickItogInfo);
+                checker.setVisibility(View.VISIBLE);
+            TextView itogLessonsSem = findViewById(R.id.itogLessonsSem);
+            itogLessonsSem.setText(finalMarksSemestr);
+
+            int dp = (int) getResources().getDisplayMetrics().density;
+            Typeface light = ResourcesCompat.getFont(getApplicationContext(), R.font.montserrat_light);
+            Typeface medium = ResourcesCompat.getFont(getApplicationContext(), R.font.montserrat_medium);
+            Typeface semibold = ResourcesCompat.getFont(getApplicationContext(), R.font.montserrat_semibold);
+            Typeface regular = ResourcesCompat.getFont(getApplicationContext(), R.font.montserrat_regular);
+
+            LinearLayout itogList = findViewById(R.id.itogList);
+            itogList.removeAllViews();
+
+            for (int i = 0; i < studentFinalMarks.length(); i++) {
+
+                RelativeLayout tmp = new RelativeLayout(getApplicationContext());
+                RelativeLayout.LayoutParams tmpLP = new RelativeLayout.LayoutParams(RelativeLayout.LayoutParams.MATCH_PARENT, RelativeLayout.LayoutParams.WRAP_CONTENT);
+                tmpLP.setMargins(0, 5 * dp, 0, 0);
+                tmp.setLayoutParams(tmpLP);
+                tmp.setBackgroundResource(R.drawable.forms_example);
+                itogList.addView(tmp);
+
+                LinearLayout tempBox = new LinearLayout(getApplicationContext());
+                LinearLayout.LayoutParams tempBoxLP = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT);
+                tempBoxLP.setMargins(5 * dp, 15 * dp, 5 * dp, 15 * dp);
+                tempBox.setLayoutParams(tempBoxLP);
+                tempBox.setOrientation(LinearLayout.HORIZONTAL);
+                tmp.addView(tempBox);
+
+                TextView tempName = new TextView(getApplicationContext());
+                LinearLayout.LayoutParams tempNameLP = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT, 2);
+                tempName.setLayoutParams(tempNameLP);
+                tempName.setTextSize(12);
+                tempName.setTextColor(getResources().getColor(R.color.white));
+                tempName.setTypeface(medium);
+                try {
+                    tempName.setText(studentFinalMarks.getJSONObject(i).getString("name"));
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+                tempBox.addView(tempName);
+
+                TextView tempAbs = new TextView(getApplicationContext());
+                LinearLayout.LayoutParams tempAbsLP = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.MATCH_PARENT, 3);
+                tempAbs.setLayoutParams(tempAbsLP);
+                tempAbs.setTextSize(12);
+                tempAbs.setTextColor(getResources().getColor(R.color.pinkColor));
+                tempAbs.setTypeface(semibold);
+                tempAbs.setGravity(Gravity.CENTER);
+                try {
+                    String was = studentFinalMarks.getJSONObject(i).getString("was");
+                    was = was.split(" ")[0];
+                    String all = studentFinalMarks.getJSONObject(i).getString("all");
+                    all = all.split(" ")[0];
+                    tempAbs.setText(was + "/" + all);
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+                tempBox.addView(tempAbs);
+
+                TextView tempMark = new TextView(getApplicationContext());
+                LinearLayout.LayoutParams tempMarkLP = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.MATCH_PARENT, 3);
+                tempMark.setLayoutParams(tempMarkLP);
+                tempMark.setTextSize(12);
+                tempMark.setTextColor(getResources().getColor(R.color.pinkColor));
+                tempMark.setTypeface(semibold);
+                tempMark.setGravity(Gravity.CENTER);
+                try {
+                    tempMark.setText(studentFinalMarks.getJSONObject(i).getString("mark"));
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+                tempBox.addView(tempMark);
+            }
+            for (int j = studentAllFinalMarks.length() - 3; j >= 0; j--) {
+
+                TextView itogSem = new TextView(getApplicationContext());
+                LinearLayout.LayoutParams itogSemLP = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.WRAP_CONTENT);
+                itogSemLP.setMargins(5 * dp, 20 * dp, 0, 0);
+                itogSem.setLayoutParams(itogSemLP);
+                itogSem.setTextColor(getResources().getColor(R.color.pinkColor));
+                itogSem.setTypeface(medium);
+                itogSem.setTextSize(12);
+                try {
+                    itogSem.setText(studentAllFinalMarks.getJSONObject(j).getString("semester"));
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+                itogList.addView(itogSem);
+
+                int len = 0;
+                try {
+                    len = studentAllFinalMarks.getJSONObject(j).getJSONArray("lessons").length();
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+
+                for (int i = 0; i < len; i++) {
+
+                    RelativeLayout tmp = new RelativeLayout(getApplicationContext());
+                    RelativeLayout.LayoutParams tmpLP = new RelativeLayout.LayoutParams(RelativeLayout.LayoutParams.MATCH_PARENT, RelativeLayout.LayoutParams.WRAP_CONTENT);
+                    tmpLP.setMargins(0, 5 * dp, 0, 0);
+                    tmp.setLayoutParams(tmpLP);
+                    tmp.setBackgroundResource(R.drawable.forms_example);
+                    itogList.addView(tmp);
+
+                    LinearLayout tempBox = new LinearLayout(getApplicationContext());
+                    LinearLayout.LayoutParams tempBoxLP = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT);
+                    tempBoxLP.setMargins(5 * dp, 15 * dp, 5 * dp, 15 * dp);
+                    tempBox.setLayoutParams(tempBoxLP);
+                    tempBox.setOrientation(LinearLayout.HORIZONTAL);
+                    tmp.addView(tempBox);
+
+                    TextView tempName = new TextView(getApplicationContext());
+                    LinearLayout.LayoutParams tempNameLP = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT, 2);
+                    tempName.setLayoutParams(tempNameLP);
+                    tempName.setTextSize(12);
+                    tempName.setTextColor(getResources().getColor(R.color.white));
+                    tempName.setTypeface(medium);
+                    try {
+                        tempName.setText(studentAllFinalMarks.getJSONObject(j).getJSONArray("lessons").getJSONObject(i).getString("name"));
+                    } catch (JSONException e) {
+                        e.printStackTrace();
+                    }
+                    tempBox.addView(tempName);
+
+                    TextView tempAbs = new TextView(getApplicationContext());
+                    LinearLayout.LayoutParams tempAbsLP = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.MATCH_PARENT, 3);
+                    tempAbs.setLayoutParams(tempAbsLP);
+                    tempAbs.setTextSize(12);
+                    tempAbs.setTextColor(getResources().getColor(R.color.pinkColor));
+                    tempAbs.setTypeface(semibold);
+                    tempAbs.setGravity(Gravity.CENTER);
+                    tempAbs.setText("");
+                    tempBox.addView(tempAbs);
+
+                    TextView tempMark = new TextView(getApplicationContext());
+                    LinearLayout.LayoutParams tempMarkLP = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.MATCH_PARENT, 3);
+                    tempMark.setLayoutParams(tempMarkLP);
+                    tempMark.setTextSize(12);
+                    tempMark.setTextColor(getResources().getColor(R.color.pinkColor));
+                    tempMark.setTypeface(semibold);
+                    tempMark.setGravity(Gravity.CENTER);
+                    try {
+                        tempMark.setText(studentAllFinalMarks.getJSONObject(j).getJSONArray("lessons").getJSONObject(i).getString("mark"));
+                    } catch (JSONException e) {
+                        e.printStackTrace();
+                    }
+                    tempBox.addView(tempMark);
+                }
+            }
+        }
         }
         else if (getFinalMarksRequestStatus == RequestStatus.FAILED) {
-
+            LinearLayout box = findViewById(R.id.itogList);
+            box.removeAllViews();
+            setError(ContainerName.ITOG);
         }
         else if (getFinalMarksRequestStatus == RequestStatus.TIMEOUT) {
-
+            LinearLayout box = findViewById(R.id.itogList);
+            box.removeAllViews();
+            setError(ContainerName.ITOG);
         }
         else {
 
+        }
+    }
+
+    public void onGetAllFinalMarksRequestCompleted() {
+
+        if (getAllFinalMarksRequestStatus == RequestStatus.CALLED) {
+            getAllFinalMarksRequestStatus = RequestStatus.COMPLETED;
+
+            if (activeContainer != ContainerName.ITOG) {
+                itogMarksAreReady = false;
+                return;
+            }
+
+            if (getFinalMarksRequestStatus == RequestStatus.COMPLETED && getAllFinalMarksRequestStatus == RequestStatus.COMPLETED) {
+                LinearLayout checker = findViewById(R.id.onClickItogInfo);
+                checker.setVisibility(View.VISIBLE);
+
+                TextView itogLessonsSem = findViewById(R.id.itogLessonsSem);
+                itogLessonsSem.setText(finalMarksSemestr);
+
+                int dp = (int) getResources().getDisplayMetrics().density;
+                Typeface light = ResourcesCompat.getFont(getApplicationContext(), R.font.montserrat_light);
+                Typeface medium = ResourcesCompat.getFont(getApplicationContext(), R.font.montserrat_medium);
+                Typeface semibold = ResourcesCompat.getFont(getApplicationContext(), R.font.montserrat_semibold);
+                Typeface regular = ResourcesCompat.getFont(getApplicationContext(), R.font.montserrat_regular);
+
+                LinearLayout itogList = findViewById(R.id.itogList);
+                itogList.removeAllViews();
+
+                for (int i = 0; i < studentFinalMarks.length(); i++) {
+
+                    RelativeLayout tmp = new RelativeLayout(getApplicationContext());
+                    RelativeLayout.LayoutParams tmpLP = new RelativeLayout.LayoutParams(RelativeLayout.LayoutParams.MATCH_PARENT, RelativeLayout.LayoutParams.WRAP_CONTENT);
+                    tmpLP.setMargins(0, 5 * dp, 0, 0);
+                    tmp.setLayoutParams(tmpLP);
+                    tmp.setBackgroundResource(R.drawable.forms_example);
+                    itogList.addView(tmp);
+
+                    LinearLayout tempBox = new LinearLayout(getApplicationContext());
+                    LinearLayout.LayoutParams tempBoxLP = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT);
+                    tempBoxLP.setMargins(5 * dp, 15 * dp, 5 * dp, 15 * dp);
+                    tempBox.setLayoutParams(tempBoxLP);
+                    tempBox.setOrientation(LinearLayout.HORIZONTAL);
+                    tmp.addView(tempBox);
+
+                    TextView tempName = new TextView(getApplicationContext());
+                    LinearLayout.LayoutParams tempNameLP = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT, 2);
+                    tempName.setLayoutParams(tempNameLP);
+                    tempName.setTextSize(12);
+                    tempName.setTextColor(getResources().getColor(R.color.white));
+                    tempName.setTypeface(medium);
+                    try {
+                        tempName.setText(studentFinalMarks.getJSONObject(i).getString("name"));
+                    } catch (JSONException e) {
+                        e.printStackTrace();
+                    }
+                    tempBox.addView(tempName);
+
+                    TextView tempAbs = new TextView(getApplicationContext());
+                    LinearLayout.LayoutParams tempAbsLP = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.MATCH_PARENT, 3);
+                    tempAbs.setLayoutParams(tempAbsLP);
+                    tempAbs.setTextSize(12);
+                    tempAbs.setTextColor(getResources().getColor(R.color.pinkColor));
+                    tempAbs.setTypeface(semibold);
+                    tempAbs.setGravity(Gravity.CENTER);
+                    try {
+                        String was = studentFinalMarks.getJSONObject(i).getString("was");
+                        was = was.split(" ")[0];
+                        String all = studentFinalMarks.getJSONObject(i).getString("all");
+                        all = all.split(" ")[0];
+                        tempAbs.setText(was + "/" + all);
+                    } catch (JSONException e) {
+                        e.printStackTrace();
+                    }
+                    tempBox.addView(tempAbs);
+
+                    TextView tempMark = new TextView(getApplicationContext());
+                    LinearLayout.LayoutParams tempMarkLP = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.MATCH_PARENT, 3);
+                    tempMark.setLayoutParams(tempMarkLP);
+                    tempMark.setTextSize(12);
+                    tempMark.setTextColor(getResources().getColor(R.color.pinkColor));
+                    tempMark.setTypeface(semibold);
+                    tempMark.setGravity(Gravity.CENTER);
+                    try {
+                        tempMark.setText(studentFinalMarks.getJSONObject(i).getString("mark"));
+                    } catch (JSONException e) {
+                        e.printStackTrace();
+                    }
+                    tempBox.addView(tempMark);
+                }
+                for (int j = studentAllFinalMarks.length() - 3; j >= 0; j--) {
+
+                    TextView itogSem = new TextView(getApplicationContext());
+                    LinearLayout.LayoutParams itogSemLP = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.WRAP_CONTENT);
+                    itogSemLP.setMargins(5 * dp, 20 * dp, 0, 0);
+                    itogSem.setLayoutParams(itogSemLP);
+                    itogSem.setTextColor(getResources().getColor(R.color.pinkColor));
+                    itogSem.setTypeface(medium);
+                    itogSem.setTextSize(12);
+                    try {
+                        itogSem.setText(studentAllFinalMarks.getJSONObject(j).getString("semester"));
+                    } catch (JSONException e) {
+                        e.printStackTrace();
+                    }
+                    itogList.addView(itogSem);
+
+                    int len = 0;
+                    try {
+                        len = studentAllFinalMarks.getJSONObject(j).getJSONArray("lessons").length();
+                    } catch (JSONException e) {
+                        e.printStackTrace();
+                    }
+
+                    for (int i = 0; i < len; i++) {
+
+                        RelativeLayout tmp = new RelativeLayout(getApplicationContext());
+                        RelativeLayout.LayoutParams tmpLP = new RelativeLayout.LayoutParams(RelativeLayout.LayoutParams.MATCH_PARENT, RelativeLayout.LayoutParams.WRAP_CONTENT);
+                        tmpLP.setMargins(0, 5 * dp, 0, 0);
+                        tmp.setLayoutParams(tmpLP);
+                        tmp.setBackgroundResource(R.drawable.forms_example);
+                        itogList.addView(tmp);
+
+                        LinearLayout tempBox = new LinearLayout(getApplicationContext());
+                        LinearLayout.LayoutParams tempBoxLP = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT);
+                        tempBoxLP.setMargins(5 * dp, 15 * dp, 5 * dp, 15 * dp);
+                        tempBox.setLayoutParams(tempBoxLP);
+                        tempBox.setOrientation(LinearLayout.HORIZONTAL);
+                        tmp.addView(tempBox);
+
+                        TextView tempName = new TextView(getApplicationContext());
+                        LinearLayout.LayoutParams tempNameLP = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT, 2);
+                        tempName.setLayoutParams(tempNameLP);
+                        tempName.setTextSize(12);
+                        tempName.setTextColor(getResources().getColor(R.color.white));
+                        tempName.setTypeface(medium);
+                        try {
+                            tempName.setText(studentAllFinalMarks.getJSONObject(j).getJSONArray("lessons").getJSONObject(i).getString("name"));
+                        } catch (JSONException e) {
+                            e.printStackTrace();
+                        }
+                        tempBox.addView(tempName);
+
+                        TextView tempAbs = new TextView(getApplicationContext());
+                        LinearLayout.LayoutParams tempAbsLP = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.MATCH_PARENT, 3);
+                        tempAbs.setLayoutParams(tempAbsLP);
+                        tempAbs.setTextSize(12);
+                        tempAbs.setTextColor(getResources().getColor(R.color.pinkColor));
+                        tempAbs.setTypeface(semibold);
+                        tempAbs.setGravity(Gravity.CENTER);
+                        tempAbs.setText("");
+                        tempBox.addView(tempAbs);
+
+                        TextView tempMark = new TextView(getApplicationContext());
+                        LinearLayout.LayoutParams tempMarkLP = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.MATCH_PARENT, 3);
+                        tempMark.setLayoutParams(tempMarkLP);
+                        tempMark.setTextSize(12);
+                        tempMark.setTextColor(getResources().getColor(R.color.pinkColor));
+                        tempMark.setTypeface(semibold);
+                        tempMark.setGravity(Gravity.CENTER);
+                        try {
+                            tempMark.setText(studentAllFinalMarks.getJSONObject(j).getJSONArray("lessons").getJSONObject(i).getString("mark"));
+                        } catch (JSONException e) {
+                            e.printStackTrace();
+                        }
+                        tempBox.addView(tempMark);
+                    }
+                }
+            }
+        }
+        else if (getAllFinalMarksRequestStatus == RequestStatus.FAILED) {
+            LinearLayout box = findViewById(R.id.itogList);
+            box.removeAllViews();
+            setError(ContainerName.ITOG);
+            itogMarksAreReady = false;
+        }
+        else if (getAllFinalMarksRequestStatus == RequestStatus.TIMEOUT) {
+            LinearLayout box = findViewById(R.id.itogList);
+            box.removeAllViews();
+            setError(ContainerName.ITOG);
+            itogMarksAreReady = false;
+        }
+        else {
+
+        }
+    }
+
+    public void onRatingRequestCompleted(String response) {
+        if (!response.isEmpty()) {
+            ratingRequestStatus = RequestStatus.COMPLETED;
+
+            try {
+                 ratingInfo = new JSONObject(response);
+                 System.out.println(ratingInfo);
+
+                 ratingPlace.setText(ratingInfo.getString("studentPosition"));
+                 ratingCount.setText("/" + ratingInfo.getString("studentsCount") + " участников");
+            } catch (JSONException e) {
+
+            }
+        }
+        else if (ratingRequestStatus == RequestStatus.FAILED) {
+
+        }
+        else if (ratingRequestStatus == RequestStatus.TIMEOUT) {
+
+        }
+        else {
+            ratingRequestStatus = RequestStatus.EMPTY_RESPONSE;
         }
     }
 
@@ -1972,8 +2533,8 @@ public class MainActivity extends AppCompatActivity {
             String responseBody = "";
             Document html = new Document(responseBody);
 
-            String studentFIO = "";
-            String studentGroup = "";
+            String FIO = "";
+            String group = "";
             String avatarSrc = "";
 
             Element row = null;
@@ -1994,15 +2555,15 @@ public class MainActivity extends AppCompatActivity {
                     }
                 }
 
-                studentFIO = row.getElementsByClass("span9").select("h3").get(0).text();
-                studentGroup = row.getElementsByClass("span9").get(0)
+                FIO = row.getElementsByClass("span9").select("h3").get(0).text();
+                group = row.getElementsByClass("span9").get(0)
                         .getElementsByClass("row").get(0)
                         .getElementsByClass("span3").select("ul").select("li").last().text();
                 avatarSrc = row.getElementsByClass("span3").get(0)
                         .getElementsByClass("showchange").get(0)
                         .getElementsByTag("img").get(0).attr("src");
 
-                studentGroup = studentGroup.split(" ")[0];
+                group = group.split(" ")[0];
 
             } catch (SocketTimeoutException e) {
                 System.out.println("Student's profile data request timeout!");
@@ -2028,6 +2589,23 @@ public class MainActivity extends AppCompatActivity {
             } catch (IOException e) {
                 e.printStackTrace();
             }
+
+            studentFIO = FIO;
+            studentGroup = group;
+            studentAvatarSrc = avatarSrc;
+
+            preferences = MainActivity.this.getPreferences(Context.MODE_PRIVATE);
+            preferencesEditor = preferences.edit();
+
+            preferencesEditor.putString("studentFIO", studentFIO);
+            preferencesEditor.putString("studentGroup", studentGroup);
+            preferencesEditor.putString("studentAvatarSrc", studentAvatarSrc);
+
+//            preferencesEditor.putString("studentStatsMidMark", statsMidMark);
+//            preferencesEditor.putString("studentStatsDebtsCount", statsDebtsCount);
+//            preferencesEditor.putString("studentStatsPercentageOfVisits", statsPercentageOfVisits);
+
+            preferencesEditor.apply();
 
             return new String[] { studentFIO, studentGroup, avatarSrc };
         }
@@ -2094,6 +2672,7 @@ public class MainActivity extends AppCompatActivity {
             }
 
             System.out.println("GetScheduleParsing Success!");
+                        getScheduleRequestStatus = RequestStatus.COMPLETED;
 
             JSONArray scheduleRoot = new JSONArray();
 
@@ -2211,7 +2790,6 @@ public class MainActivity extends AppCompatActivity {
 
         protected void onPostExecute(String result) {
             super.onPostExecute(result);
-            getScheduleRequestStatus = RequestStatus.COMPLETED;
             onGetScheduleRequestCompleted(result, "");
         }
     }
@@ -2365,6 +2943,143 @@ public class MainActivity extends AppCompatActivity {
         protected void onPostExecute(Void result) {
             super.onPostExecute(result);
             onGetFinalMarksRequestCompleted();
+
+        }
+    }
+
+    class getAllFinalMarksRequest extends AsyncTask<Void, Void, Void> {
+
+        protected Void doInBackground(Void... params) {
+            HttpURLConnection urlConnection = null;
+            String responseBody = "";
+            Document html = new Document(responseBody);
+
+            try {
+                String url_address = "https://ifspo.ifmo.ru/profile/recordBook?student=" + studentId;
+
+                urlConnection = Functions.setupGETAuthRequest(url_address, authCookie, ALL_FINAL_MARKS_REQUEST_CONNECT_TIMEOUT, ALL_FINAL_MARKS_REQUEST_READ_TIMEOUT);
+                responseBody = Functions.getResponseFromGetRequest(urlConnection);
+
+                html = Jsoup.parse(responseBody);
+
+                Element container = html.body()
+                        .getElementsByClass("container").get(0)
+                        .getElementsByClass("row").get(1)
+                        .getElementsByClass("span12").get(0);
+
+//                System.out.println(container.toString());
+
+                String semester;
+                String name;
+                String hours;
+                String mark;
+
+                JSONArray allMarks = new JSONArray();
+
+                for (Element table : container.getElementsByTag("table"))
+                {
+                    semester = table.previousElementSibling().text();
+                    Elements trs = table.getElementsByTag("tbody").get(0).getElementsByTag("tr");
+
+                    JSONObject temp = new JSONObject();
+                    JSONArray tempArray = new JSONArray();
+
+                    temp.put("semester", semester);
+
+                    for (Element tr : trs)
+                    {
+                        if (tr != trs.get(0)) {
+                            Elements tds = tr.getElementsByTag("td");
+
+                            name = tds.get(0).text();
+                            hours = tds.get(1).text();
+                            mark = tds.get(2).text();
+
+                            JSONObject lesson = new JSONObject();
+                            lesson.put("name", name);
+                            lesson.put("hours", hours);
+                            lesson.put("mark", mark);
+
+                            tempArray.put(lesson);
+                        }
+                    }
+
+                    temp.put("lessons", tempArray);
+                    allMarks.put(temp);
+
+                }
+
+                studentAllFinalMarks = allMarks;
+                System.out.println(allMarks.toString());
+
+//                studentFinalMarks = array;
+
+            } catch (SocketTimeoutException e) {
+                System.out.println("All final marks request timeout!");
+                getAllFinalMarksRequestStatus = RequestStatus.TIMEOUT;
+//                return;
+            } catch (Exception e) {
+                System.out.println("Problems with all final marks request");
+                System.out.println(e.toString());
+                getAllFinalMarksRequestStatus = RequestStatus.FAILED;
+//                return;
+            } finally {
+                if (urlConnection != null) urlConnection.disconnect();
+            }
+
+//            return;
+//            System.out.println("GetProfileParsing Success!");
+
+            return null;
+        }
+
+        protected void onPostExecute(Void result) {
+            super.onPostExecute(result);
+            onGetAllFinalMarksRequestCompleted();
+
+        }
+    }
+
+    class RatingRequest extends AsyncTask<String[], Void, String> {
+
+        protected String doInBackground(String[]... params) {
+            HttpURLConnection urlConnection = null;
+            String responseBody = "";
+
+            String name = params[0][0];
+            String password = params[0][1];
+//            String fio = params[0][2];
+//            String group = params[0][3];
+
+            try {
+                String url_address = "https://spoconnection-rating-server.herokuapp.com/rating"
+                        + "?name=" + name
+                        + "&password=" + password
+                        + "&fio=" + studentFIO
+                        + "&group=" + studentGroup;
+
+                urlConnection = Functions.setupGETAuthRequest(url_address, authCookie, RATING_REQUEST_CONNECT_TIMEOUT, RATING_REQUEST_READ_TIMEOUT);
+                responseBody = Functions.getResponseFromGetRequest(urlConnection);
+
+            } catch (SocketTimeoutException e) {
+                System.out.println("Rating request timeout!");
+                ratingRequestStatus = RequestStatus.TIMEOUT;
+                return "";
+            } catch (Exception e) {
+                System.out.println("Problems with rating request");
+                System.out.println(e.toString());
+                ratingRequestStatus = RequestStatus.FAILED;
+                return "";
+            } finally {
+                if (urlConnection != null) urlConnection.disconnect();
+            }
+
+            return responseBody;
+        }
+
+        protected void onPostExecute(String result) {
+            super.onPostExecute(result);
+            onRatingRequestCompleted(result);
 
         }
     }
@@ -2601,80 +3316,6 @@ public class MainActivity extends AppCompatActivity {
                 lessonsNavText.setShadowLayer(5,0,0,getResources().getColor(R.color.white));
                 main.addView(itogScreen);
                 activeContainer = ContainerName.ITOG;
-                TextView itogLessonsSem = findViewById(R.id.itogLessonsSem);
-                itogLessonsSem.setText(finalMarksSemestr);
-
-                int dp = (int) getResources().getDisplayMetrics().density;
-                Typeface light = ResourcesCompat.getFont(getApplicationContext(), R.font.montserrat_light);
-                Typeface medium = ResourcesCompat.getFont(getApplicationContext(), R.font.montserrat_medium);
-                Typeface semibold = ResourcesCompat.getFont(getApplicationContext(), R.font.montserrat_semibold);
-                Typeface regular = ResourcesCompat.getFont(getApplicationContext(), R.font.montserrat_regular);
-
-                LinearLayout itogList = findViewById(R.id.itogList);
-                itogList.removeAllViews();
-
-                for (int i = 0; i < studentFinalMarks.length(); i++) {
-
-                    RelativeLayout tmp = new RelativeLayout(getApplicationContext());
-                    RelativeLayout.LayoutParams tmpLP = new RelativeLayout.LayoutParams(RelativeLayout.LayoutParams.MATCH_PARENT, RelativeLayout.LayoutParams.WRAP_CONTENT);
-                    tmpLP.setMargins(0, 5*dp,0,0);
-                    tmp.setLayoutParams(tmpLP);
-                    tmp.setBackgroundResource(R.drawable.forms_example);
-                    itogList.addView(tmp);
-
-                    LinearLayout tempBox = new LinearLayout(getApplicationContext());
-                    LinearLayout.LayoutParams tempBoxLP = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT,LinearLayout.LayoutParams.WRAP_CONTENT);
-                    tempBoxLP.setMargins(5*dp,15*dp,5*dp,15*dp);
-                    tempBox.setLayoutParams(tempBoxLP);
-                    tempBox.setOrientation(LinearLayout.HORIZONTAL);
-                    tmp.addView(tempBox);
-
-                    TextView tempName = new TextView(getApplicationContext());
-                    LinearLayout.LayoutParams tempNameLP = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT, 2);
-                    tempName.setLayoutParams(tempNameLP);
-                    tempName.setTextSize(12);
-                    tempName.setTextColor(getResources().getColor(R.color.white));
-                    tempName.setTypeface(medium);
-                    try {
-                        tempName.setText(studentFinalMarks.getJSONObject(i).getString("name"));
-                    } catch (JSONException e) {
-                        e.printStackTrace();
-                    }
-                    tempBox.addView(tempName);
-
-                    TextView tempAbs = new TextView(getApplicationContext());
-                    LinearLayout.LayoutParams tempAbsLP = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.MATCH_PARENT, 3);
-                    tempAbs.setLayoutParams(tempAbsLP);
-                    tempAbs.setTextSize(12);
-                    tempAbs.setTextColor(getResources().getColor(R.color.pinkColor));
-                    tempAbs.setTypeface(semibold);
-                    tempAbs.setGravity(Gravity.CENTER);
-                    try {
-                        String was = studentFinalMarks.getJSONObject(i).getString("was");
-                        was = was.split(" ")[0];
-                        String all = studentFinalMarks.getJSONObject(i).getString("all");
-                        all = all.split(" ")[0];
-                        tempAbs.setText(was + "/" + all);
-                    } catch (JSONException e) {
-                        e.printStackTrace();
-                    }
-                    tempBox.addView(tempAbs);
-
-                    TextView tempMark = new TextView(getApplicationContext());
-                    LinearLayout.LayoutParams tempMarkLP = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.MATCH_PARENT, 3);
-                    tempMark.setLayoutParams(tempMarkLP);
-                    tempMark.setTextSize(12);
-                    tempMark.setTextColor(getResources().getColor(R.color.pinkColor));
-                    tempMark.setTypeface(semibold);
-                    tempMark.setGravity(Gravity.CENTER);
-                    try {
-                        tempMark.setText(studentFinalMarks.getJSONObject(i).getString("mark"));
-                    } catch (JSONException e) {
-                        e.printStackTrace();
-                    }
-                    tempBox.addView(tempMark);
-                }
-
                 break;
             }
         }
@@ -2698,6 +3339,11 @@ public class MainActivity extends AppCompatActivity {
             case NOTIFICATION: {
                 LinearLayout box = findViewById(R.id.notificationList);
                 box.removeAllViews();
+                box.addView(loadingScreen);
+                break;
+            }
+            case ITOG: {
+                LinearLayout box = findViewById(R.id.itogList);
                 box.addView(loadingScreen);
                 break;
             }
