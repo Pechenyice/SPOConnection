@@ -187,6 +187,8 @@ public class MainActivity extends AppCompatActivity {
     public RelativeLayout errorScreen;
     public RelativeLayout backConnectScreen;
 
+    public RelativeLayout settingsSync;
+
 
     // массив расписания
     JSONObject scheduleLessons = new JSONObject();
@@ -219,6 +221,7 @@ public class MainActivity extends AppCompatActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
@@ -248,6 +251,7 @@ public class MainActivity extends AppCompatActivity {
         errorScreen = findViewById(R.id.errorScreen);
         backConnectScreen = findViewById(R.id.backConnectScreen);
 
+        settingsSync = findViewById(R.id.settingsSync);
 
         // webView
 
@@ -328,7 +332,7 @@ public class MainActivity extends AppCompatActivity {
         lessonsList = findViewById(R.id.lessonsList);
 
         // локальные кнопки экранов
-//        scheduleChanges = findViewById(R.id.notificationSchedule);
+//        scheduleChanges = findVieawById(R.id.notificationSchedule);
 
         // запросы для расписания отправляются только 1 раз
 
@@ -678,18 +682,23 @@ public class MainActivity extends AppCompatActivity {
     @Override
     public void onBackPressed() {
 
-        if (activeContainer == ContainerName.PROFILE) {
+        if (activeContainer == ContainerName.PROFILE || activeContainer == ContainerName.LOGIN) {
             super.onBackPressed();
+            return;
         }
 
         if (activeContainer == ContainerName.LESSONS_INFORMATION) {
             setContainer(ContainerName.LESSONS);
+            return;
         } else if (activeContainer == ContainerName.BACKCONNECT) {
             setContainer(ContainerName.SETTINGS);
+            return;
         } else if (activeContainer == ContainerName.ITOG) {
             setContainer(ContainerName.LESSONS);
+            return;
         } else {
             setContainer(ContainerName.PROFILE);
+            return;
         }
     }
 
@@ -704,8 +713,18 @@ public class MainActivity extends AppCompatActivity {
 
         preferences = MainActivity.this.getPreferences(Context.MODE_PRIVATE);
 
-        String name = preferences.getString("studentName", "");
-        String password = preferences.getString("studentPassword", "");
+        final String name = preferences.getString("studentName", "");
+        final String password = preferences.getString("studentPassword", "");
+
+        settingsSync.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                main.removeAllViews();
+                resetApp();
+                sendLoginRequest(new String[] { name, password });
+            }
+        });
+
 
         System.out.println(studentFIO);
 
@@ -810,9 +829,13 @@ public class MainActivity extends AppCompatActivity {
     //вывод на экран лоадинга текста
 
     public void loadingLog(String text) {
+        System.out.println(activeContainer);
         if (activeContainer == ContainerName.LOADING) {
             TextView box = findViewById(R.id.loadingInfoText);
             box.setText(text);
+            System.out.println("Yes");
+        } else {
+            System.out.println("No");
         }
     }
 
@@ -937,6 +960,7 @@ public class MainActivity extends AppCompatActivity {
     // Колбеки, которые вызываются при завершении определенного запроса
 
     public void onLoginRequestCompleted(String[] response) {
+
         String cookie = response[0];
         String studentName = response[1];
         String studentPassword = response[2];
@@ -1317,20 +1341,24 @@ public class MainActivity extends AppCompatActivity {
             case NOTIFICATION: {
                 LinearLayout notificationList = findViewById(R.id.notificationList);
                 notificationList.addView(errorScreen);
+                break;
             }
             case SCHEDULE: {
                 LinearLayout scheduleList = findViewById(R.id.scheduleList);
                 scheduleList.addView(errorScreen);
                 nowWeekScheduleCalled = false;
                 nextWeekScheduleCalled = false;
+                break;
             }
             case ITOG: {
                 LinearLayout itogList = findViewById(R.id.itogList);
                 itogList.addView(errorScreen);
+                break;
             }
             case LESSONS_INFORMATION: {
                 LinearLayout lessonsInformationList = findViewById(R.id.lessonsInformationList);
                 lessonsInformationList.addView(errorScreen);
+                break;
             }
         }
     }
@@ -1931,6 +1959,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public void onGetFinalMarksRequestCompleted() {
+
         if (getFinalMarksRequestStatus == RequestStatus.CALLED) {
             getFinalMarksRequestStatus = RequestStatus.COMPLETED;
 
@@ -2321,10 +2350,25 @@ public class MainActivity extends AppCompatActivity {
     // Сами асинхронные запросы
 
     // [name, password]
-    class loginRequest extends AsyncTask<String[], Void, String[]> {
+    class loginRequest extends AsyncTask<String[], String, String[]>  {
+
+//        @Override
+//        protected void onPreExecute() {
+//            super.onPreExecute();
+//            loadingLog("Вход в аккаунт");
+//        }
+
+        @Override
+        protected void onProgressUpdate(String... values) {
+            super.onProgressUpdate(values);
+            loadingLog("Вход в аккаунт");
+        }
 
         @Override
         protected String[] doInBackground(String[]... params) { // params[0][0] - name, params[0][1] - password
+
+            publishProgress("");
+
             HttpURLConnection urlConnection = null;
             String cookie = "";
 
@@ -2366,11 +2410,22 @@ public class MainActivity extends AppCompatActivity {
     }
 
     // [year, month]
-    class getStudentMainDataRequest extends AsyncTask<String[], Void, String> {
+    class getStudentMainDataRequest extends AsyncTask<String[], String, String> {
+
+//        @Override
+//        protected void onPreExecute() {
+//            super.onPreExecute();
+//        }
+
+        @Override
+        protected void onProgressUpdate(String... values) {
+            super.onProgressUpdate(values);
+            loadingLog("Получение данных о предметах и преподавателях");
+        }
 
         protected String doInBackground(String[]... params) { // params[0][0] - year, params[0][1] - month
 
-            System.out.println("Student main data request called");
+            publishProgress("");
 
             HttpURLConnection urlConnection = null;
             String responseBody = "";
@@ -2418,9 +2473,18 @@ public class MainActivity extends AppCompatActivity {
     }
 
     // [lessonId]
-    class getExercisesByLessonRequest extends AsyncTask <String[], Void, String[]> {
+    class getExercisesByLessonRequest extends AsyncTask <String[], String, String[]> {
+
+//        @Override
+//        protected void onProgressUpdate(String... values) {
+//            super.onProgressUpdate(values);
+//            loadingLog("Получение данных о парах");
+//        }
 
         protected String[] doInBackground(String[]... params) { // params[0][0] - lesson_id (String)
+
+            publishProgress("");
+
             HttpURLConnection urlConnection = null;
             String responseBody = "";
 
@@ -2454,9 +2518,23 @@ public class MainActivity extends AppCompatActivity {
     }
 
     // [date <yyyy-mm-dd>]
-    class getExercisesByDayRequest extends AsyncTask <String[], Void, String> {
+    class getExercisesByDayRequest extends AsyncTask <String[], String, String> {
+
+//        @Override
+//        protected void onPreExecute() {
+//            super.onPreExecute();
+//        }
+
+        @Override
+        protected void onProgressUpdate(String... values) {
+            super.onProgressUpdate(values);
+            loadingLog("Получение данных о парах за сегодня");
+        }
 
         protected String doInBackground(String[]... params) { // params[0][0] - date <yyyy-mm-dd>
+
+            publishProgress("");
+
             HttpURLConnection urlConnection = null;
             String responseBody = "";
 
@@ -2489,9 +2567,23 @@ public class MainActivity extends AppCompatActivity {
     }
 
     // [postsCount]
-    class getVKWallPostsRequest extends AsyncTask <String[], Void, String> { // params[0][0] - posts count
+    class getVKWallPostsRequest extends AsyncTask <String[], String, String> {
+
+//        @Override
+//        protected void onPreExecute() {
+//            super.onPreExecute();
+//        }
+
+        @Override
+        protected void onProgressUpdate(String... values) {
+            super.onProgressUpdate(values);
+            loadingLog("Получение новостей");
+        }
 
         protected String doInBackground(String[]... params) {
+
+            publishProgress("");
+
             HttpURLConnection urlConnection = null;
             String responseBody = "";
 
@@ -2526,9 +2618,23 @@ public class MainActivity extends AppCompatActivity {
 
     Bitmap bitmap; // картинка профиля
 
-    class getStudentProfileDataRequest extends AsyncTask<Void, Void, String[]> { //FIO, GROUP
+    class getStudentProfileDataRequest extends AsyncTask<Void, String, String[]> {
+
+//        @Override
+//        protected void onPreExecute() {
+//            super.onPreExecute();
+//        }
+
+        @Override
+        protected void onProgressUpdate(String... values) {
+            super.onProgressUpdate(values);
+            loadingLog("Получение данных о студенте");
+        }
 
         protected String[] doInBackground(Void... params) {
+
+            publishProgress("");
+
             HttpURLConnection urlConnection = null;
             String responseBody = "";
             Document html = new Document(responseBody);
@@ -2617,9 +2723,23 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-    class getScheduleRequest extends AsyncTask<String[], Void, String> { // Void на самом деле
+    class getScheduleRequest extends AsyncTask<String[], String, String> {
+
+//        @Override
+//        protected void onPreExecute() {
+//            super.onPreExecute();
+//        }
+
+        @Override
+        protected void onProgressUpdate(String... values) {
+            super.onProgressUpdate(values);
+            loadingLog("Получение данных о расписании");
+        }
 
         protected String doInBackground(String[]... params) { // now next
+
+            publishProgress("");
+
             URL url;
             HttpURLConnection urlConnection = null;
             String responseBody = "";
@@ -2794,9 +2914,23 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-    class getStudentStatsRequest extends AsyncTask<Void, Void, String[]> { // Void на самом деле
+    class getStudentStatsRequest extends AsyncTask<Void, String, String[]> { // Void на самом деле
+
+//        @Override
+//        protected void onPreExecute() {
+//            super.onPreExecute();
+//        }
+
+        @Override
+        protected void onProgressUpdate(String... values) {
+            super.onProgressUpdate(values);
+            loadingLog("Получение данных об успеваемоти студента");
+        }
 
         protected String[] doInBackground(Void ...params) {
+
+            publishProgress("");
+
             String statsMidMark = "";
             String statsDebtsCount = "";
             String statsPercentageOfVisits = "";
@@ -2855,9 +2989,24 @@ public class MainActivity extends AppCompatActivity {
 
     String finalMarksSemestr = "";
 
-    class getFinalMarksRequest extends AsyncTask<Void, Void, Void> {
+    class getFinalMarksRequest extends AsyncTask<Void, String, Void> {
+
+//        @Override
+//        protected void onPreExecute() {
+//            super.onPreExecute();
+//            loadingLog("Получение данных об успеваемоти студента");
+//        }
+
+        @Override
+        protected void onProgressUpdate(String... values) {
+            super.onProgressUpdate(values);
+            loadingLog("Получение данных о последних итоговых оценках");
+        }
 
         protected Void doInBackground(Void... params) {
+
+            publishProgress("");
+
             HttpURLConnection urlConnection = null;
             String responseBody = "";
             Document html = new Document(responseBody);
@@ -2947,9 +3096,23 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-    class getAllFinalMarksRequest extends AsyncTask<Void, Void, Void> {
+    class getAllFinalMarksRequest extends AsyncTask<Void, String, Void> {
+
+        @Override
+        protected void onPreExecute() {
+            super.onPreExecute();
+        }
+
+        @Override
+        protected void onProgressUpdate(String... values) {
+            super.onProgressUpdate(values);
+            loadingLog("Получение данных о всех итоговых оценках");
+        }
 
         protected Void doInBackground(Void... params) {
+
+            publishProgress("");
+
             HttpURLConnection urlConnection = null;
             String responseBody = "";
             Document html = new Document(responseBody);
@@ -3040,9 +3203,23 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-    class RatingRequest extends AsyncTask<String[], Void, String> {
+    class RatingRequest extends AsyncTask<String[], String, String> {
+
+//        @Override
+//        protected void onPreExecute() {
+//            super.onPreExecute();
+//        }
+
+        @Override
+        protected void onProgressUpdate(String... values) {
+            super.onProgressUpdate(values);
+            loadingLog("Получение данных о рейтинге");
+        }
 
         protected String doInBackground(String[]... params) {
+
+            publishProgress("");
+
             HttpURLConnection urlConnection = null;
             String responseBody = "";
 
@@ -3149,6 +3326,8 @@ public class MainActivity extends AppCompatActivity {
 
     public void setContainer(ContainerName newContainer) { // функция обновления активного контейнера
 
+        System.out.println("From: " + activeContainer);
+
         switch (activeContainer) {
             case PROFILE: {
                 profileNavImg.setImageResource(R.drawable.profile);
@@ -3168,6 +3347,8 @@ public class MainActivity extends AppCompatActivity {
                 scheduleNavImg.setImageResource(R.drawable.schedule);
                 scheduleNavText.setTextColor(getResources().getColor(R.color.greyColor));
                 scheduleNavText.setShadowLayer(0,0,0,0);
+//                LinearLayout scheduleList = findViewById(R.id.scheduleList);
+//                scheduleList.removeView(errorScreen);
                 main.removeView(scheduleScreen);
                 break;
             }
@@ -3182,6 +3363,8 @@ public class MainActivity extends AppCompatActivity {
                 lessonsNavImg.setImageResource(R.drawable.subject);
                 lessonsNavText.setTextColor(getResources().getColor(R.color.greyColor));
                 lessonsNavText.setShadowLayer(0,0,0,0);
+//                LinearLayout lessonsInfoList = findViewById(R.id.lessonsInformationList);
+//                lessonsInfoList.removeView(errorScreen);
                 main.removeView(lessonsInformationScreen);
                 break;
             }
@@ -3189,6 +3372,8 @@ public class MainActivity extends AppCompatActivity {
                 notificationNavImg.setImageResource(R.drawable.bell);
                 notificationNavText.setTextColor(getResources().getColor(R.color.greyColor));
                 notificationNavText.setShadowLayer(0,0,0,0);
+//                LinearLayout notList = findViewById(R.id.notificationList);
+//                notList.removeView(errorScreen);
                 main.removeView(notificationListScreen);
                 break;
             }
@@ -3203,6 +3388,8 @@ public class MainActivity extends AppCompatActivity {
                 lessonsNavImg.setImageResource(R.drawable.subject);
                 lessonsNavText.setTextColor(getResources().getColor(R.color.greyColor));
                 lessonsNavText.setShadowLayer(0,0,0,0);
+//                LinearLayout itogList = findViewById(R.id.itogList);
+//                itogList.removeView(errorScreen);
                 main.removeView(itogScreen);
                 break;
             }
@@ -3219,6 +3406,7 @@ public class MainActivity extends AppCompatActivity {
             }
             case LOADING: {
                 main.removeView(loadingScreen);
+                break;
             }
             case ERROR: {
                 main.removeView(errorScreen);
@@ -3305,10 +3493,12 @@ public class MainActivity extends AppCompatActivity {
             case LOADING: {
                 main.addView(loadingScreen);
                 activeContainer = ContainerName.LOADING;
+                break;
             }
             case ERROR: {
                 main.addView(errorScreen);
                 activeContainer = ContainerName.ERROR;
+                break;
             }
             case ITOG: {
                 lessonsNavImg.setImageResource(R.drawable.subject_active);
@@ -3319,6 +3509,7 @@ public class MainActivity extends AppCompatActivity {
                 break;
             }
         }
+        System.out.println("To: " + activeContainer);
     }
 
     public void setLoadingToList(ContainerName neededContainer) { // функция обновления активного контейнера
