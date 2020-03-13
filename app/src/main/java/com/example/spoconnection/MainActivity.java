@@ -187,7 +187,7 @@ public class MainActivity extends AppCompatActivity {
     public RelativeLayout errorScreen;
     public RelativeLayout backConnectScreen;
 
-    public RelativeLayout settingsSync;
+    public LinearLayout settingsSync;
 
 
     // массив расписания
@@ -217,6 +217,14 @@ public class MainActivity extends AppCompatActivity {
     Boolean thursdayIsActive = false;
     Boolean fridayIsActive = false;
     Boolean saturdayIsActive = false;
+
+    //для errorScreen
+
+    LinearLayout scheduleListError;
+    LinearLayout lessonsInfoList;
+    LinearLayout notList;
+    LinearLayout itogList;
+
 
 
     @Override
@@ -253,11 +261,17 @@ public class MainActivity extends AppCompatActivity {
 
         settingsSync = findViewById(R.id.settingsSync);
 
+        scheduleListError = findViewById(R.id.scheduleList);
+        lessonsInfoList = findViewById(R.id.lessonsInformationList);
+        notList = findViewById(R.id.notificationList);
+        itogList = findViewById(R.id.itogList);
+
         // webView
 
         WebView gif = findViewById(R.id.loadingWebView);
 //        WebSettings ws = gif.getSettings();
 //        ws.setJavaScriptEnabled(true);
+        gif.setBackgroundColor(Color.TRANSPARENT);
         gif.loadUrl("file:android_res/drawable/preloader.gif");
 
         // издержки
@@ -265,14 +279,9 @@ public class MainActivity extends AppCompatActivity {
         ratingPlace = findViewById(R.id.ratePlace);
         ratingCount = findViewById(R.id.rateCount);
 
-        TextView settingsSyncUnicodeField = findViewById(R.id.settingsSyncUnicodeField);
-        settingsSyncUnicodeField.setText("↻");
-        TextView settingsExitUnicodeField = findViewById(R.id.settingsExitUnicodeField);
-        settingsExitUnicodeField.setText("\uD83D\uDEAA");
-
         //Выход из аккаунта
 
-        RelativeLayout settingsExit = findViewById(R.id.settingsExit);
+        LinearLayout settingsExit = findViewById(R.id.settingsExit);
         settingsExit.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -3348,7 +3357,7 @@ public class MainActivity extends AppCompatActivity {
                 scheduleNavText.setTextColor(getResources().getColor(R.color.greyColor));
                 scheduleNavText.setShadowLayer(0,0,0,0);
 //                LinearLayout scheduleList = findViewById(R.id.scheduleList);
-//                scheduleList.removeView(errorScreen);
+                scheduleListError.removeView(errorScreen);
                 main.removeView(scheduleScreen);
                 break;
             }
@@ -3364,7 +3373,7 @@ public class MainActivity extends AppCompatActivity {
                 lessonsNavText.setTextColor(getResources().getColor(R.color.greyColor));
                 lessonsNavText.setShadowLayer(0,0,0,0);
 //                LinearLayout lessonsInfoList = findViewById(R.id.lessonsInformationList);
-//                lessonsInfoList.removeView(errorScreen);
+                lessonsInfoList.removeView(errorScreen);
                 main.removeView(lessonsInformationScreen);
                 break;
             }
@@ -3373,7 +3382,7 @@ public class MainActivity extends AppCompatActivity {
                 notificationNavText.setTextColor(getResources().getColor(R.color.greyColor));
                 notificationNavText.setShadowLayer(0,0,0,0);
 //                LinearLayout notList = findViewById(R.id.notificationList);
-//                notList.removeView(errorScreen);
+                notList.removeView(errorScreen);
                 main.removeView(notificationListScreen);
                 break;
             }
@@ -3389,7 +3398,7 @@ public class MainActivity extends AppCompatActivity {
                 lessonsNavText.setTextColor(getResources().getColor(R.color.greyColor));
                 lessonsNavText.setShadowLayer(0,0,0,0);
 //                LinearLayout itogList = findViewById(R.id.itogList);
-//                itogList.removeView(errorScreen);
+                itogList.removeView(errorScreen);
                 main.removeView(itogScreen);
                 break;
             }

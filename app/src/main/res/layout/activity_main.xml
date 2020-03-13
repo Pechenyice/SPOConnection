@@ -14,11 +14,11 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:orientation="vertical"
-        tools:visibility="invisible">
+        tools:visibility="visible">
 
 
         <WebView
-            android:layout_width="wrap_content"
+            android:layout_width="200dp"
             android:layout_height="wrap_content"
             android:layout_centerInParent="true"
             android:id="@+id/loadingWebView">
@@ -41,8 +41,10 @@
             android:layout_alignParentBottom="true"
             android:layout_marginTop="50dp"
             android:layout_marginBottom="50dp"
+            android:gravity="center"
             android:textColor="@color/white"
-            android:textSize="18dp"
+            android:fontFamily="@font/montserrat_light"
+            android:textSize="14dp"
             android:text="" />
     </RelativeLayout>
 
@@ -104,85 +106,77 @@
 
         </RelativeLayout>
 
-            <RelativeLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="50dp"
+            <LinearLayout
+                android:layout_marginTop="30dp"
                 android:layout_marginLeft="15dp"
                 android:layout_marginRight="15dp"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal">
+
+            <LinearLayout
+                android:orientation="vertical"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:layout_marginRight="5dp"
                 android:id="@+id/settingsSync"
                 android:background="@drawable/forms_example">
 
+                <ImageView
+                    android:layout_marginRight="50dp"
+                    android:layout_marginLeft="50dp"
+                    android:layout_width="match_parent"
+                    android:layout_height="70dp"
+                    android:src="@drawable/synch">
+
+                </ImageView>
+
                 <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_marginLeft="20dp"
-                    android:layout_height="80dp"
-                    android:text="Синхронизация данных"
+                    android:layout_width="match_parent"
+                    android:layout_marginBottom="5dp"
+                    android:layout_height="wrap_content"
+                    android:text="Синхронизация"
                     android:textColor="@color/white"
                     android:fontFamily="@font/montserrat_light"
-                    android:textSize="18dp"
+                    android:textSize="14dp"
                     android:gravity="center"
-                    android:scaleType="centerCrop"
                     />
 
-                <TextView
-                    android:id="@+id/settingsSyncUnicodeField"
-                    android:layout_width="wrap_content"
-                    android:layout_marginLeft="20dp"
-                    android:layout_height="80dp"
-                    android:text=""
-                    android:textColor="@color/white"
-                    android:fontFamily="@font/montserrat_light"
-                    android:textSize="18dp"
-                    android:gravity="center"
-                    android:layout_alignParentRight="true"
-                    android:layout_marginRight="20dp"
-                    android:scaleType="centerCrop"
-                    >
+            </LinearLayout>
 
-                </TextView>
-
-            </RelativeLayout>
-
-            <RelativeLayout
+            <LinearLayout
+                android:orientation="vertical"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="10dp"
-                android:layout_marginLeft="15dp"
-                android:layout_marginRight="15dp"
+                android:layout_marginLeft="5dp"
+                android:layout_weight="1"
                 android:id="@+id/settingsExit"
                 android:background="@drawable/forms_example">
 
+                <ImageView
+                    android:layout_marginRight="50dp"
+                    android:layout_marginLeft="50dp"
+                    android:layout_width="match_parent"
+                    android:layout_height="70dp"
+                    android:src="@drawable/exit">
+
+                </ImageView>
+
                 <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_marginLeft="20dp"
-                    android:layout_height="80dp"
+                    android:layout_width="match_parent"
+                    android:layout_marginBottom="5dp"
+                    android:layout_height="wrap_content"
                     android:text="Выход"
                     android:textColor="@color/white"
                     android:fontFamily="@font/montserrat_light"
-                    android:textSize="18dp"
+                    android:textSize="14dp"
                     android:gravity="center"
-                    android:scaleType="centerCrop"
                     />
 
-                <TextView
-                    android:id="@+id/settingsExitUnicodeField"
-                    android:layout_width="wrap_content"
-                    android:layout_marginLeft="20dp"
-                    android:layout_height="80dp"
-                    android:text=""
-                    android:textColor="@color/white"
-                    android:fontFamily="@font/montserrat_light"
-                    android:textSize="18dp"
-                    android:gravity="center"
-                    android:layout_alignParentRight="true"
-                    android:layout_marginRight="20dp"
-                    android:scaleType="centerCrop"
-                    >
 
-                </TextView>
-
-            </RelativeLayout>
+            </LinearLayout>
+            </LinearLayout>
 
         </LinearLayout>
         </ScrollView>
@@ -521,6 +515,7 @@
                 android:layout_marginRight="30dp"
                 android:background="@drawable/login_text_input"
                 android:fontFamily="@font/montserrat_light"
+                android:singleLine="true"
                 android:hint="@string/loginFormLogin"
                 android:paddingLeft="20dp"
                 android:paddingTop="10dp"
@@ -2010,6 +2005,7 @@
                 <ImageView
                     android:id="@+id/homeNavImg"
                     android:layout_width="wrap_content"
+                    android:layout_marginTop="2dp"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
                     app:srcCompat="@drawable/main" />
@@ -2035,6 +2031,7 @@
                 <ImageView
                     android:id="@+id/scheduleNavImg"
                     android:layout_width="wrap_content"
+                    android:layout_marginTop="2dp"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
                     app:srcCompat="@drawable/schedule" />
@@ -2060,6 +2057,7 @@
                 <ImageView
                     android:id="@+id/profileNavImg"
                     android:layout_width="wrap_content"
+                    android:layout_marginTop="2dp"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
                     app:srcCompat="@drawable/profile_active" />
@@ -2089,6 +2087,7 @@
                 <ImageView
                     android:id="@+id/lessonsNavImg"
                     android:layout_width="wrap_content"
+                    android:layout_marginTop="2dp"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
                     app:srcCompat="@drawable/subject" />
@@ -2114,6 +2113,7 @@
                 <ImageView
                     android:id="@+id/settingsNavImg"
                     android:layout_width="wrap_content"
+                    android:layout_marginTop="2dp"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
                     app:srcCompat="@drawable/settings" />
