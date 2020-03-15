@@ -1569,7 +1569,7 @@ public class MainActivity extends AppCompatActivity {
 //                            System.out.println(data);
 
                             Date date = new Date(Long.parseLong(tmp.getString("date")) * 1000);
-                            String dateText = new SimpleDateFormat("dd MMMM yy, HH:mm", Locale.getDefault()).format(date);
+                            String dateText = new SimpleDateFormat("dd MMMM, HH:mm", Locale.getDefault()).format(date);
 
                             TextView vkPostCurrentInformationTime = new TextView(getApplicationContext());
                             LinearLayout.LayoutParams vkPostCurrentInformationTimeLP = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.WRAP_CONTENT);
@@ -3861,9 +3861,9 @@ public class MainActivity extends AppCompatActivity {
 
             ImageView img = new ImageView(getApplicationContext());
             LinearLayout.LayoutParams imgLP = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT);
-            imgLP.setMargins(30*dp, 20*dp, 30*dp, 10*dp);
+            imgLP.setMargins(30*dp, 0, 30*dp, 0);
             img.setLayoutParams(imgLP);
-            img.setImageResource(R.drawable.shutdown);
+            img.setImageResource(R.drawable.shutdown_pink);
             todayLessonsView.addView(img);
 
             TextView text = new TextView(getApplicationContext());
