@@ -18,13 +18,16 @@ import android.os.Bundle;
 import android.os.AsyncTask;
 
 import android.view.Gravity;
+import android.view.KeyEvent;
 import android.view.View;
 import android.view.Window;
 import android.view.WindowManager;
 
+import android.view.inputmethod.InputMethodManager;
 import android.webkit.WebSettings;
 import android.webkit.WebView;
 import android.widget.Button;
+import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
@@ -67,7 +70,8 @@ import java.util.Locale;
 
 public class MainActivity extends AppCompatActivity {
 
-    final long COOKIE_LIFETIME = 90; // в минутах. На самом деле 120 минут.
+    final long COOKIE_LIFETIME = 100; // в минутах. На самом деле 120 минут.
+    final long AUTH_SYNC_PERIOD = 7 * 24 * 60; // в минутах (7 дней)
 
 
     final Integer STATS_REQUEST_CONNECT_TIMEOUT                 = 5;  // в секундах
@@ -120,11 +124,14 @@ public class MainActivity extends AppCompatActivity {
 
     public JSONArray studentFinalMarks = new JSONArray();
     public JSONArray studentAllFinalMarks = new JSONArray();
+    public String finalMarksSemestr;
 
     // by vk api
     public JSONObject vkWallPosts;
 
     public JSONObject ratingInfo;
+
+    public Bitmap studentAvatarBitmap;
 
     // Handlers для проверки на выполнение запроса
 
@@ -160,6 +167,7 @@ public class MainActivity extends AppCompatActivity {
     Boolean itogMarksAreReady = false;
 
     Boolean appFirstRun = false;
+    Boolean isAuth = false;
 
     // рейтинг
 
@@ -225,6 +233,11 @@ public class MainActivity extends AppCompatActivity {
     LinearLayout notList;
     LinearLayout itogList;
 
+    //навигация
+
+    EditText navigationInput;
+    String lastNavText = "";
+
 
 
     @Override
@@ -278,6 +291,116 @@ public class MainActivity extends AppCompatActivity {
 
         ratingPlace = findViewById(R.id.ratePlace);
         ratingCount = findViewById(R.id.rateCount);
+
+        //навигация
+
+        navigationInput = findViewById(R.id.navigationInput);
+
+        navigationInput.setOnKeyListener(new View.OnKeyListener() {
+            @Override
+            public boolean onKey(View v, int keyCode, KeyEvent event) {
+                navigationInput.clearFocus();
+                InputMethodManager imm = (InputMethodManager) getApplicationContext().getSystemService(Context.INPUT_METHOD_SERVICE);
+                imm.hideSoftInputFromWindow(v.getWindowToken(), 0);
+                return  false;
+            }
+        });
+
+        navigationInput.setOnFocusChangeListener(new View.OnFocusChangeListener() {
+            public void onFocusChange(View v, boolean hasFocus) {
+                if(hasFocus) {
+//                    lastNavText = navigationInput.getText().toString();
+                   navigationInput.setText("");
+                } else {
+                    switch (navigationInput.getText().toString().toLowerCase()) {
+                        case "user.profile": {
+                            if (activeContainer != ContainerName.PROFILE) {
+                                setContainer(ContainerName.PROFILE);
+                                navigationInput.setText("User.Profile");
+                            }
+                            break;
+                        }
+                        case "user.schedule": {
+                            if (activeContainer != ContainerName.SCHEDULE) {
+                                setContainer(ContainerName.SCHEDULE);
+                                navigationInput.setText("User.Schedule");
+                            }
+                            break;
+                        }
+                        case "user.home": {
+                            if (activeContainer != ContainerName.HOME) {
+                                setContainer(ContainerName.HOME);
+                                navigationInput.setText("User.Home");
+                            }
+                            break;
+                        }
+                        case "user.changes": {
+                            if (activeContainer != ContainerName.NOTIFICATION) {
+                                setContainer(ContainerName.NOTIFICATION);
+                                navigationInput.setText("User.Notification");
+                            }
+                            break;
+                        }
+                        case "user.lessons": {
+                            if (activeContainer != ContainerName.LESSONS) {
+                                setContainer(ContainerName.LESSONS);
+                                navigationInput.setText("User.Lessons");
+                            }
+                            break;
+                        }
+                        case "user.settings": {
+                            if (activeContainer != ContainerName.SETTINGS) {
+                                setContainer(ContainerName.SETTINGS);
+                                navigationInput.setText("User.Settings");
+                            }
+                            break;
+                        }
+                        default: {
+                            switch (activeContainer) {
+                                case NOTIFICATION: {
+                                    navigationInput.setText("User.Changes");
+                                    break;
+                                }
+                                case HOME: {
+                                    navigationInput.setText("User.Home");
+                                    break;
+                                }
+                                case ITOG: {
+                                    navigationInput.setText("User.Lessons");
+                                    break;
+                                }
+                                case LESSONS: {
+                                    navigationInput.setText("User.Lessons");
+                                    break;
+                                }
+                                case LESSONS_INFORMATION: {
+                                    navigationInput.setText("User.Lessons");
+                                    break;
+                                }
+                                case PROFILE: {
+                                    navigationInput.setText("User.Profile");
+                                    break;
+                                }
+                                case SCHEDULE: {
+                                    navigationInput.setText("User.Schedule");
+                                    break;
+                                }
+                                case SETTINGS: {
+                                    navigationInput.setText("User.Settings");
+                                    break;
+                                }
+                                case BACKCONNECT: {
+                                    navigationInput.setText("User.Settings");
+                                    break;
+                                }
+                            }
+                            break;
+                        }
+                    }
+                    System.out.println("NAV: " + navigationInput.getText().toString());
+                }
+            }
+        });
 
         //Выход из аккаунта
 
@@ -573,125 +696,14 @@ public class MainActivity extends AppCompatActivity {
         main.removeView(backConnectScreen);
         activeContainer = ContainerName.LOADING;
 
-        resetRequestsStatuses();
-
-        preferences = MainActivity.this.getPreferences(Context.MODE_PRIVATE);
-
-        appFirstRun = preferences.getBoolean("appFirstRun", true);
-//        System.out.println(preferences.getAll());
-
-        // первый запуск
-        if (appFirstRun) {
-
-            setContainer(ContainerName.LOGIN);
-
-
-            // получаем данные для отправки запроса
-
-            final TextInputEditText login = findViewById(R.id.loginFormLogin);
-            final TextInputEditText password = findViewById(R.id.loginFormPassword);
-            final Button submit = findViewById(R.id.loginFormSubmit);
-
-
-            submit.setOnClickListener(new View.OnClickListener() {
-
-                // отправляем запрос
-                @Override
-                public void onClick(View v) {
-                    sendLoginRequest(new String[] {
-                            login.getText().toString(),
-                            password.getText().toString()
-                    });
-                }
-            });
-
-            System.out.println("App first run");
-//            preferencesEditor = preferences.edit();
-
-//            preferencesEditor.putBoolean("appFirstRun", false);
-//            preferencesEditor.apply();
-        } else {
-            System.out.println("Not app first run");
-            String lastLoginRequestTime = preferences.getString("lastLoginRequest", "");
-
-            // есть дата последнего входа в аккаунт
-            if (!lastLoginRequestTime.isEmpty()) {
-                Date loginRequestDate = null;
-                Date currentDate;
-
-                try { loginRequestDate = new SimpleDateFormat("dd-MM-yyyy HH:mm:ss").parse(lastLoginRequestTime); }
-                catch (ParseException e) {}
-                currentDate = new Date();
-
-                long minutesBetweenDates = ((currentDate.getTime() / 60000) - (loginRequestDate.getTime() / 60000));
-                System.out.println("Last login request was " + minutesBetweenDates + " minutes ago");
-
-                // вход был выполнен более COOKIE_LIFETIME минут назад, тогда нужно сделать запрос заново
-                if ( minutesBetweenDates >= COOKIE_LIFETIME) {
-
-                    setContainer(ContainerName.LOGIN);
-
-                    System.out.println("Cookie lifetime is more then " + COOKIE_LIFETIME + " minutes. Sending new login request");
-
-                    String name = preferences.getString("studentName", "");
-                    String password = preferences.getString("studentPassword", "");
-
-                    studentGroup = preferences.getString("studentGroup", "");
-                    studentFIO = preferences.getString("studentFIO", "");
-                    studentAvatarSrc = preferences.getString("studentAvatarSrc", "");
-                    getStudentProfileDataRequestStatus = RequestStatus.COMPLETED;
-
-                    sendLoginRequest(new String[] { name, password });
-
-                // иначе пропускаем вход в аккаунт, вместо этого берем данные из хранилища
-                } else {
-                    System.out.println("Cookie lifetime is less then " + COOKIE_LIFETIME + " minutes. Continue");
-                    authCookie = preferences.getString("authCookie", "");
-                    studentId = Functions.getStudentIdFromCookie(authCookie);
-
-                    studentGroup = preferences.getString("studentGroup", "");
-                    studentFIO = preferences.getString("studentFIO", "");
-                    studentAvatarSrc = preferences.getString("studentAvatarSrc", "");
-
-                    statsMidMark = preferences.getString("studentStatsMidMark", "");
-                    statsDebtsCount = preferences.getString("studentStatsDebtsCount", "");
-                    statsPercentageOfVisits = preferences.getString("studentStatsPercentageOfVisits", "");
-                    getStudentProfileDataRequestStatus = RequestStatus.COMPLETED;
-
-                    afterLoginRequest();
-                }
-
-            } else {
-                setContainer(ContainerName.LOGIN);
-
-                final TextInputEditText login = findViewById(R.id.loginFormLogin);
-                final TextInputEditText password = findViewById(R.id.loginFormPassword);
-                final Button submit = findViewById(R.id.loginFormSubmit);
-
-
-                submit.setOnClickListener(new View.OnClickListener() {
-
-                    // отправляем запрос
-                    @Override
-                    public void onClick(View v) {
-                        sendLoginRequest(new String[] {
-                                login.getText().toString(),
-                                password.getText().toString()
-                        });
-                    }
-                });
-
-                System.out.println("App first login");
-            }
-        }
-
+        initAuth();
 
     }
 
     @Override
     public void onBackPressed() {
 
-        if (activeContainer == ContainerName.PROFILE || activeContainer == ContainerName.LOGIN) {
+        if (activeContainer == ContainerName.PROFILE || activeContainer == ContainerName.LOGIN || activeContainer == ContainerName.ERROR) {
             super.onBackPressed();
             return;
         }
@@ -711,7 +723,159 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
+    // Вывод на экран лоадинга текста
+
+    public void loadingLog(String text) {
+//        System.out.println(activeContainer);
+        if (activeContainer == ContainerName.LOADING) {
+            TextView box = findViewById(R.id.loadingInfoText);
+            box.setText(text);
+        }
+//            System.out.println("Yes");
+//        } else {
+//            System.out.println("No");
+//        }
+    }
+
+    public void setError(ContainerName check) {
+
+        switch (check) {
+            case NOTIFICATION: {
+                LinearLayout notificationList = findViewById(R.id.notificationList);
+                notificationList.addView(errorScreen);
+                break;
+            }
+            case SCHEDULE: {
+                LinearLayout scheduleList = findViewById(R.id.scheduleList);
+                scheduleList.addView(errorScreen);
+                nowWeekScheduleCalled = false;
+                nextWeekScheduleCalled = false;
+                break;
+            }
+            case ITOG: {
+                LinearLayout itogList = findViewById(R.id.itogList);
+                itogList.addView(errorScreen);
+                break;
+            }
+            case LESSONS_INFORMATION: {
+                LinearLayout lessonsInformationList = findViewById(R.id.lessonsInformationList);
+                lessonsInformationList.addView(errorScreen);
+                break;
+            }
+        }
+    }
+
     /* -------------------------------------------- BackEnd -------------------------------------------- */
+
+    public void initAuth() {
+
+        resetRequestsStatuses();
+
+        preferences = MainActivity.this.getPreferences(Context.MODE_PRIVATE);
+        preferencesEditor = preferences.edit();
+
+        appFirstRun = preferences.getBoolean("appFirstRun", true);
+        isAuth = preferences.getBoolean("isAuth", false);
+
+        if (appFirstRun) {
+            System.out.println("App first run");
+            preferencesEditor.putBoolean("appFirstRun", false);
+            preferencesEditor.apply();
+        }
+
+        // вход еще не выполнен
+        if (!isAuth) {
+            setContainer(ContainerName.LOGIN);
+
+            // получаем данные для отправки запроса
+
+            final TextInputEditText login = findViewById(R.id.loginFormLogin);
+            final TextInputEditText password = findViewById(R.id.loginFormPassword);
+            final Button submit = findViewById(R.id.loginFormSubmit);
+
+            submit.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    sendLoginRequest(new String[] {
+                            login.getText().toString(),
+                            password.getText().toString()
+                    });
+                }
+            });
+
+            System.out.println("Student not auth");
+        } else {
+            System.out.println("Student auth");
+
+            String lastLoginRequestTime = preferences.getString("lastLoginRequest", "");
+
+            Date loginRequestDate = null;
+            Date currentDate = new Date();
+
+            try { loginRequestDate = new SimpleDateFormat("dd-MM-yyyy HH:mm:ss").parse(lastLoginRequestTime); }
+            catch (ParseException e) {}
+
+            long minutesBetweenDates = ((currentDate.getTime() / 60000) - (loginRequestDate.getTime() / 60000));
+            System.out.println("Last login request was " + minutesBetweenDates + " minutes ago");
+
+            long lastSyncDate = preferences.getLong("lastSyncDate", 0);
+
+            // требуется ли синхронизация
+            if ((currentDate.getTime() - lastSyncDate) > (AUTH_SYNC_PERIOD * 60 * 1000)) {
+                System.out.println("Need to sync");
+                String name = preferences.getString("studentName", "");
+                String password = preferences.getString("studentPassword", "");
+                sendLoginRequest(new String[] { name, password });
+            }
+
+            // вход был выполнен более COOKIE_LIFETIME минут назад, тогда нужно сделать запрос заново
+            else if ( minutesBetweenDates >= COOKIE_LIFETIME) {
+                setContainer(ContainerName.LOGIN);
+
+                System.out.println("Cookie lifetime is more then " + COOKIE_LIFETIME + " minutes. Sending new login request");
+
+                String name = preferences.getString("studentName", "");
+                String password = preferences.getString("studentPassword", "");
+
+                // получение данных из профиля т.к. запрос на профиль отправлятся не будет
+                studentGroup = preferences.getString("studentGroup", "");
+                studentFIO = preferences.getString("studentFIO", "");
+                studentAvatarSrc = preferences.getString("studentAvatarSrc", "");
+                getStudentProfileDataRequestStatus = RequestStatus.COMPLETED;
+
+                sendLoginRequest(new String[] { name, password });
+
+            }
+            // иначе пропускаем вход в аккаунт, вместо этого берем данные из хранилища
+            else {
+                System.out.println("Cookie lifetime is less then " + COOKIE_LIFETIME + " minutes. Continue");
+                authCookie = preferences.getString("authCookie", "");
+                studentId = Functions.getStudentIdFromCookie(authCookie);
+
+                studentGroup = preferences.getString("studentGroup", "");
+                studentFIO = preferences.getString("studentFIO", "");
+                studentAvatarSrc = preferences.getString("studentAvatarSrc", "");
+                getStudentProfileDataRequestStatus = RequestStatus.COMPLETED;
+
+//                    statsMidMark = preferences.getString("studentStatsMidMark", "");
+//                    statsDebtsCount = preferences.getString("studentStatsDebtsCount", "");
+//                    statsPercentageOfVisits = preferences.getString("studentStatsPercentageOfVisits", "");
+
+                afterLoginRequest();
+            }
+        }
+    }
+
+    public void clearPreferences() {
+        preferences = MainActivity.this.getPreferences(Context.MODE_PRIVATE);
+        preferencesEditor = preferences.edit();
+
+        Boolean buf = preferences.getBoolean("appFirstRun", true);
+        preferencesEditor.clear();
+        preferencesEditor.putBoolean("appFirstRun", buf);
+        preferencesEditor.apply();
+
+    }
 
     public void afterLoginRequest() {
 
@@ -734,23 +898,71 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
-
-        System.out.println(studentFIO);
-
         // долги, посещения, средний балл
         sendGetStudentStatsRequest();
+
         // если необходимо, парсим страницу с профилем
         if (getStudentProfileDataRequestStatus != RequestStatus.COMPLETED)
             sendGetStudentProfileDataRequest();
+
         // получение рейтинга
         sendRatingRequest(new String[] { name, password });
+
         // учителя, предметы
         sendGetStudentMainDataRequest(new String[]{ year, month });
+
         // пары за сегодня
         sendGetExercisesByDayRequest(new String[] { year + "-" + month + "-" + day }); // 2020-02-26
     }
 
+    // Когда отпраили все запросы для входа в акаунт
+    public void afterFirstRequests() {
+
+        System.out.println("+--------");
+        System.out.println("| Stats request: " + getStudentStatsRequestStatus);
+//        System.out.println("| Final marks request: " + getFinalMarksRequestStatus);
+//        System.out.println("| All final marks request: " + getAllFinalMarksRequestStatus);
+        System.out.println("| Main data request: " + getStudentMainDataRequestStatus);
+        System.out.println("| Student profile data request: " + getStudentProfileDataRequestStatus);
+        System.out.println("| Rating request: " + ratingRequestStatus);
+        System.out.println("| Exercises by day request: " + getExercisesByDayRequestStatus);
+        System.out.println("+--------");
+
+        preferences = MainActivity.this.getPreferences(Context.MODE_PRIVATE);
+        preferencesEditor = preferences.edit();
+
+        if (getStudentStatsRequestStatus == RequestStatus.COMPLETED
+                && getStudentMainDataRequestStatus    == RequestStatus.COMPLETED
+                && getExercisesByDayRequestStatus     == RequestStatus.COMPLETED
+//                && getFinalMarksRequestStatus         == RequestStatus.COMPLETED
+//                && getAllFinalMarksRequestStatus      == RequestStatus.COMPLETED
+//                && ratingRequestStatus                == RequestStatus.COMPLETED
+                && getStudentProfileDataRequestStatus == RequestStatus.COMPLETED
+        ) {
+            isAuth = true;
+
+            preferencesEditor.putBoolean("isAuth", true);
+            preferencesEditor.putLong("lastSyncDate", (new Date()).getTime());
+            preferencesEditor.apply();
+
+            buildFrontend();
+        }
+        else if (isAuth) {
+            setContainer(ContainerName.ERROR);
+        }
+        else if (!isAuth) {
+            String name = preferences.getString("studentName", "");
+            String password = preferences.getString("studentPassword", "");
+
+            resetRequestsStatuses();
+            clearPreferences();
+
+            setLoginFormContainer(name, password);
+        }
+    }
+
     public void resetRequestsStatuses() {
+
         loginRequestStatus                    = RequestStatus.NOT_CALLED;
         getStudentMainDataRequestStatus       = RequestStatus.NOT_CALLED;
         getExercisesByDayRequestStatus        = RequestStatus.NOT_CALLED;
@@ -776,20 +988,17 @@ public class MainActivity extends AppCompatActivity {
         scheduleList.removeAllViews();
         lessonsList.removeAllViews();
 
-        preferences = MainActivity.this.getPreferences(Context.MODE_PRIVATE);
-        preferencesEditor = preferences.edit();
-        preferencesEditor.clear();
-        preferencesEditor.apply();
-
         nowWeekScheduleCalled = false;
         nextWeekScheduleCalled = false;
         readyExercisesByLesson = new JSONObject();
 
         resetRequestsStatuses();
+        clearPreferences();
 
     }
 
     public void setLoginFormContainer(String nameText, String passwordText) {
+
         setContainer(ContainerName.LOGIN);
         Button submit = findViewById(R.id.loginFormSubmit);
 
@@ -833,61 +1042,6 @@ public class MainActivity extends AppCompatActivity {
                 });
             }
         });
-    }
-
-    //вывод на экран лоадинга текста
-
-    public void loadingLog(String text) {
-        System.out.println(activeContainer);
-        if (activeContainer == ContainerName.LOADING) {
-            TextView box = findViewById(R.id.loadingInfoText);
-            box.setText(text);
-            System.out.println("Yes");
-        } else {
-            System.out.println("No");
-        }
-    }
-
-    // Когда отпраили все запросы для входа в акаунт
-    public void onFirstRequestsFinished() {
-
-        System.out.println("+--------");
-        System.out.println("| Stats request: " + getStudentStatsRequestStatus);
-        System.out.println("| Final marks request: " + getFinalMarksRequestStatus);
-        System.out.println("| All final marks request: " + getAllFinalMarksRequestStatus);
-        System.out.println("| Main data request: " + getStudentMainDataRequestStatus);
-        System.out.println("| Student profile data request: " + getStudentProfileDataRequestStatus);
-        System.out.println("| Rating request: " + ratingRequestStatus);
-        System.out.println("| Exercises by day request: " + getExercisesByDayRequestStatus);
-        System.out.println("+--------");
-
-        if (getStudentStatsRequestStatus == RequestStatus.COMPLETED
-                && getStudentMainDataRequestStatus    == RequestStatus.COMPLETED
-                && getExercisesByDayRequestStatus     == RequestStatus.COMPLETED
-//                && getFinalMarksRequestStatus         == RequestStatus.COMPLETED
-//                && getAllFinalMarksRequestStatus      == RequestStatus.COMPLETED
-//                && ratingRequestStatus                == RequestStatus.COMPLETED
-                && getStudentProfileDataRequestStatus == RequestStatus.COMPLETED
-        ) {
-            preferences = MainActivity.this.getPreferences(Context.MODE_PRIVATE);
-            preferencesEditor = preferences.edit();
-            preferencesEditor.putBoolean("appFirstRun", false);
-            preferencesEditor.apply();
-
-            buildFrontend();
-        } else {
-            preferences = MainActivity.this.getPreferences(Context.MODE_PRIVATE);
-            String name = preferences.getString("studentName", "");
-            String password = preferences.getString("studentPassword", "");
-
-//            resetApp();
-            resetRequestsStatuses();
-            preferencesEditor = preferences.edit();
-            preferencesEditor.clear();
-            preferencesEditor.apply();
-
-            setLoginFormContainer(name, password);
-        }
     }
 
     // Функции по отправке запроса. Их нужно вызывать при жедании сделать запрос
@@ -974,15 +1128,7 @@ public class MainActivity extends AppCompatActivity {
         String studentName = response[1];
         String studentPassword = response[2];
 
-        if (loginRequestStatus == RequestStatus.TIMEOUT) {
-            setLoginFormContainer(studentName, studentPassword);
-            resetApp();
-        }
-        else if (loginRequestStatus == RequestStatus.FAILED) {
-            setLoginFormContainer(studentName, studentPassword);
-            resetApp();
-        }
-        else if (!cookie.isEmpty()) {
+        if (!cookie.isEmpty()) {
             loginRequestStatus = RequestStatus.COMPLETED;
 
             authCookie = cookie;
@@ -1004,19 +1150,17 @@ public class MainActivity extends AppCompatActivity {
             afterLoginRequest();
 
         } else {
+
             loginRequestStatus = RequestStatus.EMPTY_RESPONSE;
-            System.out.println("Login request empty response!");
+            System.out.println("Login request failed (timeout, empty, failed)!");
 
-//            setLoginFormContainer(studentName, studentPassword);
-//            resetApp();
-
-            resetRequestsStatuses();
-            preferences = MainActivity.this.getPreferences(Context.MODE_PRIVATE);
-            preferencesEditor = preferences.edit();
-            preferencesEditor.clear();
-            preferencesEditor.apply();
-
-            setLoginFormContainer(studentName, studentPassword);
+            if (isAuth) {
+                setContainer(ContainerName.ERROR);
+            } else {
+                clearPreferences();
+                resetRequestsStatuses();
+                setLoginFormContainer(studentName, studentPassword);
+            }
         }
     }
 
@@ -1098,7 +1242,7 @@ public class MainActivity extends AppCompatActivity {
             System.out.println("Exercises by day request empty response!");
         }
 
-        onFirstRequestsFinished();
+        afterFirstRequests();
     }
 
     public void onGetExercisesByLessonRequestCompleted (String[] response) {
@@ -1345,32 +1489,6 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-    public void setError(ContainerName check) {
-        switch (check) {
-            case NOTIFICATION: {
-                LinearLayout notificationList = findViewById(R.id.notificationList);
-                notificationList.addView(errorScreen);
-                break;
-            }
-            case SCHEDULE: {
-                LinearLayout scheduleList = findViewById(R.id.scheduleList);
-                scheduleList.addView(errorScreen);
-                nowWeekScheduleCalled = false;
-                nextWeekScheduleCalled = false;
-                break;
-            }
-            case ITOG: {
-                LinearLayout itogList = findViewById(R.id.itogList);
-                itogList.addView(errorScreen);
-                break;
-            }
-            case LESSONS_INFORMATION: {
-                LinearLayout lessonsInformationList = findViewById(R.id.lessonsInformationList);
-                lessonsInformationList.addView(errorScreen);
-                break;
-            }
-        }
-    }
 
     public void onGetVKWallPostsRequestCompleted (String responseBody) {
 
@@ -2340,7 +2458,7 @@ public class MainActivity extends AppCompatActivity {
                  System.out.println(ratingInfo);
 
                  ratingPlace.setText(ratingInfo.getString("studentPosition"));
-                 ratingCount.setText("/" + ratingInfo.getString("studentsCount") + " участников");
+                 ratingCount.setText(ratingInfo.getString("studentsCount"));
             } catch (JSONException e) {
 
             }
@@ -2443,7 +2561,7 @@ public class MainActivity extends AppCompatActivity {
             // создаем мап для картинки
             if (getStudentProfileDataRequestStatus == RequestStatus.COMPLETED) {
                 try {
-                    bitmap = BitmapFactory.decodeStream((InputStream) new URL("https://ifspo.ifmo.ru" + studentAvatarSrc).getContent());
+                    studentAvatarBitmap = BitmapFactory.decodeStream((InputStream) new URL("https://ifspo.ifmo.ru" + studentAvatarSrc).getContent());
                 } catch (MalformedURLException e) {
                     e.printStackTrace();
                 } catch (IOException e) {
@@ -2625,8 +2743,6 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-    Bitmap bitmap; // картинка профиля
-
     class getStudentProfileDataRequest extends AsyncTask<Void, String, String[]> {
 
 //        @Override
@@ -2698,7 +2814,7 @@ public class MainActivity extends AppCompatActivity {
             // создаем мап для картинки
 
             try {
-                bitmap = BitmapFactory.decodeStream((InputStream)new URL("https://ifspo.ifmo.ru" + avatarSrc).getContent());
+                studentAvatarBitmap = BitmapFactory.decodeStream((InputStream)new URL("https://ifspo.ifmo.ru" + avatarSrc).getContent());
             } catch (MalformedURLException e) {
                 e.printStackTrace();
             } catch (IOException e) {
@@ -2923,12 +3039,7 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-    class getStudentStatsRequest extends AsyncTask<Void, String, String[]> { // Void на самом деле
-
-//        @Override
-//        protected void onPreExecute() {
-//            super.onPreExecute();
-//        }
+    class getStudentStatsRequest extends AsyncTask<Void, String, String[]> {
 
         @Override
         protected void onProgressUpdate(String... values) {
@@ -2995,8 +3106,6 @@ public class MainActivity extends AppCompatActivity {
 
         }
     }
-
-    String finalMarksSemestr = "";
 
     class getFinalMarksRequest extends AsyncTask<Void, String, Void> {
 
@@ -3335,7 +3444,46 @@ public class MainActivity extends AppCompatActivity {
 
     public void setContainer(ContainerName newContainer) { // функция обновления активного контейнера
 
-        System.out.println("From: " + activeContainer);
+//        System.out.println("From: " + activeContainer);
+
+        switch (newContainer) {
+            case NOTIFICATION: {
+                navigationInput.setText("User.Changes");
+                break;
+            }
+            case HOME: {
+                navigationInput.setText("User.Home");
+                break;
+            }
+            case ITOG: {
+                navigationInput.setText("User.Lessons");
+                break;
+            }
+            case LESSONS: {
+                navigationInput.setText("User.Lessons");
+                break;
+            }
+            case LESSONS_INFORMATION: {
+                navigationInput.setText("User.Lessons");
+                break;
+            }
+            case PROFILE: {
+                navigationInput.setText("User.Profile");
+                break;
+            }
+            case SCHEDULE: {
+                navigationInput.setText("User.Schedule");
+                break;
+            }
+            case SETTINGS: {
+                navigationInput.setText("User.Settings");
+                break;
+            }
+            case BACKCONNECT: {
+                navigationInput.setText("User.Settings");
+                break;
+            }
+        }
 
         switch (activeContainer) {
             case PROFILE: {
@@ -3518,7 +3666,7 @@ public class MainActivity extends AppCompatActivity {
                 break;
             }
         }
-        System.out.println("To: " + activeContainer);
+//        System.out.println("To: " + activeContainer);
     }
 
     public void setLoadingToList(ContainerName neededContainer) { // функция обновления активного контейнера
@@ -3674,10 +3822,39 @@ public class MainActivity extends AppCompatActivity {
         main.addView(navigation);
         main.addView(userHelpScreen);
 
+        todayLessonsView = findViewById(R.id.todayLessonsView);
+
+        // если нет пар показываем картинку
+
+        if (exercisesByDay.equals(new JSONArray())) {
+            todayLessonsView.removeAllViews();
+
+            ImageView img = new ImageView(getApplicationContext());
+            LinearLayout.LayoutParams imgLP = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT);
+            imgLP.setMargins(30*dp, 20*dp, 30*dp, 10*dp);
+            img.setLayoutParams(imgLP);
+            img.setImageResource(R.drawable.shutdown);
+            todayLessonsView.addView(img);
+
+            TextView text = new TextView(getApplicationContext());
+            LinearLayout.LayoutParams textLP = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT);
+            textLP.setMargins(30*dp,0,30*dp,10*dp);
+            text.setLayoutParams(textLP);
+            text.setTypeface(light);
+            text.setTextColor(getResources().getColor(R.color.greyColor));
+            text.setTextSize(14);
+            text.setText("Пар не было, можно отдыхать");
+            text.setGravity(Gravity.CENTER);
+            todayLessonsView.addView(text);
+
+        } else {
+            todayLessonsView.removeAllViews();
+        }
+
         // инициализируем картинку
 
         ImageView img = (ImageView) findViewById(R.id.profileImage);
-        img.setImageBitmap(bitmap);
+        img.setImageBitmap(studentAvatarBitmap);
         img.setScaleType(ImageView.ScaleType.FIT_XY);
 
 
