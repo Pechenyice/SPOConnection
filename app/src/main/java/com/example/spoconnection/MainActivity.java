@@ -23,6 +23,9 @@ import android.view.View;
 import android.view.Window;
 import android.view.WindowManager;
 
+import android.view.animation.AlphaAnimation;
+import android.view.animation.Animation;
+import android.view.animation.AnimationUtils;
 import android.view.inputmethod.InputMethodManager;
 import android.webkit.WebSettings;
 import android.webkit.WebView;
@@ -3823,6 +3826,33 @@ public class MainActivity extends AppCompatActivity {
         main.addView(userHelpScreen);
 
         todayLessonsView = findViewById(R.id.todayLessonsView);
+
+        // анимация
+
+        AlphaAnimation anim1 = new AlphaAnimation(0.0f, 1.0f);
+        anim1.setDuration(300);
+        anim1.setStartOffset(300);
+        userHelpScreen.startAnimation(anim1);
+        AlphaAnimation anim2 = new AlphaAnimation(0.0f, 1.0f);
+        anim2.setDuration(300);
+        anim2.setStartOffset(600);
+        navigation.startAnimation(anim2);
+        AlphaAnimation anim3 = new AlphaAnimation(0.0f, 1.0f);
+        anim3.setDuration(300);
+        anim3.setStartOffset(900);
+        RelativeLayout firstAnimLayout = findViewById(R.id.profileFirstAnimated);
+        firstAnimLayout.startAnimation(anim3);
+        AlphaAnimation anim4 = new AlphaAnimation(0.0f, 1.0f);
+        anim4.setDuration(300);
+        anim4.setStartOffset(1200);
+        LinearLayout secondAnimLayout = findViewById(R.id.profileSecondAnimated);
+        secondAnimLayout.startAnimation(anim4);
+        AlphaAnimation anim5 = new AlphaAnimation(0.0f, 1.0f);
+        anim5.setDuration(300);
+        anim5.setStartOffset(1500);
+        todayLessonsView.startAnimation(anim5);
+        TextView todayExercisesText = findViewById(R.id.todayExercisesText);
+        todayExercisesText.startAnimation(anim5);
 
         // если нет пар показываем картинку
 

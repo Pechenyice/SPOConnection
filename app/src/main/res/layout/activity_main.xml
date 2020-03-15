@@ -593,7 +593,7 @@
         android:layout_marginBottom="60dp"
         android:overScrollMode="never"
         android:scrollbars="none"
-        tools:visibility="invisible">
+        tools:visibility="visible">
 
         <LinearLayout
             android:layout_width="match_parent"
@@ -605,7 +605,8 @@
 
             <RelativeLayout
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content">
+                android:layout_height="wrap_content"
+                android:id="@+id/profileFirstAnimated">
 
                 <androidx.cardview.widget.CardView
                     android:layout_width="100dp"
@@ -740,6 +741,7 @@
             </RelativeLayout>
 
             <LinearLayout
+                android:id="@+id/profileSecondAnimated"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginLeft="15dp"
@@ -878,6 +880,7 @@
 
 
             <TextView
+                android:id="@+id/todayExercisesText"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginLeft="15dp"
