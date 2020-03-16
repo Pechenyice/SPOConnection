@@ -4,7 +4,10 @@ package com.example.spoconnection;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.content.res.ResourcesCompat;
 
+import android.app.AlertDialog;
+import android.app.Dialog;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.SharedPreferences;
 
 import android.graphics.Bitmap;
@@ -66,6 +69,8 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
 import java.util.Locale;
+import java.util.Timer;
+import java.util.TimerTask;
 
 //import static com.example.spoconnection.Functions.setupPOSTAuthRequest;
 //import com.example.spoconnection.Functions;
@@ -100,6 +105,10 @@ public class MainActivity extends AppCompatActivity {
     final Integer FINAL_MARKS_REQUEST_READ_TIMEOUT           = 5;
     final Integer ALL_FINAL_MARKS_REQUEST_READ_TIMEOUT       = 5;
     final Integer RATING_REQUEST_READ_TIMEOUT                = 5;
+
+    // Хэндлер диалогов
+
+    int dialogCounter = 1;
 
     // Переменные, получаемые с запросов
 
@@ -730,9 +739,11 @@ public class MainActivity extends AppCompatActivity {
 
     public void loadingLog(String text) {
 //        System.out.println(activeContainer);
-        if (activeContainer == ContainerName.LOADING) {
+        try {
             TextView box = findViewById(R.id.loadingInfoText);
             box.setText(text);
+        } catch (Exception e) {
+            System.out.println(e);
         }
 //            System.out.println("Yes");
 //        } else {
@@ -3718,6 +3729,36 @@ public class MainActivity extends AppCompatActivity {
 //            };
 
 
+    //    @Override
+    public Dialog helpShow (String content, String positive, String negative) {
+        // Use the Builder class for convenient dialog construction
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setMessage(content)
+                .setPositiveButton(positive, new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int id) {
+                        dialogCounter++;
+                        if (dialogCounter == 4) {
+                            dialogCounter = 1;
+                            dialog.dismiss();
+                        } else if (dialogCounter == 3) {
+                            Dialog dio = helpShow("this is " + dialogCounter + " dialog!", "end", "cancel");
+                            dio.show();
+                        } else {
+                            Dialog dio = helpShow("this is " + dialogCounter + " dialog!", "next", "cancel");
+                            dio.show();
+                        }
+                    }
+                })
+                .setNegativeButton(negative, new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int id) {
+                        // User cancelled the dialog
+                    }
+                });
+        // Create the AlertDialog object and return it
+        return builder.create();
+    }
+
+
     void buildFrontend() {
 
         int dp = (int) getResources().getDisplayMetrics().density;
@@ -3824,6 +3865,24 @@ public class MainActivity extends AppCompatActivity {
         setContainer(ContainerName.PROFILE);
         main.addView(navigation);
         main.addView(userHelpScreen);
+
+        // создаем диалог по таймеру
+
+        final Dialog dio = helpShow("this is 1 dialog!", "next", "cancel");
+        Timer dialogTimer = new Timer();
+
+        dialogTimer.schedule(new TimerTask() {
+            @Override
+            public void run() {
+                MainActivity.this.runOnUiThread(new Runnable(){
+                    @Override
+                    public void run() {
+                        dio.show();
+                    }
+                });
+            }
+        }, 2000);
+
 
         todayLessonsView = findViewById(R.id.todayLessonsView);
 
