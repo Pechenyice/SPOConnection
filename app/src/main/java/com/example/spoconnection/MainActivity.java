@@ -2616,11 +2616,11 @@ public class MainActivity extends AppCompatActivity {
     // [lessonId]
     class getExercisesByLessonRequest extends AsyncTask <String[], String, String[]> {
 
-//        @Override
-//        protected void onProgressUpdate(String... values) {
-//            super.onProgressUpdate(values);
-//            loadingLog("Получение данных о парах");
-//        }
+        @Override
+        protected void onProgressUpdate(String... values) {
+            super.onProgressUpdate(values);
+            loadingLog("Получение данных о парах");
+        }
 
         protected String[] doInBackground(String[]... params) { // params[0][0] - lesson_id (String)
 
