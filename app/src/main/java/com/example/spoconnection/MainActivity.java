@@ -3,6 +3,7 @@ package com.example.spoconnection;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.content.res.ResourcesCompat;
+import androidx.fragment.app.DialogFragment;
 
 import android.app.AlertDialog;
 import android.app.Dialog;
@@ -22,6 +23,7 @@ import android.os.AsyncTask;
 
 import android.view.Gravity;
 import android.view.KeyEvent;
+import android.view.LayoutInflater;
 import android.view.View;
 import android.view.Window;
 import android.view.WindowManager;
@@ -3730,36 +3732,113 @@ public class MainActivity extends AppCompatActivity {
 
 
     //    @Override
-    public Dialog helpShow (String content, String positive, String negative) {
-        // Use the Builder class for convenient dialog construction
-        AlertDialog.Builder builder = new AlertDialog.Builder(this);
-        builder.setMessage(content)
-                .setPositiveButton(positive, new DialogInterface.OnClickListener() {
-                    public void onClick(DialogInterface dialog, int id) {
-                        dialogCounter++;
-                        if (dialogCounter == 4) {
-                            dialogCounter = 1;
-                            dialog.dismiss();
-                        } else if (dialogCounter == 3) {
-                            Dialog dio = helpShow("this is " + dialogCounter + " dialog!", "end", "cancel");
-                            dio.show();
-                        } else {
-                            Dialog dio = helpShow("this is " + dialogCounter + " dialog!", "next", "cancel");
-                            dio.show();
-                        }
+    public void helpShow () {
+        int dp = (int) getResources().getDisplayMetrics().density;
+        AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
+        LayoutInflater inflater = MainActivity.this.getLayoutInflater();
+
+        View view = getLayoutInflater().inflate(R.layout.help_dialog, null);
+        builder.setView(view);
+
+        final Dialog dialog = builder.create();
+        dialog.getWindow().setBackgroundDrawableResource(R.drawable.forms_example);
+        dialog.show();
+
+        TextView next = dialog.findViewById(R.id.helpDialogNext);
+        TextView cancel = dialog.findViewById(R.id.helpDialogCancel);
+        ImageView hadler1 = dialog.findViewById(R.id.helpDialogHandler1);
+        ImageView hadler2 = dialog.findViewById(R.id.helpDialogHandler2);
+        ImageView hadler3 = dialog.findViewById(R.id.helpDialogHandler3);
+        ImageView hadler4 = dialog.findViewById(R.id.helpDialogHandler4);
+        ImageView hadler5 = dialog.findViewById(R.id.helpDialogHandler5);
+        ImageView hadler6 = dialog.findViewById(R.id.helpDialogHandler6);
+        TextView text = dialog.findViewById(R.id.helpDialogText);
+        TextView title = dialog.findViewById(R.id.helpDialogTitle);
+        ImageView img = dialog.findViewById(R.id.helpDialogImage);
+
+        switch (dialogCounter) {
+            case 1: {
+                img.setImageResource(R.drawable.profile);
+                title.setText("Профиль");
+                text.setText("Просматривайте актуальную информацию о парах за сегодня");
+                hadler1.setImageResource(R.drawable.circle_active);
+                hadler2.setImageResource(R.drawable.circle);
+                hadler3.setImageResource(R.drawable.circle);
+                hadler4.setImageResource(R.drawable.circle);
+                hadler5.setImageResource(R.drawable.circle);
+                hadler6.setImageResource(R.drawable.circle);
+                next.setText("Далее");
+                break;
+            }
+
+            case 2: {
+                img.setImageResource(R.drawable.rating);
+                title.setText("Рейтинг");
+                text.setText("Для вашего удобства мы составляем рейтинг потока, в любой момент вы можете оценить свои успехи");
+                hadler1.setImageResource(R.drawable.circle_active);
+                hadler2.setImageResource(R.drawable.circle);
+                hadler3.setImageResource(R.drawable.circle);
+                hadler4.setImageResource(R.drawable.circle);
+                hadler5.setImageResource(R.drawable.circle);
+                hadler6.setImageResource(R.drawable.circle);
+                next.setText("Далее");
+                break;
+            }
+
+            case 3: {
+                img.setImageResource(R.drawable.profile);
+                title.setText("Успеваемость");
+                text.setText("На этом же экране вы можете отслеживать свою общую успеваемость");
+                hadler1.setImageResource(R.drawable.circle_active);
+                hadler2.setImageResource(R.drawable.circle);
+                hadler3.setImageResource(R.drawable.circle);
+                hadler4.setImageResource(R.drawable.circle);
+                hadler5.setImageResource(R.drawable.circle);
+                hadler6.setImageResource(R.drawable.circle);
+                next.setText("Далее");
+                break;
+            }
+        }
+
+        next.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                dialogCounter++;
+                dialog.dismiss();
+                Timer dialogTimer = new Timer();
+                dialogTimer.schedule(new TimerTask() {
+                    @Override
+                    public void run() {
+                        MainActivity.this.runOnUiThread(new Runnable(){
+                            @Override
+                            public void run() {
+                                helpShow();
+                            }
+                        });
                     }
-                })
-                .setNegativeButton(negative, new DialogInterface.OnClickListener() {
-                    public void onClick(DialogInterface dialog, int id) {
-                        // User cancelled the dialog
-                    }
-                });
-        // Create the AlertDialog object and return it
-        return builder.create();
+                }, 100);
+            }
+        });
+
+        cancel.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                dialogCounter = 1;
+                dialog.dismiss();
+            }
+        });
+        return;
     }
 
 
+
     void buildFrontend() {
+//        nextProfileDialogButton.setOnClickListener(new View.OnClickListener() {
+//            @Override
+//            public void onClick(View v) {
+//
+//            }
+//        });
 
         int dp = (int) getResources().getDisplayMetrics().density;
 
@@ -3867,8 +3946,6 @@ public class MainActivity extends AppCompatActivity {
         main.addView(userHelpScreen);
 
         // создаем диалог по таймеру
-
-        final Dialog dio = helpShow("this is 1 dialog!", "next", "cancel");
         Timer dialogTimer = new Timer();
 
         dialogTimer.schedule(new TimerTask() {
@@ -3877,7 +3954,7 @@ public class MainActivity extends AppCompatActivity {
                 MainActivity.this.runOnUiThread(new Runnable(){
                     @Override
                     public void run() {
-                        dio.show();
+                        helpShow();
                     }
                 });
             }

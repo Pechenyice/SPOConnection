@@ -593,7 +593,7 @@
         android:layout_marginBottom="60dp"
         android:overScrollMode="never"
         android:scrollbars="none"
-        tools:visibility="visible">
+        tools:visibility="invisible">
 
         <LinearLayout
             android:layout_width="match_parent"
@@ -1564,7 +1564,7 @@
         android:layout_marginTop="60dp"
         android:layout_marginRight="15dp"
         android:layout_marginBottom="60dp"
-        tools:visibility="visible">
+        tools:visibility="invisible">
 
         <ScrollView
             android:layout_width="match_parent"
@@ -1635,52 +1635,53 @@
                                             android:textColor="@color/greyColor" />
                                     </RelativeLayout>
 
-                    <!--                    <TextView-->
-                    <!--                        android:layout_width="wrap_content"-->
-                    <!--                        android:layout_height="wrap_content"-->
-                    <!--                        android:layout_marginTop="15dp"-->
-                    <!--                        android:layout_marginLeft="20dp"-->
-                    <!--                        android:text="3 семестр"-->
-                    <!--                        android:textSize="12dp"-->
-                    <!--                        android:textColor="@color/pinkColor"-->
-                    <!--                        android:fontFamily="@font/montserrat_medium">-->
-                    <!--                    </TextView>-->
-
-                    <!--                    <RelativeLayout-->
-                    <!--                    android:layout_width="match_parent"-->
-                    <!--                    android:layout_height="wrap_content"-->
-                    <!--                        android:layout_marginTop="5dp"-->
-                    <!--                    android:background="@drawable/forms_example">-->
-                    <!--                    <TextView-->
-                    <!--                        android:layout_width="wrap_content"-->
-                    <!--                        android:layout_height="wrap_content"-->
-                    <!--                        android:layout_marginLeft="20dp"-->
-                    <!--                        android:layout_marginTop="15dp"-->
-                    <!--                        android:layout_marginBottom="15dp"-->
-                    <!--                        android:gravity="center"-->
-                    <!--                        android:textSize="11dp"-->
-                    <!--                        android:text="дискретная мат-ка с элементами мат. логики"-->
-                    <!--                        android:fontFamily="@font/montserrat_medium"-->
-                    <!--                        android:textColor="@color/white">-->
-                    <!--                    </TextView>-->
-                    <!--                    <TextView-->
-                    <!--                        android:layout_width="wrap_content"-->
-                    <!--                        android:layout_height="wrap_content"-->
-                    <!--                        android:layout_marginRight="20dp"-->
-                    <!--                        android:gravity="center"-->
-                    <!--                        android:textSize="16dp"-->
-                    <!--                        android:text=">"-->
-                    <!--                        android:fontFamily="@font/montserrat_medium"-->
-                    <!--                        android:layout_alignParentRight="true"-->
-                    <!--                        android:layout_centerVertical="true"-->
-                    <!--                        android:textColor="@color/greyColor" />-->
-                    <!--                </RelativeLayout>-->
 
                     <LinearLayout
                         android:id="@+id/lessonsList"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:orientation="vertical"></LinearLayout>
+                        android:orientation="vertical">
+                        <!--                    <TextView-->
+                        <!--                        android:layout_width="wrap_content"-->
+                        <!--                        android:layout_height="wrap_content"-->
+                        <!--                        android:layout_marginTop="15dp"-->
+                        <!--                        android:layout_marginLeft="20dp"-->
+                        <!--                        android:text="3 семестр"-->
+                        <!--                        android:textSize="12dp"-->
+                        <!--                        android:textColor="@color/pinkColor"-->
+                        <!--                        android:fontFamily="@font/montserrat_medium">-->
+                        <!--                    </TextView>-->
+
+                        <!--                    <RelativeLayout-->
+                        <!--                    android:layout_width="match_parent"-->
+                        <!--                    android:layout_height="wrap_content"-->
+                        <!--                        android:layout_marginTop="5dp"-->
+                        <!--                    android:background="@drawable/forms_example">-->
+                        <!--                    <TextView-->
+                        <!--                        android:layout_width="wrap_content"-->
+                        <!--                        android:layout_height="wrap_content"-->
+                        <!--                        android:layout_marginLeft="20dp"-->
+                        <!--                        android:layout_marginTop="15dp"-->
+                        <!--                        android:layout_marginBottom="15dp"-->
+                        <!--                        android:gravity="center"-->
+                        <!--                        android:textSize="11dp"-->
+                        <!--                        android:text="дискретная мат-ка с элементами мат. логики"-->
+                        <!--                        android:fontFamily="@font/montserrat_medium"-->
+                        <!--                        android:textColor="@color/white">-->
+                        <!--                    </TextView>-->
+                        <!--                    <TextView-->
+                        <!--                        android:layout_width="wrap_content"-->
+                        <!--                        android:layout_height="wrap_content"-->
+                        <!--                        android:layout_marginRight="20dp"-->
+                        <!--                        android:gravity="center"-->
+                        <!--                        android:textSize="16dp"-->
+                        <!--                        android:text=">"-->
+                        <!--                        android:fontFamily="@font/montserrat_medium"-->
+                        <!--                        android:layout_alignParentRight="true"-->
+                        <!--                        android:layout_centerVertical="true"-->
+                        <!--                        android:textColor="@color/greyColor" />-->
+                        <!--                </RelativeLayout>-->
+                    </LinearLayout>
                 </LinearLayout>
 
             </LinearLayout>
