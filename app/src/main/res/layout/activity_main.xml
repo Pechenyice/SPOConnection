@@ -1244,6 +1244,29 @@
                     </TextView>
 
                 </RelativeLayout>
+                <RelativeLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="10dp"
+                    android:layout_marginLeft="15dp"
+                    android:layout_marginRight="15dp"
+                    android:id="@+id/homeTeachersLink">
+
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="80dp"
+                        android:text="Преподаватели"
+                        android:textColor="@color/white"
+                        android:fontFamily="@font/montserrat_medium"
+                        android:textSize="18dp"
+                        android:gravity="center"
+                        android:scaleType="centerCrop"
+                        android:background="@drawable/teachers_back"
+                        >
+
+                    </TextView>
+
+                </RelativeLayout>
 <!--                <RelativeLayout-->
 <!--                    android:layout_width="match_parent"-->
 <!--                    android:layout_height="wrap_content"-->
@@ -1554,6 +1577,89 @@
             </LinearLayout>
         </ScrollView>
 
+    </RelativeLayout>
+
+    <RelativeLayout
+        android:id="@+id/teachersScreen"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_marginLeft="15dp"
+        android:layout_marginTop="60dp"
+        android:layout_marginRight="15dp"
+        android:layout_marginBottom="60dp"
+        tools:visibility="invisible">
+
+        <ScrollView
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:scrollbars="none"
+            android:overScrollMode="never">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical">
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_centerHorizontal="true"
+                    android:layout_marginTop="5dp"
+                    android:fontFamily="@font/montserrat_semibold"
+                    android:gravity="center"
+                    android:text="Преподаватели"
+                    android:textColor="@color/pinkColor"
+                    android:textSize="16dp"></TextView>
+
+                <LinearLayout
+                    android:id="@+id/teachersList"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical">
+<!--                                        <TextView-->
+<!--                                            android:layout_width="wrap_content"-->
+<!--                                            android:layout_height="wrap_content"-->
+<!--                                            android:layout_marginTop="15dp"-->
+<!--                                            android:layout_marginLeft="20dp"-->
+<!--                                            android:text="А"-->
+<!--                                            android:textSize="12dp"-->
+<!--                                            android:textColor="@color/pinkColor"-->
+<!--                                            android:fontFamily="@font/montserrat_medium">-->
+<!--                                        </TextView>-->
+
+<!--                                        <RelativeLayout-->
+<!--                                        android:layout_width="match_parent"-->
+<!--                                        android:layout_height="wrap_content"-->
+<!--                                            android:layout_marginTop="5dp"-->
+<!--                                        android:background="@drawable/forms_example">-->
+<!--                                        <TextView-->
+<!--                                            android:layout_width="wrap_content"-->
+<!--                                            android:layout_height="wrap_content"-->
+<!--                                            android:layout_marginLeft="20dp"-->
+<!--                                            android:layout_marginTop="15dp"-->
+<!--                                            android:layout_marginBottom="15dp"-->
+<!--                                            android:gravity="center"-->
+<!--                                            android:textSize="11dp"-->
+<!--                                            android:text="дискретная мат-ка с элементами мат. логики"-->
+<!--                                            android:fontFamily="@font/montserrat_medium"-->
+<!--                                            android:textColor="@color/white">-->
+<!--                                        </TextView>-->
+<!--                                        <TextView-->
+<!--                                            android:layout_width="wrap_content"-->
+<!--                                            android:layout_height="wrap_content"-->
+<!--                                            android:layout_marginRight="20dp"-->
+<!--                                            android:gravity="center"-->
+<!--                                            android:textSize="16dp"-->
+<!--                                            android:text=">"-->
+<!--                                            android:fontFamily="@font/montserrat_medium"-->
+<!--                                            android:layout_alignParentRight="true"-->
+<!--                                            android:layout_centerVertical="true"-->
+<!--                                            android:textColor="@color/greyColor" />-->
+<!--                                    </RelativeLayout>-->
+                </LinearLayout>
+
+            </LinearLayout>
+        </ScrollView>
     </RelativeLayout>
 
     <RelativeLayout
