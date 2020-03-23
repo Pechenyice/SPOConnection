@@ -4192,6 +4192,8 @@ public class MainActivity extends AppCompatActivity {
     //    @Override
     public void helpShow () {
 
+        if (dialogCounter == 1 && activeContainer != ContainerName.PROFILE) setContainer(ContainerName.PROFILE);
+
         int dp = (int) getResources().getDisplayMetrics().density;
         AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
         LayoutInflater inflater = MainActivity.this.getLayoutInflater();
@@ -4245,7 +4247,7 @@ public class MainActivity extends AppCompatActivity {
             }
 
             case 3: {
-                img.setImageResource(R.drawable.profile);
+                img.setImageResource(R.drawable.progress);
                 title.setText("Успеваемость");
                 text.setText("На этом же экране вы можете отслеживать свою общую успеваемость");
                 hadler1.setImageResource(R.drawable.circle_active);
@@ -4257,25 +4259,175 @@ public class MainActivity extends AppCompatActivity {
                 next.setText("Далее");
                 break;
             }
+
+            case 4: {
+                img.setImageResource(R.drawable.user_settings);
+                title.setText("Маршрутизация");
+                text.setText("С помощью этого окна, вы можете попасть быстрее попасть на интересующий экран");
+                hadler1.setImageResource(R.drawable.circle_active);
+                hadler2.setImageResource(R.drawable.circle);
+                hadler3.setImageResource(R.drawable.circle);
+                hadler4.setImageResource(R.drawable.circle);
+                hadler5.setImageResource(R.drawable.circle);
+                hadler6.setImageResource(R.drawable.circle);
+                next.setText("Далее");
+                break;
+            }
+
+            case 5: {
+                img.setImageResource(R.drawable.subject);
+                title.setText("Журнал");
+                text.setText("На этом экране вы можете узнать подробную информацию об успеваемости по каждому предмету");
+                hadler1.setImageResource(R.drawable.circle);
+                hadler2.setImageResource(R.drawable.circle_active);
+                hadler3.setImageResource(R.drawable.circle);
+                hadler4.setImageResource(R.drawable.circle);
+                hadler5.setImageResource(R.drawable.circle);
+                hadler6.setImageResource(R.drawable.circle);
+                next.setText("Далее");
+                break;
+            }
+
+            case 6: {
+                img.setImageResource(R.drawable.result);
+                title.setText("Аттестация");
+                text.setText("В этом разделе можно посмотреть свою успеваемость на сессиях");
+                hadler1.setImageResource(R.drawable.circle);
+                hadler2.setImageResource(R.drawable.circle_active);
+                hadler3.setImageResource(R.drawable.circle);
+                hadler4.setImageResource(R.drawable.circle);
+                hadler5.setImageResource(R.drawable.circle);
+                hadler6.setImageResource(R.drawable.circle);
+                next.setText("Далее");
+                break;
+            }
+
+            case 7: {
+                img.setImageResource(R.drawable.settings);
+                title.setText("Настройки");
+                text.setText("Этот экран позволяет узнать информацию о приложении, синхронизировать данные или выйти из аккаунта");
+                hadler1.setImageResource(R.drawable.circle);
+                hadler2.setImageResource(R.drawable.circle);
+                hadler3.setImageResource(R.drawable.circle_active);
+                hadler4.setImageResource(R.drawable.circle);
+                hadler5.setImageResource(R.drawable.circle);
+                hadler6.setImageResource(R.drawable.circle);
+                next.setText("Далее");
+                break;
+            }
+
+            case 8: {
+                img.setImageResource(R.drawable.synch);
+                title.setText("Синхронизация данных");
+                text.setText("Для экокономии вашего времени и трафика, мы кешируем редко используемые данные, если вы заметили ошибку, пожалуйста, нажмите кнопку синхронизации");
+                hadler1.setImageResource(R.drawable.circle);
+                hadler2.setImageResource(R.drawable.circle);
+                hadler3.setImageResource(R.drawable.circle_active);
+                hadler4.setImageResource(R.drawable.circle);
+                hadler5.setImageResource(R.drawable.circle);
+                hadler6.setImageResource(R.drawable.circle);
+                next.setText("Далее");
+                break;
+            }
+
+            case 9: {
+                img.setImageResource(R.drawable.main);
+                title.setText("Меню");
+                text.setText("На этом экране вы можете перейти в любую часть приложения");
+                hadler1.setImageResource(R.drawable.circle);
+                hadler2.setImageResource(R.drawable.circle);
+                hadler3.setImageResource(R.drawable.circle);
+                hadler4.setImageResource(R.drawable.circle_active);
+                hadler5.setImageResource(R.drawable.circle);
+                hadler6.setImageResource(R.drawable.circle);
+                next.setText("Далее");
+                break;
+            }
+
+            case 10: {
+                img.setImageResource(R.drawable.teacher);
+                title.setText("Преподаватели");
+                text.setText("На этом экране вы можете найти любого преподавателя");
+                hadler1.setImageResource(R.drawable.circle);
+                hadler2.setImageResource(R.drawable.circle);
+                hadler3.setImageResource(R.drawable.circle);
+                hadler4.setImageResource(R.drawable.circle_active);
+                hadler5.setImageResource(R.drawable.circle);
+                hadler6.setImageResource(R.drawable.circle);
+                next.setText("Далее");
+                break;
+            }
+
+            case 11: {
+                img.setImageResource(R.drawable.teacher_schedule);
+                title.setText("График преподавателя");
+                text.setText("И посмотреть его расписание");
+                hadler1.setImageResource(R.drawable.circle);
+                hadler2.setImageResource(R.drawable.circle);
+                hadler3.setImageResource(R.drawable.circle);
+                hadler4.setImageResource(R.drawable.circle_active);
+                hadler5.setImageResource(R.drawable.circle);
+                hadler6.setImageResource(R.drawable.circle);
+                next.setText("Далее");
+                break;
+            }
+
+            case 12: {
+                img.setImageResource(R.drawable.bell);
+                title.setText("Изменения и нововсти");
+                text.setText("Здесь вы можете узнать новости и изменения расписания из официальной группы VK нашего факультета");
+                hadler1.setImageResource(R.drawable.circle);
+                hadler2.setImageResource(R.drawable.circle);
+                hadler3.setImageResource(R.drawable.circle);
+                hadler4.setImageResource(R.drawable.circle);
+                hadler5.setImageResource(R.drawable.circle);
+                hadler6.setImageResource(R.drawable.circle_active);
+                next.setText("Далее");
+                break;
+            }
+
+            case 13: {
+                img.setImageResource(R.drawable.schedule);
+                title.setText("Расписание");
+                text.setText("На этом экране вы можете просмотреть расписание вашей группы");
+                hadler1.setImageResource(R.drawable.circle);
+                hadler2.setImageResource(R.drawable.circle);
+                hadler3.setImageResource(R.drawable.circle);
+                hadler4.setImageResource(R.drawable.circle);
+                hadler5.setImageResource(R.drawable.circle_active);
+                hadler6.setImageResource(R.drawable.circle);
+                next.setText("Понял!");
+                break;
+            }
         }
 
         next.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 dialogCounter++;
+                if (dialogCounter == 5) setContainer(ContainerName.LESSONS);
+                if (dialogCounter == 7) setContainer(ContainerName.SETTINGS);
+                if (dialogCounter == 9) setContainer(ContainerName.HOME);
+                if (dialogCounter == 12) setContainer(ContainerName.NOTIFICATION);
+                if (dialogCounter == 13) setContainer(ContainerName.SCHEDULE);
                 dialog.dismiss();
-                Timer dialogTimer = new Timer();
-                dialogTimer.schedule(new TimerTask() {
-                    @Override
-                    public void run() {
-                        MainActivity.this.runOnUiThread(new Runnable(){
-                            @Override
-                            public void run() {
-                                helpShow();
-                            }
-                        });
-                    }
-                }, 100);
+                if (dialogCounter < 14) {
+                    Timer dialogTimer = new Timer();
+                    dialogTimer.schedule(new TimerTask() {
+                        @Override
+                        public void run() {
+                            MainActivity.this.runOnUiThread(new Runnable() {
+                                @Override
+                                public void run() {
+                                    helpShow();
+                                }
+                            });
+                        }
+                    }, 100);
+                } else {
+                    dialogCounter = 1;
+                    setContainer(ContainerName.PROFILE);
+                }
             }
         });
 

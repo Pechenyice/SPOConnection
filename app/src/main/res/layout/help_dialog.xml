@@ -14,6 +14,8 @@
         android:layout_marginBottom="15dp"
         >
         <ImageView
+            android:layout_marginRight="50dp"
+            android:layout_marginLeft="50dp"
             android:id="@+id/helpDialogImage"
             android:layout_width="match_parent"
             android:layout_height="100dp"
@@ -159,7 +161,8 @@
             android:text="Я программист, кого вы учите"
             android:fontFamily="@font/montserrat_light"
             android:textSize="16dp"
-            android:textColor="@color/greyColor">
+            android:textColor="@color/greyColor"
+            android:background="@drawable/dialog_text_underlined">
 
         </TextView>
     </RelativeLayout>
