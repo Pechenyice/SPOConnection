@@ -147,37 +147,78 @@
 
             </LinearLayout>
 
+                <LinearLayout
+                    android:orientation="vertical"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:layout_marginLeft="5dp"
+                    android:id="@+id/settingsHelp"
+                    android:background="@drawable/forms_example">
+
+                    <ImageView
+                        android:layout_marginRight="50dp"
+                        android:layout_marginLeft="50dp"
+                        android:layout_width="match_parent"
+                        android:layout_height="70dp"
+                        android:src="@drawable/question">
+
+                    </ImageView>
+
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_marginBottom="5dp"
+                        android:layout_height="wrap_content"
+                        android:text="Помощь"
+                        android:textColor="@color/white"
+                        android:fontFamily="@font/montserrat_light"
+                        android:textSize="14dp"
+                        android:gravity="center"
+                        />
+
+                </LinearLayout>
+            </LinearLayout>
+
             <LinearLayout
-                android:orientation="vertical"
+                android:layout_marginTop="10dp"
+                android:layout_marginLeft="15dp"
+                android:layout_marginRight="15dp"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginLeft="5dp"
-                android:layout_weight="1"
-                android:id="@+id/settingsExit"
-                android:background="@drawable/forms_example">
+                android:orientation="horizontal">
 
-                <ImageView
-                    android:layout_marginRight="50dp"
-                    android:layout_marginLeft="50dp"
+                <LinearLayout
+                    android:orientation="vertical"
+                    android:layout_marginLeft="80dp"
+                    android:layout_marginRight="80dp"
                     android:layout_width="match_parent"
-                    android:layout_height="70dp"
-                    android:src="@drawable/exit">
-
-                </ImageView>
-
-                <TextView
-                    android:layout_width="match_parent"
-                    android:layout_marginBottom="5dp"
                     android:layout_height="wrap_content"
-                    android:text="Выход"
-                    android:textColor="@color/white"
-                    android:fontFamily="@font/montserrat_light"
-                    android:textSize="14dp"
-                    android:gravity="center"
-                    />
+                    android:layout_weight="1"
+                    android:id="@+id/settingsExit"
+                    android:background="@drawable/forms_example">
+
+                    <ImageView
+                        android:layout_marginRight="50dp"
+                        android:layout_marginLeft="50dp"
+                        android:layout_width="match_parent"
+                        android:layout_height="70dp"
+                        android:src="@drawable/exit">
+
+                    </ImageView>
+
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_marginBottom="5dp"
+                        android:layout_height="wrap_content"
+                        android:text="Выход"
+                        android:textColor="@color/white"
+                        android:fontFamily="@font/montserrat_light"
+                        android:textSize="14dp"
+                        android:gravity="center"
+                        />
 
 
-            </LinearLayout>
+                </LinearLayout>
             </LinearLayout>
 
         </LinearLayout>
@@ -1571,6 +1612,288 @@
 
 <!--                                </LinearLayout>-->
 <!--                    </LinearLayout>-->
+
+                </LinearLayout>
+
+            </LinearLayout>
+        </ScrollView>
+
+    </RelativeLayout>
+
+    <RelativeLayout
+        android:id="@+id/teacherScheduleScreen"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_marginTop="60dp"
+        android:layout_marginBottom="60dp"
+        android:layout_marginLeft="15dp"
+        android:layout_marginRight="15dp"
+        tools:visibility="visible">
+
+
+        <ScrollView
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:scrollbars="none"
+            android:overScrollMode="never">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical" >
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_centerHorizontal="true"
+                    android:layout_marginTop="5dp"
+                    android:fontFamily="@font/montserrat_semibold"
+                    android:gravity="center"
+                    android:text="Алехандро Гонсалез"
+                    android:textColor="@color/pinkColor"
+                    android:textSize="16dp"></TextView>
+
+<!--                <LinearLayout-->
+<!--                    android:layout_width="match_parent"-->
+<!--                    android:layout_height="wrap_content"-->
+<!--                    android:layout_marginTop="10dp"-->
+<!--                    android:background="@drawable/forms_example"-->
+<!--                    android:orientation="horizontal">-->
+
+<!--                    <TextView-->
+<!--                        android:layout_width="match_parent"-->
+<!--                        android:layout_height="wrap_content"-->
+<!--                        android:gravity="center"-->
+<!--                        android:layout_marginTop="7dp"-->
+<!--                        android:layout_marginBottom="7dp"-->
+<!--                        android:layout_weight="1"-->
+<!--                        android:fontFamily="@font/montserrat_semibold"-->
+<!--                        android:textColor="@color/greyColor"-->
+<!--                        android:textSize="12dp"-->
+<!--                        android:text="Пн"-->
+<!--                        android:id="@+id/monday"-->
+<!--                        />-->
+<!--                    <TextView-->
+<!--                        android:layout_width="match_parent"-->
+<!--                        android:layout_height="wrap_content"-->
+<!--                        android:gravity="center"-->
+<!--                        android:layout_marginTop="7dp"-->
+<!--                        android:layout_marginBottom="7dp"-->
+<!--                        android:layout_weight="1"-->
+<!--                        android:fontFamily="@font/montserrat_semibold"-->
+<!--                        android:textColor="@color/greyColor"-->
+<!--                        android:textSize="12dp"-->
+<!--                        android:text="Вт"-->
+<!--                        android:id="@+id/tuesday"-->
+<!--                        android:background="@drawable/today_lessons_border"-->
+<!--                        />-->
+<!--                    <TextView-->
+<!--                        android:layout_width="match_parent"-->
+<!--                        android:layout_height="wrap_content"-->
+<!--                        android:gravity="center"-->
+<!--                        android:layout_marginTop="7dp"-->
+<!--                        android:layout_marginBottom="7dp"-->
+<!--                        android:layout_weight="1"-->
+<!--                        android:fontFamily="@font/montserrat_semibold"-->
+<!--                        android:textColor="@color/greyColor"-->
+<!--                        android:textSize="12dp"-->
+<!--                        android:text="Ср"-->
+<!--                        android:id="@+id/wednesday"-->
+<!--                        android:background="@drawable/today_lessons_border_right_only"-->
+<!--                        />-->
+<!--                    <TextView-->
+<!--                        android:layout_width="match_parent"-->
+<!--                        android:layout_height="wrap_content"-->
+<!--                        android:gravity="center"-->
+<!--                        android:layout_marginTop="7dp"-->
+<!--                        android:layout_marginBottom="7dp"-->
+<!--                        android:layout_weight="1"-->
+<!--                        android:fontFamily="@font/montserrat_semibold"-->
+<!--                        android:textColor="@color/greyColor"-->
+<!--                        android:textSize="12dp"-->
+<!--                        android:text="Чт"-->
+<!--                        android:id="@+id/thursday"-->
+<!--                        android:background="@drawable/today_lessons_border_right_only"-->
+<!--                        />-->
+<!--                    <TextView-->
+<!--                        android:layout_width="match_parent"-->
+<!--                        android:layout_height="wrap_content"-->
+<!--                        android:gravity="center"-->
+<!--                        android:layout_marginTop="7dp"-->
+<!--                        android:layout_marginBottom="7dp"-->
+<!--                        android:layout_weight="1"-->
+<!--                        android:fontFamily="@font/montserrat_semibold"-->
+<!--                        android:textColor="@color/greyColor"-->
+<!--                        android:textSize="12dp"-->
+<!--                        android:text="Пт"-->
+<!--                        android:id="@+id/friday"-->
+<!--                        android:background="@drawable/today_lessons_border_right_only"-->
+<!--                        />-->
+<!--                    <TextView-->
+<!--                        android:layout_width="match_parent"-->
+<!--                        android:layout_height="wrap_content"-->
+<!--                        android:gravity="center"-->
+<!--                        android:layout_marginTop="7dp"-->
+<!--                        android:layout_marginBottom="7dp"-->
+<!--                        android:layout_weight="1"-->
+<!--                        android:fontFamily="@font/montserrat_semibold"-->
+<!--                        android:textColor="@color/greyColor"-->
+<!--                        android:textSize="12dp"-->
+<!--                        android:text="Сб"-->
+<!--                        android:id="@+id/saturday"-->
+<!--                        />-->
+
+<!--                </LinearLayout>-->
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="25dp"
+                    android:layout_marginLeft="60dp"
+                    android:layout_marginRight="60dp"
+                    android:background="@drawable/forms_example"
+                    android:orientation="horizontal">
+
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:id="@+id/teacherNow"
+                        android:layout_marginTop="3dp"
+                        android:layout_marginBottom="3dp"
+                        android:layout_marginLeft="3dp"
+                        android:paddingTop="10dp"
+                        android:paddingBottom="10dp"
+                        android:text="Текущая"
+                        android:textSize="14dp"
+                        android:fontFamily="@font/montserrat_light"
+                        android:textColor="@color/backgroundLightColor"
+                        android:background="@drawable/active_schedule"
+                        android:layout_weight="1"
+                        android:gravity="center">
+                    </TextView>
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="3dp"
+                        android:layout_marginBottom="3dp"
+                        android:layout_marginRight="3dp"
+                        android:id="@+id/teacherNext"
+                        android:fontFamily="@font/montserrat_light"
+                        android:paddingTop="10dp"
+                        android:paddingBottom="10dp"
+                        android:text="Следующая"
+                        android:textSize="14dp"
+                        android:textColor="@color/pinkColor"
+                        android:layout_weight="1"
+                        android:gravity="center" />
+
+                </LinearLayout>
+
+                <!--                <Button-->
+                <!--                    android:id="@+id/notificationSchedule"-->
+                <!--                    android:layout_width="wrap_content"-->
+                <!--                    android:layout_height="wrap_content"-->
+                <!--                    android:layout_marginLeft="200dp"-->
+                <!--                    android:text="changes" />-->
+
+                <LinearLayout
+                    android:id="@+id/teacherScheduleList"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="20dp"
+                    android:orientation="vertical" >
+
+                    <!--                    <TextView-->
+                    <!--                                        android:layout_width="wrap_content"-->
+                    <!--                                        android:layout_height="wrap_content"-->
+                    <!--                                        android:layout_marginLeft="10dp"-->
+                    <!--                                        android:layout_marginBottom="3dp"-->
+                    <!--                                        android:text="понедельник"-->
+                    <!--                                        android:fontFamily="@font/montserrat_medium"-->
+                    <!--                                        android:textColor="@color/pinkColor">-->
+
+                    <!--                                    </TextView>-->
+                    <!--                    <LinearLayout-->
+                    <!--                        android:layout_width="match_parent"-->
+                    <!--                        android:layout_height="wrap_content"-->
+                    <!--                        android:background="@drawable/forms_example"-->
+                    <!--                        android:paddingBottom="5dp"-->
+                    <!--                        android:layout_marginBottom="10dp"-->
+                    <!--                        android:orientation="vertical">-->
+                    <!--                                <LinearLayout-->
+                    <!--                                    android:layout_height="wrap_content"-->
+                    <!--                                    android:layout_width="match_parent"-->
+                    <!--                                    android:layout_marginBottom="5dp"-->
+                    <!--                                    android:layout_marginTop="5dp"-->
+                    <!--                                    android:background="@drawable/forms_example"-->
+                    <!--                                    android:orientation="vertical">-->
+                    <!--                                    <TextView-->
+                    <!--                                    android:layout_width="20dp"-->
+                    <!--                                    android:layout_height="20dp"-->
+                    <!--                                        android:layout_marginTop="10dp"-->
+                    <!--                                        android:layout_marginLeft="10dp"-->
+                    <!--                                    android:background="@drawable/lesson_number"-->
+                    <!--                                    android:text="1"-->
+                    <!--                                    android:fontFamily="@font/montserrat_light"-->
+                    <!--                                    android:textColor="@color/white"-->
+                    <!--                                    android:gravity="center"-->
+                    <!--                                    android:textSize="14dp">-->
+                    <!--                                    </TextView>-->
+                    <!--                                    <TextView-->
+                    <!--                                        android:layout_width="match_parent"-->
+                    <!--                                        android:layout_height="20dp"-->
+                    <!--                                        android:layout_marginTop="-20dp"-->
+                    <!--                                        android:layout_marginRight="10dp"-->
+                    <!--                                        android:text="310"-->
+                    <!--                                        android:fontFamily="@font/montserrat_medium"-->
+                    <!--                                        android:textColor="@color/white"-->
+                    <!--                                        android:gravity="right|center_vertical"-->
+                    <!--                                        android:textSize="12dp"-->
+                    <!--                                        >-->
+                    <!--                                    </TextView>-->
+                    <!--                                    <TextView-->
+                    <!--                                        android:layout_marginTop="-20dp"-->
+                    <!--                                        android:layout_width="wrap_content"-->
+                    <!--                                        android:layout_height="20dp"-->
+                    <!--                                        android:layout_marginLeft="40dp"-->
+                    <!--                                        android:text="8:20 - 9:50"-->
+                    <!--                                        android:fontFamily="@font/montserrat_light"-->
+                    <!--                                        android:textColor="@color/greyColor"-->
+                    <!--                                        android:gravity="center_vertical"-->
+                    <!--                                        android:textSize="12dp"-->
+                    <!--                                        >-->
+                    <!--                                    </TextView>-->
+
+                    <!--                                    <TextView-->
+                    <!--                                        android:layout_width="wrap_content"-->
+                    <!--                                        android:layout_height="wrap_content"-->
+                    <!--                                        android:layout_marginLeft="40dp"-->
+                    <!--                                        android:layout_marginTop="5dp"-->
+                    <!--                                        android:layout_marginRight="35dp"-->
+                    <!--                                        android:text="Элементы высшей математики и математическая статистика"-->
+                    <!--                                        android:fontFamily="@font/montserrat_medium"-->
+                    <!--                                        android:textColor="@color/white"-->
+                    <!--                                        android:gravity="center_vertical"-->
+                    <!--                                        android:textSize="13dp"-->
+                    <!--                                        >-->
+                    <!--                                    </TextView>-->
+
+                    <!--                                    <TextView-->
+                    <!--                                        android:layout_width="wrap_content"-->
+                    <!--                                        android:layout_height="wrap_content"-->
+                    <!--                                        android:layout_marginLeft="40dp"-->
+                    <!--                                        android:layout_marginRight="35dp"-->
+                    <!--                                        android:layout_marginBottom="5dp"-->
+                    <!--                                        android:text="Ищенко Алексей Петрович"-->
+                    <!--                                        android:fontFamily="@font/montserrat_light"-->
+                    <!--                                        android:textColor="@color/greyColor"-->
+                    <!--                                        android:gravity="center_vertical"-->
+                    <!--                                        android:textSize="12dp"-->
+                    <!--                                        >-->
+                    <!--                                    </TextView>-->
+
+                    <!--                                </LinearLayout>-->
+                    <!--                    </LinearLayout>-->
 
                 </LinearLayout>
 

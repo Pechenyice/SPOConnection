@@ -208,6 +208,7 @@ public class MainActivity extends AppCompatActivity {
     public LinearLayout navigation;
     public RelativeLayout homeScreen;
     public RelativeLayout scheduleScreen;
+    public RelativeLayout teacherScheduleScreen;
     public RelativeLayout lessonsScreen;
     public RelativeLayout lessonsInformationScreen;
     public LinearLayout userHelpScreen;
@@ -220,6 +221,7 @@ public class MainActivity extends AppCompatActivity {
     public RelativeLayout teachersScreen;
 
     public LinearLayout settingsSync;
+    public LinearLayout settingsHelp;
 
 
     // массив расписания
@@ -304,6 +306,7 @@ public class MainActivity extends AppCompatActivity {
         teachersScreen = findViewById(R.id.teachersScreen);
 
         settingsSync = findViewById(R.id.settingsSync);
+        settingsHelp = findViewById(R.id.settingsHelp);
 
         scheduleListError = findViewById(R.id.scheduleList);
         lessonsInfoList = findViewById(R.id.lessonsInformationList);
@@ -948,6 +951,13 @@ public class MainActivity extends AppCompatActivity {
                 main.removeAllViews();
                 resetApp();
                 sendLoginRequest(new String[] { name, password });
+            }
+        });
+
+        settingsHelp.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                helpShow();
             }
         });
 
@@ -3919,21 +3929,66 @@ public class MainActivity extends AppCompatActivity {
                 scheduleNavImg.setImageResource(R.drawable.schedule);
                 scheduleNavText.setTextColor(getResources().getColor(R.color.greyColor));
                 scheduleNavText.setShadowLayer(0,0,0,0);
-                main.removeView(teachersScreen);
+                AlphaAnimation anim = new AlphaAnimation(1.0f, 0.0f);
+                anim.setDuration(200);
+                anim.setStartOffset(0);
+                teachersScreen.startAnimation(anim);
+                Timer timer = new Timer();
+                timer.schedule(new TimerTask() {
+                    @Override
+                    public void run() {
+                        MainActivity.this.runOnUiThread(new Runnable() {
+                            @Override
+                            public void run() {
+                                main.removeView(teachersScreen);
+                            }
+                        });
+                    }
+                }, 200);
                 break;
             }
             case PROFILE: {
                 profileNavImg.setImageResource(R.drawable.profile);
                 profileNavText.setTextColor(getResources().getColor(R.color.greyColor));
                 profileNavText.setShadowLayer(0,0,0,0);
-                main.removeView(profileScreen);
+                AlphaAnimation anim = new AlphaAnimation(1.0f, 0.0f);
+                anim.setDuration(200);
+                anim.setStartOffset(0);
+                profileScreen.startAnimation(anim);
+                Timer timer = new Timer();
+                timer.schedule(new TimerTask() {
+                    @Override
+                    public void run() {
+                        MainActivity.this.runOnUiThread(new Runnable() {
+                            @Override
+                            public void run() {
+                                main.removeView(profileScreen);
+                            }
+                        });
+                    }
+                }, 200);
                 break;
             }
             case HOME: {
                 homeNavImg.setImageResource(R.drawable.main);
                 homeNavText.setTextColor(getResources().getColor(R.color.greyColor));
                 homeNavText.setShadowLayer(0,0,0,0);
-                main.removeView(homeScreen);
+                AlphaAnimation anim = new AlphaAnimation(1.0f, 0.0f);
+                anim.setDuration(200);
+                anim.setStartOffset(0);
+                homeScreen.startAnimation(anim);
+                Timer timer = new Timer();
+                timer.schedule(new TimerTask() {
+                    @Override
+                    public void run() {
+                        MainActivity.this.runOnUiThread(new Runnable() {
+                            @Override
+                            public void run() {
+                                main.removeView(homeScreen);
+                            }
+                        });
+                    }
+                }, 200);
                 break;
             }
             case SCHEDULE: {
@@ -3942,14 +3997,44 @@ public class MainActivity extends AppCompatActivity {
                 scheduleNavText.setShadowLayer(0,0,0,0);
 //                LinearLayout scheduleList = findViewById(R.id.scheduleList);
                 scheduleListError.removeView(errorScreen);
-                main.removeView(scheduleScreen);
+                AlphaAnimation anim = new AlphaAnimation(1.0f, 0.0f);
+                anim.setDuration(200);
+                anim.setStartOffset(0);
+                errorScreen.startAnimation(anim);
+                Timer timer = new Timer();
+                timer.schedule(new TimerTask() {
+                    @Override
+                    public void run() {
+                        MainActivity.this.runOnUiThread(new Runnable() {
+                            @Override
+                            public void run() {
+                                main.removeView(scheduleScreen);
+                            }
+                        });
+                    }
+                }, 200);
                 break;
             }
             case LESSONS: {
                 lessonsNavImg.setImageResource(R.drawable.subject);
                 lessonsNavText.setTextColor(getResources().getColor(R.color.greyColor));
                 lessonsNavText.setShadowLayer(0,0,0,0);
-                main.removeView(lessonsScreen);
+                AlphaAnimation anim = new AlphaAnimation(1.0f, 0.0f);
+                anim.setDuration(200);
+                anim.setStartOffset(0);
+                lessonsScreen.startAnimation(anim);
+                Timer timer = new Timer();
+                timer.schedule(new TimerTask() {
+                    @Override
+                    public void run() {
+                        MainActivity.this.runOnUiThread(new Runnable() {
+                            @Override
+                            public void run() {
+                                main.removeView(lessonsScreen);
+                            }
+                        });
+                    }
+                }, 200);
                 break;
             }
             case LESSONS_INFORMATION: {
@@ -3958,7 +4043,22 @@ public class MainActivity extends AppCompatActivity {
                 lessonsNavText.setShadowLayer(0,0,0,0);
 //                LinearLayout lessonsInfoList = findViewById(R.id.lessonsInformationList);
                 lessonsInfoList.removeView(errorScreen);
-                main.removeView(lessonsInformationScreen);
+                AlphaAnimation anim = new AlphaAnimation(1.0f, 0.0f);
+                anim.setDuration(200);
+                anim.setStartOffset(0);
+                lessonsInformationScreen.startAnimation(anim);
+                Timer timer = new Timer();
+                timer.schedule(new TimerTask() {
+                    @Override
+                    public void run() {
+                        MainActivity.this.runOnUiThread(new Runnable() {
+                            @Override
+                            public void run() {
+                                main.removeView(lessonsInformationScreen);
+                            }
+                        });
+                    }
+                }, 200);
                 break;
             }
             case NOTIFICATION: {
@@ -3967,14 +4067,44 @@ public class MainActivity extends AppCompatActivity {
                 notificationNavText.setShadowLayer(0,0,0,0);
 //                LinearLayout notList = findViewById(R.id.notificationList);
                 notList.removeView(errorScreen);
-                main.removeView(notificationListScreen);
+                AlphaAnimation anim = new AlphaAnimation(1.0f, 0.0f);
+                anim.setDuration(200);
+                anim.setStartOffset(0);
+                notificationListScreen.startAnimation(anim);
+                Timer timer = new Timer();
+                timer.schedule(new TimerTask() {
+                    @Override
+                    public void run() {
+                        MainActivity.this.runOnUiThread(new Runnable() {
+                            @Override
+                            public void run() {
+                                main.removeView(notificationListScreen);
+                            }
+                        });
+                    }
+                }, 200);
                 break;
             }
             case SETTINGS: {
                 settingsNavImg.setImageResource(R.drawable.settings);
                 settingsNavText.setTextColor(getResources().getColor(R.color.greyColor));
                 settingsNavText.setShadowLayer(0,0,0,0);
-                main.removeView(settingsScreen);
+                AlphaAnimation anim = new AlphaAnimation(1.0f, 0.0f);
+                anim.setDuration(200);
+                anim.setStartOffset(0);
+                settingsScreen.startAnimation(anim);
+                Timer timer = new Timer();
+                timer.schedule(new TimerTask() {
+                    @Override
+                    public void run() {
+                        MainActivity.this.runOnUiThread(new Runnable() {
+                            @Override
+                            public void run() {
+                                main.removeView(settingsScreen);
+                            }
+                        });
+                    }
+                }, 200);
                 break;
             }
             case ITOG: {
@@ -3983,14 +4113,44 @@ public class MainActivity extends AppCompatActivity {
                 lessonsNavText.setShadowLayer(0,0,0,0);
 //                LinearLayout itogList = findViewById(R.id.itogList);
                 itogList.removeView(errorScreen);
-                main.removeView(itogScreen);
+                AlphaAnimation anim = new AlphaAnimation(1.0f, 0.0f);
+                anim.setDuration(200);
+                anim.setStartOffset(0);
+                itogScreen.startAnimation(anim);
+                Timer timer = new Timer();
+                timer.schedule(new TimerTask() {
+                    @Override
+                    public void run() {
+                        MainActivity.this.runOnUiThread(new Runnable() {
+                            @Override
+                            public void run() {
+                                main.removeView(itogScreen);
+                            }
+                        });
+                    }
+                }, 200);
                 break;
             }
             case BACKCONNECT: {
                 settingsNavImg.setImageResource(R.drawable.settings);
                 settingsNavText.setTextColor(getResources().getColor(R.color.greyColor));
                 settingsNavText.setShadowLayer(0,0,0,0);
-                main.removeView(backConnectScreen);
+                AlphaAnimation anim = new AlphaAnimation(1.0f, 0.0f);
+                anim.setDuration(200);
+                anim.setStartOffset(0);
+                backConnectScreen.startAnimation(anim);
+                Timer timer = new Timer();
+                timer.schedule(new TimerTask() {
+                    @Override
+                    public void run() {
+                        MainActivity.this.runOnUiThread(new Runnable() {
+                            @Override
+                            public void run() {
+                                main.removeView(backConnectScreen);
+                            }
+                        });
+                    }
+                }, 200);
                 break;
             }
             case LOGIN: {
@@ -4014,6 +4174,10 @@ public class MainActivity extends AppCompatActivity {
                 scheduleNavText.setShadowLayer(5,0,0,getResources().getColor(R.color.white));
                 main.addView(teachersScreen);
                 activeContainer = ContainerName.TEACHERS;
+                AlphaAnimation anim = new AlphaAnimation(0.0f, 1.0f);
+                anim.setDuration(200);
+                anim.setStartOffset(200);
+                teachersScreen.startAnimation(anim);
                 break;
             }
             case PROFILE: {
@@ -4021,6 +4185,10 @@ public class MainActivity extends AppCompatActivity {
                 profileNavText.setTextColor(getResources().getColor(R.color.white));
                 profileNavText.setShadowLayer(5,0,0,getResources().getColor(R.color.white));
                 main.addView(profileScreen);
+                AlphaAnimation anim = new AlphaAnimation(0.0f, 1.0f);
+                anim.setDuration(200);
+                anim.setStartOffset(200);
+                profileScreen.startAnimation(anim);
                 activeContainer = ContainerName.PROFILE;
                 break;
             }
@@ -4029,6 +4197,10 @@ public class MainActivity extends AppCompatActivity {
                 homeNavText.setTextColor(getResources().getColor(R.color.white));
                 homeNavText.setShadowLayer(5,0,0,getResources().getColor(R.color.white));
                 main.addView(homeScreen);
+                AlphaAnimation anim = new AlphaAnimation(0.0f, 1.0f);
+                anim.setDuration(200);
+                anim.setStartOffset(200);
+                homeScreen.startAnimation(anim);
                 activeContainer = ContainerName.HOME;
                 break;
             }
@@ -4037,6 +4209,10 @@ public class MainActivity extends AppCompatActivity {
                 scheduleNavText.setTextColor(getResources().getColor(R.color.white));
                 scheduleNavText.setShadowLayer(5,0,0,getResources().getColor(R.color.white));
                 main.addView(scheduleScreen);
+                AlphaAnimation anim = new AlphaAnimation(0.0f, 1.0f);
+                anim.setDuration(200);
+                anim.setStartOffset(200);
+                scheduleScreen.startAnimation(anim);
                 activeContainer = ContainerName.SCHEDULE;
                 if (!nowWeekScheduleCalled) {
                     sendGetScheduleOfGroupRequest(new String[] {"now"});
@@ -4050,6 +4226,10 @@ public class MainActivity extends AppCompatActivity {
                 lessonsNavText.setTextColor(getResources().getColor(R.color.white));
                 lessonsNavText.setShadowLayer(5,0,0,getResources().getColor(R.color.white));
                 main.addView(lessonsScreen);
+                AlphaAnimation anim = new AlphaAnimation(0.0f, 1.0f);
+                anim.setDuration(200);
+                anim.setStartOffset(200);
+                lessonsScreen.startAnimation(anim);
                 activeContainer = ContainerName.LESSONS;
                 break;
             }
@@ -4058,6 +4238,10 @@ public class MainActivity extends AppCompatActivity {
                 lessonsNavText.setTextColor(getResources().getColor(R.color.white));
                 lessonsNavText.setShadowLayer(5,0,0,getResources().getColor(R.color.white));
                 main.addView(lessonsInformationScreen);
+                AlphaAnimation anim = new AlphaAnimation(0.0f, 1.0f);
+                anim.setDuration(200);
+                anim.setStartOffset(200);
+                lessonsInformationScreen.startAnimation(anim);
                 activeContainer = ContainerName.LESSONS_INFORMATION;
                 break;
             }
@@ -4066,6 +4250,10 @@ public class MainActivity extends AppCompatActivity {
                 notificationNavText.setTextColor(getResources().getColor(R.color.white));
                 notificationNavText.setShadowLayer(5,0,0,getResources().getColor(R.color.white));
                 main.addView(notificationListScreen);
+                AlphaAnimation anim = new AlphaAnimation(0.0f, 1.0f);
+                anim.setDuration(200);
+                anim.setStartOffset(200);
+                notificationListScreen.startAnimation(anim);
                 activeContainer = ContainerName.NOTIFICATION;
                 break;
             }
@@ -4074,6 +4262,10 @@ public class MainActivity extends AppCompatActivity {
                 settingsNavText.setTextColor(getResources().getColor(R.color.white));
                 settingsNavText.setShadowLayer(5,0,0,getResources().getColor(R.color.white));
                 main.addView(settingsScreen);
+                AlphaAnimation anim = new AlphaAnimation(0.0f, 1.0f);
+                anim.setDuration(200);
+                anim.setStartOffset(200);
+                settingsScreen.startAnimation(anim);
                 activeContainer = ContainerName.SETTINGS;
                 break;
             }
@@ -4082,6 +4274,10 @@ public class MainActivity extends AppCompatActivity {
                 settingsNavText.setTextColor(getResources().getColor(R.color.white));
                 settingsNavText.setShadowLayer(5,0,0,getResources().getColor(R.color.white));
                 main.addView(backConnectScreen);
+                AlphaAnimation anim = new AlphaAnimation(0.0f, 1.0f);
+                anim.setDuration(200);
+                anim.setStartOffset(200);
+                backConnectScreen.startAnimation(anim);
                 activeContainer = ContainerName.BACKCONNECT;
                 break;
             }
@@ -4106,6 +4302,10 @@ public class MainActivity extends AppCompatActivity {
                 lessonsNavText.setTextColor(getResources().getColor(R.color.white));
                 lessonsNavText.setShadowLayer(5,0,0,getResources().getColor(R.color.white));
                 main.addView(itogScreen);
+                AlphaAnimation anim = new AlphaAnimation(0.0f, 1.0f);
+                anim.setDuration(200);
+                anim.setStartOffset(200);
+                itogScreen.startAnimation(anim);
                 activeContainer = ContainerName.ITOG;
                 break;
             }
@@ -4550,20 +4750,22 @@ public class MainActivity extends AppCompatActivity {
         main.addView(navigation);
         main.addView(userHelpScreen);
 
-        // создаем диалог по таймеру
-        Timer dialogTimer = new Timer();
+        if (appFirstRun) {
+            // создаем диалог по таймеру
+            Timer dialogTimer = new Timer();
 
-        dialogTimer.schedule(new TimerTask() {
-            @Override
-            public void run() {
-                MainActivity.this.runOnUiThread(new Runnable(){
-                    @Override
-                    public void run() {
-                        helpShow();
-                    }
-                });
-            }
-        }, 2000);
+            dialogTimer.schedule(new TimerTask() {
+                @Override
+                public void run() {
+                    MainActivity.this.runOnUiThread(new Runnable(){
+                        @Override
+                        public void run() {
+                            helpShow();
+                        }
+                    });
+                }
+            }, 2000);
+        }
 
 
         todayLessonsView = findViewById(R.id.todayLessonsView);
