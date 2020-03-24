@@ -3,10 +3,12 @@ package com.example.spoconnection;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.content.res.ResourcesCompat;
+import androidx.core.view.GestureDetectorCompat;
 import androidx.fragment.app.DialogFragment;
 
 import android.app.AlertDialog;
 import android.app.Dialog;
+import android.app.DownloadManager;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.SharedPreferences;
@@ -21,9 +23,11 @@ import android.graphics.drawable.GradientDrawable;
 import android.os.Bundle;
 import android.os.AsyncTask;
 
+import android.view.GestureDetector;
 import android.view.Gravity;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.Window;
 import android.view.WindowManager;
@@ -152,6 +156,22 @@ public class MainActivity extends AppCompatActivity {
 
     public Bitmap studentAvatarBitmap;
 
+
+    LoginRequest loginRequest;
+    GetStudentMainDataRequest mainDataRequest;
+    GetExercisesByDayRequest exercisesByDayRequest;
+    GetExercisesByLessonRequest exercisesByLessonRequest;
+    GetVKWallPostsRequest vkPostsRequest;
+    GetStudentProfileDataRequest studentProfileRequest;
+    GetStudentStatsRequest studentStatsRequest;
+    RatingRequest ratingRequest;
+    GetFinalMarksRequest finalMarksRequest;
+    GetAllFinalMarksRequest allFinalMarksRequest;
+
+    GetScheduleOfGroupRequest scheduleOfGroupRequest;
+    GetScheduleOfTeacherRequest scheduleOfTeacherRequest;
+    GetScheduleInfoRequest scheduleInfoRequest;
+
     // Handlers для проверки на выполнение запроса
 
     /*
@@ -278,13 +298,70 @@ public class MainActivity extends AppCompatActivity {
 
 
 
+    private class MyGestureListener extends GestureDetector.SimpleOnGestureListener{
+        @Override
+        public boolean onDown(MotionEvent e) {
+            return true;
+        }
+        @Override
+        public boolean onFling(MotionEvent e1, MotionEvent e2, float velocityX, float velocityY){
+            System.out.println(activeContainer);
+            if (e2.getX() - e1.getX() > 100) {
+                switch (activeContainer) {
+                    case SETTINGS: {
+                        setContainer(ContainerName.LESSONS);
+                        break;
+                    }
+                    case SCHEDULE: {
+                        setContainer(ContainerName.HOME);
+                        break;
+                    }
+                    case PROFILE: {
+                        setContainer(ContainerName.SCHEDULE);
+                        break;
+                    }
+                    case LESSONS: {
+                        setContainer(ContainerName.PROFILE);
+                        break;
+                    }
+                }
+                System.out.println("left to right");
+            }
+            if (e1.getX() - e2.getX() > 100) {
+                switch (activeContainer) {
+                    case HOME: {
+                        setContainer(ContainerName.SCHEDULE);
+                        break;
+                    }
+                    case SCHEDULE: {
+                        setContainer(ContainerName.PROFILE);
+                        break;
+                    }
+                    case PROFILE: {
+                        setContainer(ContainerName.LESSONS);
+                        break;
+                    }
+                    case LESSONS: {
+                        setContainer(ContainerName.SETTINGS);
+                        break;
+                    }
+                }
+                System.out.println("right to left");
+            }
+            return false;
+        }
+    }
+
+
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
 
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        System.out.println('\n');
+
+//        System.out.println('\n');
 
         // убрать шторку сверху
         Window w = getWindow();
@@ -322,6 +399,102 @@ public class MainActivity extends AppCompatActivity {
         itogList = findViewById(R.id.itogList);
         teachersList = findViewById(R.id.teachersList);
 
+        // свайпы
+
+        final GestureDetectorCompat lSwipeDetector = new GestureDetectorCompat(this, new MyGestureListener());
+
+        main.setOnTouchListener(new View.OnTouchListener() {
+            @Override
+            public boolean onTouch(View v, MotionEvent event) {
+                return lSwipeDetector.onTouchEvent(event);
+            }
+        });
+
+        profileScreen.setOnTouchListener(new View.OnTouchListener() {
+            @Override
+            public boolean onTouch(View v, MotionEvent event) {
+                return lSwipeDetector.onTouchEvent(event);
+            }
+        });
+
+        navigation.setOnTouchListener(new View.OnTouchListener() {
+            @Override
+            public boolean onTouch(View v, MotionEvent event) {
+                return lSwipeDetector.onTouchEvent(event);
+            }
+        });
+
+        homeScreen.setOnTouchListener(new View.OnTouchListener() {
+            @Override
+            public boolean onTouch(View v, MotionEvent event) {
+                return lSwipeDetector.onTouchEvent(event);
+            }
+        });
+
+        scheduleScreen.setOnTouchListener(new View.OnTouchListener() {
+            @Override
+            public boolean onTouch(View v, MotionEvent event) {
+                return lSwipeDetector.onTouchEvent(event);
+            }
+        });
+
+        teacherScheduleScreen.setOnTouchListener(new View.OnTouchListener() {
+            @Override
+            public boolean onTouch(View v, MotionEvent event) {
+                return lSwipeDetector.onTouchEvent(event);
+            }
+        });
+
+        lessonsScreen.setOnTouchListener(new View.OnTouchListener() {
+            @Override
+            public boolean onTouch(View v, MotionEvent event) {
+                return lSwipeDetector.onTouchEvent(event);
+            }
+        });
+
+        lessonsInformationScreen.setOnTouchListener(new View.OnTouchListener() {
+            @Override
+            public boolean onTouch(View v, MotionEvent event) {
+                return lSwipeDetector.onTouchEvent(event);
+            }
+        });
+        userHelpScreen.setOnTouchListener(new View.OnTouchListener() {
+            @Override
+            public boolean onTouch(View v, MotionEvent event) {
+                return lSwipeDetector.onTouchEvent(event);
+            }
+        });
+        notificationListScreen.setOnTouchListener(new View.OnTouchListener() {
+            @Override
+            public boolean onTouch(View v, MotionEvent event) {
+                return lSwipeDetector.onTouchEvent(event);
+            }
+        });
+        settingsScreen.setOnTouchListener(new View.OnTouchListener() {
+            @Override
+            public boolean onTouch(View v, MotionEvent event) {
+                return lSwipeDetector.onTouchEvent(event);
+            }
+        });
+        itogScreen.setOnTouchListener(new View.OnTouchListener() {
+            @Override
+            public boolean onTouch(View v, MotionEvent event) {
+                return lSwipeDetector.onTouchEvent(event);
+            }
+        });
+        backConnectScreen.setOnTouchListener(new View.OnTouchListener() {
+            @Override
+            public boolean onTouch(View v, MotionEvent event) {
+                return lSwipeDetector.onTouchEvent(event);
+            }
+        });
+        teachersScreen.setOnTouchListener(new View.OnTouchListener() {
+            @Override
+            public boolean onTouch(View v, MotionEvent event) {
+                return lSwipeDetector.onTouchEvent(event);
+            }
+        });
+
         // webView
 
         WebView gif = findViewById(R.id.loadingWebView);
@@ -350,6 +523,7 @@ public class MainActivity extends AppCompatActivity {
         });
 
         navigationInput.setOnFocusChangeListener(new View.OnFocusChangeListener() {
+
             public void onFocusChange(View v, boolean hasFocus) {
                 if(hasFocus) {
 //                    lastNavText = navigationInput.getText().toString();
@@ -440,7 +614,7 @@ public class MainActivity extends AppCompatActivity {
                             break;
                         }
                     }
-                    System.out.println("NAV: " + navigationInput.getText().toString());
+//                    System.out.println("NAV: " + navigationInput.getText().toString());
                 }
             }
         });
@@ -833,7 +1007,7 @@ public class MainActivity extends AppCompatActivity {
             TextView box = findViewById(R.id.loadingInfoText);
             box.setText(text);
         } catch (Exception e) {
-            System.out.println(e);
+//            System.out.println(e);
         }
     }
 
@@ -886,8 +1060,10 @@ public class MainActivity extends AppCompatActivity {
         appFirstRun = preferences.getBoolean("appFirstRun", true);
         isAuth = preferences.getBoolean("isAuth", false);
 
+//        System.out.println(preferences.getAll().toString());
+
         if (appFirstRun) {
-            System.out.println("App first run");
+//            System.out.println("App first run");
             preferencesEditor.putBoolean("appFirstRun", false);
             preferencesEditor.apply();
         }
@@ -912,9 +1088,9 @@ public class MainActivity extends AppCompatActivity {
                 }
             });
 
-            System.out.println("Student not auth");
+//            System.out.println("Student not auth");
         } else {
-            System.out.println("Student auth");
+//            System.out.println("Student auth");
 
             String lastLoginRequestTime = preferences.getString("lastLoginRequest", "");
 
@@ -925,13 +1101,13 @@ public class MainActivity extends AppCompatActivity {
             catch (ParseException e) {}
 
             long minutesBetweenDates = ((currentDate.getTime() / 60000) - (loginRequestDate.getTime() / 60000));
-            System.out.println("Last login request was " + minutesBetweenDates + " minutes ago");
+//            System.out.println("Last login request was " + minutesBetweenDates + " minutes ago");
 
             long lastSyncDate = preferences.getLong("lastSyncDate", 0);
 
             // требуется ли синхронизация
             if ((currentDate.getTime() - lastSyncDate) > (AUTH_SYNC_PERIOD * 60 * 1000)) {
-                System.out.println("Need to sync");
+//                System.out.println("Need to sync");
                 String name = preferences.getString("studentName", "");
                 String password = preferences.getString("studentPassword", "");
                 sendLoginRequest(new String[] { name, password });
@@ -941,7 +1117,7 @@ public class MainActivity extends AppCompatActivity {
             else if ( minutesBetweenDates >= COOKIE_LIFETIME) {
                 setContainer(ContainerName.LOGIN);
 
-                System.out.println("Cookie lifetime is more then " + COOKIE_LIFETIME + " minutes. Sending new login request");
+//                System.out.println("Cookie lifetime is more then " + COOKIE_LIFETIME + " minutes. Sending new login request");
 
                 String name = preferences.getString("studentName", "");
                 String password = preferences.getString("studentPassword", "");
@@ -957,7 +1133,7 @@ public class MainActivity extends AppCompatActivity {
             }
             // иначе пропускаем вход в аккаунт, вместо этого берем данные из хранилища
             else {
-                System.out.println("Cookie lifetime is less then " + COOKIE_LIFETIME + " minutes. Continue");
+//                System.out.println("Cookie lifetime is less then " + COOKIE_LIFETIME + " minutes. Continue");
                 authCookie = preferences.getString("authCookie", "");
                 studentId = Functions.getStudentIdFromCookie(authCookie);
 
@@ -1038,15 +1214,15 @@ public class MainActivity extends AppCompatActivity {
     // Когда отпраили все запросы для входа в акаунт
     public void afterFirstRequests() {
 
-        System.out.println("+--------");
-        System.out.println("| Stats request: " + getStudentStatsRequestStatus);
+//        System.out.println("+--------");
+//        System.out.println("| Stats request: " + getStudentStatsRequestStatus);
 //        System.out.println("| Final marks request: " + getFinalMarksRequestStatus);
 //        System.out.println("| All final marks request: " + getAllFinalMarksRequestStatus);
-        System.out.println("| Main data request: " + getStudentMainDataRequestStatus);
-        System.out.println("| Student profile data request: " + getStudentProfileDataRequestStatus);
-        System.out.println("| Rating request: " + ratingRequestStatus);
-        System.out.println("| Exercises by day request: " + getExercisesByDayRequestStatus);
-        System.out.println("+--------");
+//        System.out.println("| Main data request: " + getStudentMainDataRequestStatus);
+//        System.out.println("| Student profile data request: " + getStudentProfileDataRequestStatus);
+//        System.out.println("| Rating request: " + ratingRequestStatus);
+//        System.out.println("| Exercises by day request: " + getExercisesByDayRequestStatus);
+//        System.out.println("+--------");
 
         preferences = MainActivity.this.getPreferences(Context.MODE_PRIVATE);
         preferencesEditor = preferences.edit();
@@ -1116,6 +1292,7 @@ public class MainActivity extends AppCompatActivity {
 
         resetRequestsStatuses();
         clearPreferences();
+        isAuth = false;
 
     }
 
@@ -1174,87 +1351,135 @@ public class MainActivity extends AppCompatActivity {
         setContainer(ContainerName.LOADING);
         main.removeView(errorScreen);
         main.removeView(itogScreen);
-//        loadingScreen.setBackgroundResource(R.drawable.anim_loading);
-//        AnimationDrawable anim = (AnimationDrawable) loadingScreen.getBackground();
-//        anim.setEnterFadeDuration(500);
-//        anim.setExitFadeDuration(500);
-//        anim.start();
-        loginRequest request = new loginRequest();
+//        loginRequest request = new loginRequest();
+//        loginRequestStatus = RequestStatus.CALLED;
+//        request.execute(params);
+
+        loginRequest = new LoginRequest();
         loginRequestStatus = RequestStatus.CALLED;
-        request.execute(params);
+        loginRequest.execute(params);
+
     }
 
     private void sendGetStudentMainDataRequest(String[] params) {
-        getStudentMainDataRequest request = new getStudentMainDataRequest();
+//        getStudentMainDataRequest request = new getStudentMainDataRequest();
+//        getStudentMainDataRequestStatus = RequestStatus.CALLED;
+//        request.execute(params);
+
         getStudentMainDataRequestStatus = RequestStatus.CALLED;
-        request.execute(params);
+        mainDataRequest = new GetStudentMainDataRequest();
+        mainDataRequest.execute(params);
     }
 
     private void sendGetExercisesByDayRequest(String[] params) {
-        getExercisesByDayRequest request = new getExercisesByDayRequest();
+//        getExercisesByDayRequest request = new getExercisesByDayRequest();
+//        getExercisesByDayRequestStatus = RequestStatus.CALLED;
+//        request.execute(params);
+
         getExercisesByDayRequestStatus = RequestStatus.CALLED;
-        request.execute(params);
+        exercisesByDayRequest = new GetExercisesByDayRequest();
+        exercisesByDayRequest.execute(params);
     }
 
     private void sendGetExercisesByLessonRequest(String[] params) {
-        getExercisesByLessonRequest request = new getExercisesByLessonRequest();
+//        getExercisesByLessonRequest request = new getExercisesByLessonRequest();
+//        getExercisesByLessonRequestStatus = RequestStatus.CALLED;
+//        request.execute(params);
+
         getExercisesByLessonRequestStatus = RequestStatus.CALLED;
-        request.execute(params);
+        exercisesByLessonRequest = new GetExercisesByLessonRequest();
+        exercisesByLessonRequest.execute(params);
     }
 
     private void sendGetVKWallPostsRequest(String[] params) {
-        getVKWallPostsRequest request = new getVKWallPostsRequest();
+//        getVKWallPostsRequest request = new getVKWallPostsRequest();
+//        getVKWallPostsRequestStatus = RequestStatus.CALLED;
+//        request.execute(params);
+
         getVKWallPostsRequestStatus = RequestStatus.CALLED;
-        request.execute(params);
+        vkPostsRequest = new GetVKWallPostsRequest();
+        vkPostsRequest.execute(params);
     }
 
     private void sendGetStudentProfileDataRequest() {
-        getStudentProfileDataRequest request = new getStudentProfileDataRequest();
+//        getStudentProfileDataRequest request = new getStudentProfileDataRequest();
+//        getStudentProfileDataRequestStatus = RequestStatus.CALLED;
+//        request.execute();
+
         getStudentProfileDataRequestStatus = RequestStatus.CALLED;
-        request.execute();
+        studentProfileRequest = new GetStudentProfileDataRequest();
+        studentProfileRequest.execute();
     }
 
     private void sendGetStudentStatsRequest() {
-        getStudentStatsRequest request = new getStudentStatsRequest();
+//        getStudentStatsRequest request = new getStudentStatsRequest();
+//        getStudentStatsRequestStatus = RequestStatus.CALLED;
+//        request.execute();
+
         getStudentStatsRequestStatus = RequestStatus.CALLED;
-        request.execute();
+        studentStatsRequest = new GetStudentStatsRequest();
+        studentStatsRequest.execute();
     }
 
     private void sendGetFinalMarksRequest() {
-        getFinalMarksRequest request = new getFinalMarksRequest();
+//        getFinalMarksRequest request = new getFinalMarksRequest();
+//        getFinalMarksRequestStatus = RequestStatus.CALLED;
+//        request.execute();
+
         getFinalMarksRequestStatus = RequestStatus.CALLED;
-        request.execute();
+        finalMarksRequest = new GetFinalMarksRequest();
+        finalMarksRequest.execute();
     }
 
     private void sendGetAllFinalMarksRequest() {
-        getAllFinalMarksRequest request = new getAllFinalMarksRequest();
+//        getAllFinalMarksRequest request = new getAllFinalMarksRequest();
+//        getAllFinalMarksRequestStatus = RequestStatus.CALLED;
+//        request.execute();
+
         getAllFinalMarksRequestStatus = RequestStatus.CALLED;
-        request.execute();
+        allFinalMarksRequest = new GetAllFinalMarksRequest();
+        allFinalMarksRequest.execute();
     }
 
     private void sendRatingRequest(String[] params) {
-        RatingRequest request = new RatingRequest();
+//        RatingRequest request = new RatingRequest();
+//        ratingRequestStatus = RequestStatus.CALLED;
+//        request.execute(params);
+
         ratingRequestStatus = RequestStatus.CALLED;
-        request.execute(params);
+        ratingRequest = new RatingRequest();
+        ratingRequest.execute(params);
     }
 
-
     private void sendGetScheduleOfGroupRequest(String[] params) {
-        getScheduleOfGroupRequest request = new getScheduleOfGroupRequest();
+//        getScheduleOfGroupRequest request = new getScheduleOfGroupRequest();
+//        getScheduleOfGroupRequestStatus = RequestStatus.CALLED;
+//        request.execute(params);
+
         getScheduleOfGroupRequestStatus = RequestStatus.CALLED;
-        request.execute(params);
+        scheduleOfGroupRequest = new GetScheduleOfGroupRequest();
+        scheduleOfGroupRequest.execute(params);
+
     }
 
     private void sendGetScheduleOfTeacherRequest(String[] params) {
-        getScheduleOfTeacherRequest request = new getScheduleOfTeacherRequest();
+//        getScheduleOfTeacherRequest request = new getScheduleOfTeacherRequest();
+//        getScheduleOfTeacherRequestStatus = RequestStatus.CALLED;
+//        request.execute(params);
+
         getScheduleOfTeacherRequestStatus = RequestStatus.CALLED;
-        request.execute(params);
+        scheduleOfTeacherRequest = new GetScheduleOfTeacherRequest();
+        scheduleOfTeacherRequest.execute(params);
     }
 
     private void sendGetScheduleInfoRequest() {
-        getScheduleInfoRequest request = new getScheduleInfoRequest();
+//        getScheduleInfoRequest request = new getScheduleInfoRequest();
+//        getScheduleInfoRequestStatus = RequestStatus.CALLED;
+//        request.execute();
+
         getScheduleInfoRequestStatus = RequestStatus.CALLED;
-        request.execute();
+        scheduleInfoRequest = new GetScheduleInfoRequest();
+        scheduleInfoRequest.execute();
     }
 
     // Колбеки, которые вызываются при завершении определенного запроса
@@ -1271,8 +1496,8 @@ public class MainActivity extends AppCompatActivity {
             authCookie = cookie;
             studentId = Functions.getStudentIdFromCookie(authCookie);
 
-            System.out.println("Login success!");
-            System.out.println("AuthCookie: " + authCookie);
+//            System.out.println("Login success!");
+//            System.out.println("AuthCookie: " + authCookie);
 
             preferences = MainActivity.this.getPreferences(Context.MODE_PRIVATE);
             preferencesEditor = preferences.edit();
@@ -1286,10 +1511,15 @@ public class MainActivity extends AppCompatActivity {
 
             afterLoginRequest();
 
-        } else {
+        } else if ((loginRequestStatus != RequestStatus.FAILED) && (loginRequestStatus != RequestStatus.TIMEOUT)) {
+            clearPreferences();
+            resetRequestsStatuses();
+            setLoginFormContainer(studentName, "");
 
-            loginRequestStatus = RequestStatus.EMPTY_RESPONSE;
-            System.out.println("Login request failed (timeout, empty, failed)!");
+        }
+        else {
+//            loginRequestStatus = RequestStatus.EMPTY_RESPONSE;
+//            System.out.println("Login request failed (timeout or failed)!");
 
             if (isAuth) {
                 setContainer(ContainerName.ERROR);
@@ -1312,7 +1542,7 @@ public class MainActivity extends AppCompatActivity {
         else if (!responseBody.isEmpty()) {
             getStudentMainDataRequestStatus = RequestStatus.COMPLETED;
 
-            System.out.println("GetStudentMainData Success!");
+//            System.out.println("GetStudentMainData Success!");
             JSONObject jsonData;
             try {
                 jsonData = new JSONObject(responseBody);
@@ -1320,8 +1550,8 @@ public class MainActivity extends AppCompatActivity {
                 studentLessons = jsonData.getJSONArray("userlessons");
                 teachers = jsonData.getJSONObject("lessonteachers");
 
-                System.out.println("StudentLessons: " + studentLessons.toString());
-                System.out.println("Teachers: " + teachers.toString());
+//                System.out.println("StudentLessons: " + studentLessons.toString());
+//                System.out.println("Teachers: " + teachers.toString());
 
 //                if (getExercisesByDayRequestStatus == RequestStatus.COMPLETED
 //                        && getStudentProfileDataRequestStatus == RequestStatus.COMPLETED
@@ -1336,7 +1566,7 @@ public class MainActivity extends AppCompatActivity {
             }
         } else {
             getStudentMainDataRequestStatus = RequestStatus.EMPTY_RESPONSE;
-            System.out.println("Student main data request empty response!");
+//            System.out.println("Student main data request empty response!");
         }
     }
 
@@ -1353,7 +1583,7 @@ public class MainActivity extends AppCompatActivity {
         else if (!responseBody.isEmpty()) {
             getExercisesByDayRequestStatus = RequestStatus.COMPLETED;
 
-            System.out.println("GetExercisesByDay Success!");
+//            System.out.println("GetExercisesByDay Success!");
             JSONObject jsonData;
             try {
                 jsonData = new JSONObject(responseBody);
@@ -1372,11 +1602,11 @@ public class MainActivity extends AppCompatActivity {
 //                System.out.println(exercisesVisitsByDay.toString(4));
 
             } catch (JSONException e) {
-                System.out.println(e.toString());
+//                System.out.println(e.toString());
             }
         } else {
             getExercisesByDayRequestStatus = RequestStatus.EMPTY_RESPONSE;
-            System.out.println("Exercises by day request empty response!");
+//            System.out.println("Exercises by day request empty response!");
         }
 
         afterFirstRequests();
@@ -1400,7 +1630,7 @@ public class MainActivity extends AppCompatActivity {
         else if (!responseBody.isEmpty() && activeContainer == ContainerName.LESSONS_INFORMATION) {
             getExercisesByLessonRequestStatus = RequestStatus.COMPLETED;
 
-            System.out.println("GetExercisesByLesson Success!");
+//            System.out.println("GetExercisesByLesson Success!");
             JSONObject jsonData;
             try {
                 jsonData = new JSONObject(responseBody);
@@ -1617,12 +1847,12 @@ public class MainActivity extends AppCompatActivity {
                 e.printStackTrace();
             }
 
-            System.out.println("readyExercisesByLesson: "  + readyExercisesByLesson.toString());
-            System.out.println("readyExercisesByLessonVisits: "  + readyExercisesByLessonVisits.toString());
+//            System.out.println("readyExercisesByLesson: "  + readyExercisesByLesson.toString());
+//            System.out.println("readyExercisesByLessonVisits: "  + readyExercisesByLessonVisits.toString());
 
         } else {
             getExercisesByLessonRequestStatus = RequestStatus.EMPTY_RESPONSE;
-            System.out.println("Exercises by lesson request empty response!");
+//            System.out.println("Exercises by lesson request empty response!");
         }
     }
 
@@ -1647,14 +1877,14 @@ public class MainActivity extends AppCompatActivity {
             notificationList.removeAllViews();
             getVKWallPostsRequestStatus = RequestStatus.COMPLETED;
 
-            System.out.println("GetVKWallPosts Success!");
+//            System.out.println("GetVKWallPosts Success!");
             JSONObject jsonData;
             try {
                 jsonData = new JSONObject(responseBody);
 
                 vkWallPosts = jsonData.getJSONObject("response");
 
-                System.out.println("vkWallPosts: " + vkWallPosts.toString());
+//                System.out.println("vkWallPosts: " + vkWallPosts.toString());
 
             } catch (JSONException e) {
 
@@ -1684,7 +1914,7 @@ public class MainActivity extends AppCompatActivity {
 
                         //и выкидывем его на форму
                         long stamp = System.currentTimeMillis()/1000;
-                        System.out.println("current time: " + stamp);
+//                        System.out.println("current time: " + stamp);
 
                         //и выкидывем его на форму если он моложе двух дней
 //                        if (stamp - Long.parseLong(tmp.getString("date")) <= 2*24*3600) {
@@ -1743,7 +1973,7 @@ public class MainActivity extends AppCompatActivity {
         }
         else {
             getVKWallPostsRequestStatus = RequestStatus.EMPTY_RESPONSE;
-            System.out.println("VK wall posts request empty response!");
+//            System.out.println("VK wall posts request empty response!");
         }
     }
 
@@ -1785,7 +2015,7 @@ public class MainActivity extends AppCompatActivity {
 //            }
         } else {
             getStudentProfileDataRequestStatus = RequestStatus.EMPTY_RESPONSE;
-            System.out.println("Student profile's data request empty response!");
+//            System.out.println("Student profile's data request empty response!");
         }
     }
 
@@ -1804,7 +2034,7 @@ public class MainActivity extends AppCompatActivity {
         else if ( !(statsDebtsCount.isEmpty() || statsDebtsCount.isEmpty() || statsPercentageOfVisits.isEmpty()) ) {
             getStudentStatsRequestStatus = RequestStatus.COMPLETED;
 
-            System.out.println("StudentStats Success!");
+//            System.out.println("StudentStats Success!");
 
             this.statsMidMark = statsMidMark;
             this.statsDebtsCount = statsDebtsCount;
@@ -1821,7 +2051,7 @@ public class MainActivity extends AppCompatActivity {
 
         } else {
             getStudentStatsRequestStatus = RequestStatus.EMPTY_RESPONSE;
-            System.out.println("Student stats request empty response!");
+//            System.out.println("Student stats request empty response!");
         }
     }
 
@@ -2195,7 +2425,7 @@ public class MainActivity extends AppCompatActivity {
 
             try {
                  ratingInfo = new JSONObject(response);
-                 System.out.println(ratingInfo);
+//                 System.out.println(ratingInfo);
 
                  ratingPlace.setText(ratingInfo.getString("studentPosition"));
                  ratingCount.setText(ratingInfo.getString("studentsCount"));
@@ -2204,13 +2434,14 @@ public class MainActivity extends AppCompatActivity {
             }
         }
         else if (ratingRequestStatus == RequestStatus.FAILED) {
-
+            ratingPlace.setText("F");
         }
         else if (ratingRequestStatus == RequestStatus.TIMEOUT) {
-
+            ratingPlace.setText("T");
         }
         else {
             ratingRequestStatus = RequestStatus.EMPTY_RESPONSE;
+            ratingPlace.setText("E");
         }
     }
 
@@ -2634,7 +2865,7 @@ public class MainActivity extends AppCompatActivity {
             }
         } else {
             getScheduleOfGroupRequestStatus = RequestStatus.EMPTY_RESPONSE;
-            System.out.println("Schedule of group request empty response!");
+//            System.out.println("Schedule of group request empty response!");
         }
 
 //        box.addView(text);
@@ -2655,7 +2886,7 @@ public class MainActivity extends AppCompatActivity {
             teacherName.setText(currentTeacherName);
             teacherScheduleList.removeAllViews();
             LinearLayout box = teacherScheduleList;
-            System.out.println(arr.toString());
+//            System.out.println(arr.toString());
             for (int i = 0; i < arr.length(); i++) {
                 JSONArray value = arr;
 
@@ -2846,7 +3077,7 @@ public class MainActivity extends AppCompatActivity {
 
                 }
             }
-            System.out.println(activeContainer);
+//            System.out.println(activeContainer);
         }
         else if (getScheduleOfTeacherRequestStatus == RequestStatus.FAILED) {
             teacherScheduleList.removeAllViews();
@@ -2957,7 +3188,7 @@ public class MainActivity extends AppCompatActivity {
                     }
                 }
             }
-            System.out.println(teachersSchedule.toString());
+//            System.out.println(teachersSchedule.toString());
         }
         else if (getScheduleInfoRequestStatus == RequestStatus.TIMEOUT) {
 
@@ -2970,7 +3201,7 @@ public class MainActivity extends AppCompatActivity {
     // Сами асинхронные запросы
 
     // [name, password]
-    class loginRequest extends AsyncTask<String[], String, String[]>  {
+    class LoginRequest extends AsyncTask<String[], String, String[]>  {
 
 //        @Override
 //        protected void onPreExecute() {
@@ -3005,12 +3236,12 @@ public class MainActivity extends AppCompatActivity {
                     cookie = cookies.get(cookies_count - 1);
                 }
             } catch (SocketTimeoutException e) {
-                System.out.println("Login request timeout!");
+//                System.out.println("Login request timeout!");
                 loginRequestStatus = RequestStatus.TIMEOUT;
                 return new String[] {"", params[0][0], params[0][1]};
             } catch (Exception e) {
-                System.out.println("Problems with login request");
-                System.out.println(e.toString());
+//                System.out.println("Problems with login request");
+//                System.out.println(e.toString());
                 loginRequestStatus = RequestStatus.FAILED;
                 return new String[] {"", params[0][0], params[0][1]};
             } finally {
@@ -3030,7 +3261,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     // [year, month]
-    class getStudentMainDataRequest extends AsyncTask<String[], String, String> {
+    class GetStudentMainDataRequest extends AsyncTask<String[], String, String> {
 
 //        @Override
 //        protected void onPreExecute() {
@@ -3076,8 +3307,8 @@ public class MainActivity extends AppCompatActivity {
                 getStudentMainDataRequestStatus = RequestStatus.TIMEOUT;
                 return "";
             } catch (Exception e) {
-                System.out.println("Problems with main data request request");
-                System.out.println(e.toString());
+//                System.out.println("Problems with main data request request");
+//                System.out.println(e.toString());
                 getStudentMainDataRequestStatus = RequestStatus.FAILED;
                 return "";
             } finally {
@@ -3093,7 +3324,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     // [lessonId]
-    class getExercisesByLessonRequest extends AsyncTask <String[], String, String[]> {
+    class GetExercisesByLessonRequest extends AsyncTask <String[], String, String[]> {
 
         @Override
         protected void onProgressUpdate(String... values) {
@@ -3117,12 +3348,12 @@ public class MainActivity extends AppCompatActivity {
                 responseBody = Functions.getResponseFromGetRequest(urlConnection);
 
             } catch (SocketTimeoutException e) {
-                System.out.println("Exercises by lesson request timeout!");
+//                System.out.println("Exercises by lesson request timeout!");
                 getExercisesByLessonRequestStatus = RequestStatus.TIMEOUT;
                 return new String[] {"", ""};
             } catch (Exception e) {
-                System.out.println("Problems with exercises by lesson request");
-                System.out.println(e.toString());
+//                System.out.println("Problems with exercises by lesson request");
+//                System.out.println(e.toString());
                 getExercisesByLessonRequestStatus = RequestStatus.FAILED;
                 return new String[] {"", ""};
             } finally {
@@ -3138,7 +3369,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     // [date <yyyy-mm-dd>]
-    class getExercisesByDayRequest extends AsyncTask <String[], String, String> {
+    class GetExercisesByDayRequest extends AsyncTask <String[], String, String> {
 
 //        @Override
 //        protected void onPreExecute() {
@@ -3167,11 +3398,11 @@ public class MainActivity extends AppCompatActivity {
                 responseBody = Functions.getResponseFromGetRequest(urlConnection);
 
             } catch (SocketTimeoutException e) {
-                System.out.println("Exercises by day request timeout!");
+//                System.out.println("Exercises by day request timeout!");
                 getExercisesByDayRequestStatus = RequestStatus.TIMEOUT;
                 return "";
             } catch (Exception e) {
-                System.out.println("Problems with exercises by day request");
+//                System.out.println("Problems with exercises by day request");
                 getExercisesByDayRequestStatus = RequestStatus.FAILED;
                 return "";
             } finally {
@@ -3187,7 +3418,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     // [postsCount]
-    class getVKWallPostsRequest extends AsyncTask <String[], String, String> {
+    class GetVKWallPostsRequest extends AsyncTask <String[], String, String> {
 
 //        @Override
 //        protected void onPreExecute() {
@@ -3216,12 +3447,12 @@ public class MainActivity extends AppCompatActivity {
                 responseBody = Functions.getResponseFromGetRequest(urlConnection);
 
             } catch (SocketTimeoutException e) {
-                System.out.println("VK posts request timeout!");
+//                System.out.println("VK posts request timeout!");
                 getVKWallPostsRequestStatus = RequestStatus.TIMEOUT;
                 return "";
             } catch (Exception e) {
-                System.out.println("Problems with vk wall posts request");
-                System.out.println(e.toString());
+//                System.out.println("Problems with vk wall posts request");
+//                System.out.println(e.toString());
                 getVKWallPostsRequestStatus = RequestStatus.FAILED;
                 return "";
             } finally {
@@ -3236,7 +3467,7 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-    class getStudentProfileDataRequest extends AsyncTask<Void, String, String[]> {
+    class GetStudentProfileDataRequest extends AsyncTask<Void, String, String[]> {
 
 //        @Override
 //        protected void onPreExecute() {
@@ -3290,19 +3521,19 @@ public class MainActivity extends AppCompatActivity {
                 group = group.split(" ")[0];
 
             } catch (SocketTimeoutException e) {
-                System.out.println("Student's profile data request timeout!");
+//                System.out.println("Student's profile data request timeout!");
                 getStudentProfileDataRequestStatus = RequestStatus.TIMEOUT;
                 return new String[] {"", "", ""};
             } catch (Exception e) {
-                System.out.println("Problems with student's profile data request");
-                System.out.println(e.toString());
+//                System.out.println("Problems with student's profile data request");
+//                System.out.println(e.toString());
                 getStudentProfileDataRequestStatus = RequestStatus.FAILED;
                 return new String[] {"", "", ""};
             } finally {
                 if (urlConnection != null) urlConnection.disconnect();
             }
 
-            System.out.println("GetProfileParsing Success!");
+//            System.out.println("GetProfileParsing Success!");
 
             // создаем мап для картинки
 
@@ -3341,7 +3572,7 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-    class getScheduleOfGroupRequest extends AsyncTask<String[], String, String> {
+    class GetScheduleOfGroupRequest extends AsyncTask<String[], String, String> {
 
         @Override
         protected void onProgressUpdate(String... values) {
@@ -3384,18 +3615,18 @@ public class MainActivity extends AppCompatActivity {
                     while ((currentLine = in.readLine()) != null) response.append(currentLine);
                     in.close();
                 } catch (IOException e) {
-                    System.out.println(e.toString());
+//                    System.out.println(e.toString());
                 }
 
                 responseBody = response.toString();
                 html = Jsoup.parse(responseBody);
             } catch (SocketTimeoutException e) {
-                System.out.println("Schedule of group request timeout!");
+//                System.out.println("Schedule of group request timeout!");
                 getScheduleOfGroupRequestStatus = RequestStatus.TIMEOUT;
                 return "";
             } catch (Exception e) {
-                System.out.println("Problems with schedule of group request");
-                System.out.println(e.toString());
+//                System.out.println("Problems with schedule of group request");
+//                System.out.println(e.toString());
                 getScheduleOfGroupRequestStatus = RequestStatus.FAILED;
                 return "";
             } finally {
@@ -3404,7 +3635,7 @@ public class MainActivity extends AppCompatActivity {
                 }
             }
 
-            System.out.println("Get schedule of group request success!");
+//            System.out.println("Get schedule of group request success!");
             getScheduleOfGroupRequestStatus = RequestStatus.COMPLETED;
 
             JSONArray scheduleRoot = new JSONArray();
@@ -3495,8 +3726,8 @@ public class MainActivity extends AppCompatActivity {
 
             }
 
-            try { System.out.println("Group schedule: " + groupScheduleLessons.toString(2)); }
-            catch (Exception e) {}
+//            try { System.out.println("Group schedule: " + groupScheduleLessons.toString(2)); }
+//            catch (Exception e) {}
 
             return params[0][0];
         }
@@ -3507,7 +3738,7 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-    class getScheduleOfTeacherRequest extends AsyncTask<String[], String, JSONArray> {
+    class GetScheduleOfTeacherRequest extends AsyncTask<String[], String, JSONArray> {
 
         @Override
         protected void onProgressUpdate(String... values) {
@@ -3550,18 +3781,18 @@ public class MainActivity extends AppCompatActivity {
                     while ((currentLine = in.readLine()) != null) response.append(currentLine);
                     in.close();
                 } catch (IOException e) {
-                    System.out.println(e.toString());
+//                    System.out.println(e.toString());
                 }
 
                 responseBody = response.toString();
                 html = Jsoup.parse(responseBody);
             } catch (SocketTimeoutException e) {
-                System.out.println("Schedule of teacher request timeout!");
+//                System.out.println("Schedule of teacher request timeout!");
                 getScheduleOfTeacherRequestStatus = RequestStatus.TIMEOUT;
                 return new JSONArray();
             } catch (Exception e) {
-                System.out.println("Problems with schedule of teacher request");
-                System.out.println(e.toString());
+//                System.out.println("Problems with schedule of teacher request");
+//                System.out.println(e.toString());
                 getScheduleOfTeacherRequestStatus = RequestStatus.FAILED;
                 return new JSONArray();
             } finally {
@@ -3570,7 +3801,7 @@ public class MainActivity extends AppCompatActivity {
                 }
             }
 
-            System.out.println("Get schedule of teacher request success!");
+//            System.out.println("Get schedule of teacher request success!");
             getScheduleOfTeacherRequestStatus = RequestStatus.COMPLETED;
 
             JSONArray scheduleRoot = new JSONArray();
@@ -3661,8 +3892,8 @@ public class MainActivity extends AppCompatActivity {
 
             }
 
-            try { System.out.println("Teacher schedule: " + teacherScheduleLessons.toString(2)); }
-            catch (Exception e) {}
+//            try { System.out.println("Teacher schedule: " + teacherScheduleLessons.toString(2)); }
+//            catch (Exception e) {}
 
             return scheduleRoot;
         }
@@ -3673,7 +3904,7 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-    class getStudentStatsRequest extends AsyncTask<Void, String, String[]> {
+    class GetStudentStatsRequest extends AsyncTask<Void, String, String[]> {
 
         @Override
         protected void onProgressUpdate(String... values) {
@@ -3717,12 +3948,12 @@ public class MainActivity extends AppCompatActivity {
 //                System.out.println(statsMidMark + " " + statsDebtsCount + " " + statsPercentageOfVisits);
 
             } catch (SocketTimeoutException e) {
-                System.out.println("Student stats request timeout!");
+//                System.out.println("Student stats request timeout!");
                 getStudentStatsRequestStatus = RequestStatus.TIMEOUT;
                 return new String[] {"", "", ""};
             } catch (Exception e) {
-                System.out.println("Problems with statistics request");
-                System.out.println(e.toString());
+//                System.out.println("Problems with statistics request");
+//                System.out.println(e.toString());
                 getStudentStatsRequestStatus = RequestStatus.FAILED;
                 return new String[] {"", "", ""};
             } finally {
@@ -3741,7 +3972,7 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-    class getFinalMarksRequest extends AsyncTask<Void, String, Void> {
+    class GetFinalMarksRequest extends AsyncTask<Void, String, Void> {
 
 //        @Override
 //        protected void onPreExecute() {
@@ -3777,7 +4008,7 @@ public class MainActivity extends AppCompatActivity {
                         .getElementsByClass("span12").get(0)
                         .select("p").get(0).text();
 
-                System.out.println("sem: " + finalMarksSemestr);
+//                System.out.println("sem: " + finalMarksSemestr);
 
                 Element container = html.body()
                         .getElementsByClass("container").get(0)
@@ -3818,17 +4049,17 @@ public class MainActivity extends AppCompatActivity {
                     array.put(temp);
                 }
 
-                System.out.println("final marks: " + array);
+//                System.out.println("final marks: " + array);
 
                 studentFinalMarks = array;
 
             } catch (SocketTimeoutException e) {
-                System.out.println("Final marks request timeout!");
+//                System.out.println("Final marks request timeout!");
                 getFinalMarksRequestStatus = RequestStatus.TIMEOUT;
 //                return;
             } catch (Exception e) {
-                System.out.println("Problems with final marks request");
-                System.out.println(e.toString());
+//                System.out.println("Problems with final marks request");
+//                System.out.println(e.toString());
                 getFinalMarksRequestStatus = RequestStatus.FAILED;
 //                return;
             } finally {
@@ -3848,7 +4079,7 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-    class getAllFinalMarksRequest extends AsyncTask<Void, String, Void> {
+    class GetAllFinalMarksRequest extends AsyncTask<Void, String, Void> {
 
         @Override
         protected void onPreExecute() {
@@ -3925,17 +4156,17 @@ public class MainActivity extends AppCompatActivity {
                 }
 
                 studentAllFinalMarks = allMarks;
-                System.out.println(allMarks.toString());
+//                System.out.println(allMarks.toString());
 
 //                studentFinalMarks = array;
 
             } catch (SocketTimeoutException e) {
-                System.out.println("All final marks request timeout!");
+//                System.out.println("All final marks request timeout!");
                 getAllFinalMarksRequestStatus = RequestStatus.TIMEOUT;
 //                return;
             } catch (Exception e) {
-                System.out.println("Problems with all final marks request");
-                System.out.println(e.toString());
+//                System.out.println("Problems with all final marks request");
+//                System.out.println(e.toString());
                 getAllFinalMarksRequestStatus = RequestStatus.FAILED;
 //                return;
             } finally {
@@ -3970,7 +4201,7 @@ public class MainActivity extends AppCompatActivity {
 
         protected String doInBackground(String[]... params) {
 
-            System.out.println(params.toString());
+//            System.out.println(params[0][0] + " " + params[0][1]);
 
             publishProgress("");
 
@@ -3993,12 +4224,12 @@ public class MainActivity extends AppCompatActivity {
                 responseBody = Functions.getResponseFromGetRequest(urlConnection);
 
             } catch (SocketTimeoutException e) {
-                System.out.println("Rating request timeout!");
+//                System.out.println("Rating request timeout!");
                 ratingRequestStatus = RequestStatus.TIMEOUT;
                 return "";
             } catch (Exception e) {
-                System.out.println("Problems with rating request");
-                System.out.println(e.toString());
+//                System.out.println("Problems with rating request");
+//                System.out.println(e.toString());
                 ratingRequestStatus = RequestStatus.FAILED;
                 return "";
             } finally {
@@ -4015,7 +4246,7 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-    class getScheduleInfoRequest extends AsyncTask<Void, String, Document> {
+    class GetScheduleInfoRequest extends AsyncTask<Void, String, Document> {
 
 //        @Override
 //        protected void onPreExecute() {
@@ -4063,7 +4294,7 @@ public class MainActivity extends AppCompatActivity {
                     while ((currentLine = in.readLine()) != null) response.append(currentLine);
                     in.close();
                 } catch (IOException e) {
-                    System.out.println(e.toString());
+//                    System.out.println(e.toString());
                 }
 
                 responseBody = response.toString();
@@ -4077,12 +4308,12 @@ public class MainActivity extends AppCompatActivity {
 //                    teachersSchedule.put(href, new JSONObject());
 //                }
             } catch (SocketTimeoutException e) {
-                System.out.println("Schedule info request timeout!");
+//                System.out.println("Schedule info request timeout!");
                 getScheduleInfoRequestStatus = RequestStatus.TIMEOUT;
                 return null;
             } catch (Exception e) {
-                System.out.println("Problems with schedule info request");
-                System.out.println(e.toString());
+//                System.out.println("Problems with schedule info request");
+//                System.out.println(e.toString());
                 getScheduleInfoRequestStatus = RequestStatus.FAILED;
                 return null;
             } finally {
@@ -4091,7 +4322,7 @@ public class MainActivity extends AppCompatActivity {
                 }
             }
 
-            System.out.println("Schedule info request success!");
+//            System.out.println("Schedule info request success!");
             getScheduleInfoRequestStatus = RequestStatus.COMPLETED;
 
 
@@ -4222,18 +4453,18 @@ public class MainActivity extends AppCompatActivity {
                 anim.setDuration(200);
                 anim.setStartOffset(0);
                 teachersScreen.startAnimation(anim);
-                Timer timer = new Timer();
-                timer.schedule(new TimerTask() {
-                    @Override
-                    public void run() {
-                        MainActivity.this.runOnUiThread(new Runnable() {
-                            @Override
-                            public void run() {
+//                Timer timer = new Timer();
+//                timer.schedule(new TimerTask() {
+//                    @Override
+//                    public void run() {
+//                        MainActivity.this.runOnUiThread(new Runnable() {
+//                            @Override
+//                            public void run() {
                                 main.removeView(teachersScreen);
-                            }
-                        });
-                    }
-                }, 200);
+//                            }
+//                        });
+//                    }
+//                }, 200);
                 break;
             }
             case PROFILE: {
@@ -4245,17 +4476,17 @@ public class MainActivity extends AppCompatActivity {
                 anim.setStartOffset(0);
                 profileScreen.startAnimation(anim);
                 Timer timer = new Timer();
-                timer.schedule(new TimerTask() {
-                    @Override
-                    public void run() {
-                        MainActivity.this.runOnUiThread(new Runnable() {
-                            @Override
-                            public void run() {
+//                timer.schedule(new TimerTask() {
+//                    @Override
+//                    public void run() {
+//                        MainActivity.this.runOnUiThread(new Runnable() {
+//                            @Override
+//                            public void run() {
                                 main.removeView(profileScreen);
-                            }
-                        });
-                    }
-                }, 200);
+//                            }
+//                        });
+//                    }
+//                }, 200);
                 break;
             }
             case HOME: {
@@ -4266,18 +4497,18 @@ public class MainActivity extends AppCompatActivity {
                 anim.setDuration(200);
                 anim.setStartOffset(0);
                 homeScreen.startAnimation(anim);
-                Timer timer = new Timer();
-                timer.schedule(new TimerTask() {
-                    @Override
-                    public void run() {
-                        MainActivity.this.runOnUiThread(new Runnable() {
-                            @Override
-                            public void run() {
+//                Timer timer = new Timer();
+//                timer.schedule(new TimerTask() {
+//                    @Override
+//                    public void run() {
+//                        MainActivity.this.runOnUiThread(new Runnable() {
+//                            @Override
+//                            public void run() {
                                 main.removeView(homeScreen);
-                            }
-                        });
-                    }
-                }, 200);
+//                            }
+//                        });
+//                    }
+//                }, 200);
                 break;
             }
             case TEACHERSCHEDULE: {
@@ -4295,18 +4526,18 @@ public class MainActivity extends AppCompatActivity {
                 anim.setDuration(200);
                 anim.setStartOffset(0);
                 teacherScheduleScreen.startAnimation(anim);
-                Timer timer = new Timer();
-                timer.schedule(new TimerTask() {
-                    @Override
-                    public void run() {
-                        MainActivity.this.runOnUiThread(new Runnable() {
-                            @Override
-                            public void run() {
+//                Timer timer = new Timer();
+//                timer.schedule(new TimerTask() {
+//                    @Override
+//                    public void run() {
+//                        MainActivity.this.runOnUiThread(new Runnable() {
+//                            @Override
+//                            public void run() {
                                 main.removeView(teacherScheduleScreen);
-                            }
-                        });
-                    }
-                }, 200);
+//                            }
+//                        });
+//                    }
+//                }, 200);
                 break;
             }
             case SCHEDULE: {
@@ -4318,18 +4549,18 @@ public class MainActivity extends AppCompatActivity {
                 anim.setDuration(200);
                 anim.setStartOffset(0);
                 scheduleScreen.startAnimation(anim);
-                Timer timer = new Timer();
-                timer.schedule(new TimerTask() {
-                    @Override
-                    public void run() {
-                        MainActivity.this.runOnUiThread(new Runnable() {
-                            @Override
-                            public void run() {
+//                Timer timer = new Timer();
+//                timer.schedule(new TimerTask() {
+//                    @Override
+//                    public void run() {
+//                        MainActivity.this.runOnUiThread(new Runnable() {
+//                            @Override
+//                            public void run() {
                                 main.removeView(scheduleScreen);
-                            }
-                        });
-                    }
-                }, 200);
+//                            }
+//                        });
+//                    }
+//                }, 200);
                 break;
             }
             case LESSONS: {
@@ -4340,18 +4571,18 @@ public class MainActivity extends AppCompatActivity {
                 anim.setDuration(200);
                 anim.setStartOffset(0);
                 lessonsScreen.startAnimation(anim);
-                Timer timer = new Timer();
-                timer.schedule(new TimerTask() {
-                    @Override
-                    public void run() {
-                        MainActivity.this.runOnUiThread(new Runnable() {
-                            @Override
-                            public void run() {
+//                Timer timer = new Timer();
+//                timer.schedule(new TimerTask() {
+//                    @Override
+//                    public void run() {
+//                        MainActivity.this.runOnUiThread(new Runnable() {
+//                            @Override
+//                            public void run() {
                                 main.removeView(lessonsScreen);
-                            }
-                        });
-                    }
-                }, 200);
+//                            }
+//                        });
+//                    }
+//                }, 200);
                 break;
             }
             case LESSONS_INFORMATION: {
@@ -4364,18 +4595,18 @@ public class MainActivity extends AppCompatActivity {
                 anim.setDuration(200);
                 anim.setStartOffset(0);
                 lessonsInformationScreen.startAnimation(anim);
-                Timer timer = new Timer();
-                timer.schedule(new TimerTask() {
-                    @Override
-                    public void run() {
-                        MainActivity.this.runOnUiThread(new Runnable() {
-                            @Override
-                            public void run() {
+//                Timer timer = new Timer();
+//                timer.schedule(new TimerTask() {
+//                    @Override
+//                    public void run() {
+//                        MainActivity.this.runOnUiThread(new Runnable() {
+//                            @Override
+//                            public void run() {
                                 main.removeView(lessonsInformationScreen);
-                            }
-                        });
-                    }
-                }, 200);
+//                            }
+//                        });
+//                    }
+//                }, 200);
                 break;
             }
             case NOTIFICATION: {
@@ -4388,18 +4619,18 @@ public class MainActivity extends AppCompatActivity {
                 anim.setDuration(200);
                 anim.setStartOffset(0);
                 notificationListScreen.startAnimation(anim);
-                Timer timer = new Timer();
-                timer.schedule(new TimerTask() {
-                    @Override
-                    public void run() {
-                        MainActivity.this.runOnUiThread(new Runnable() {
-                            @Override
-                            public void run() {
+//                Timer timer = new Timer();
+//                timer.schedule(new TimerTask() {
+//                    @Override
+//                    public void run() {
+//                        MainActivity.this.runOnUiThread(new Runnable() {
+//                            @Override
+//                            public void run() {
                                 main.removeView(notificationListScreen);
-                            }
-                        });
-                    }
-                }, 200);
+//                            }
+//                        });
+//                    }
+//                }, 200);
                 break;
             }
             case SETTINGS: {
@@ -4410,18 +4641,18 @@ public class MainActivity extends AppCompatActivity {
                 anim.setDuration(200);
                 anim.setStartOffset(0);
                 settingsScreen.startAnimation(anim);
-                Timer timer = new Timer();
-                timer.schedule(new TimerTask() {
-                    @Override
-                    public void run() {
-                        MainActivity.this.runOnUiThread(new Runnable() {
-                            @Override
-                            public void run() {
+//                Timer timer = new Timer();
+//                timer.schedule(new TimerTask() {
+//                    @Override
+//                    public void run() {
+//                        MainActivity.this.runOnUiThread(new Runnable() {
+//                            @Override
+//                            public void run() {
                                 main.removeView(settingsScreen);
-                            }
-                        });
-                    }
-                }, 200);
+//                            }
+//                        });
+//                    }
+//                }, 200);
                 break;
             }
             case ITOG: {
@@ -4434,18 +4665,18 @@ public class MainActivity extends AppCompatActivity {
                 anim.setDuration(200);
                 anim.setStartOffset(0);
                 itogScreen.startAnimation(anim);
-                Timer timer = new Timer();
-                timer.schedule(new TimerTask() {
-                    @Override
-                    public void run() {
-                        MainActivity.this.runOnUiThread(new Runnable() {
-                            @Override
-                            public void run() {
+//                Timer timer = new Timer();
+//                timer.schedule(new TimerTask() {
+//                    @Override
+//                    public void run() {
+//                        MainActivity.this.runOnUiThread(new Runnable() {
+//                            @Override
+//                            public void run() {
                                 main.removeView(itogScreen);
-                            }
-                        });
-                    }
-                }, 200);
+//                            }
+//                        });
+//                    }
+//                }, 200);
                 break;
             }
             case BACKCONNECT: {
@@ -4456,18 +4687,18 @@ public class MainActivity extends AppCompatActivity {
                 anim.setDuration(200);
                 anim.setStartOffset(0);
                 backConnectScreen.startAnimation(anim);
-                Timer timer = new Timer();
-                timer.schedule(new TimerTask() {
-                    @Override
-                    public void run() {
-                        MainActivity.this.runOnUiThread(new Runnable() {
-                            @Override
-                            public void run() {
+//                Timer timer = new Timer();
+//                timer.schedule(new TimerTask() {
+//                    @Override
+//                    public void run() {
+//                        MainActivity.this.runOnUiThread(new Runnable() {
+//                            @Override
+//                            public void run() {
                                 main.removeView(backConnectScreen);
-                            }
-                        });
-                    }
-                }, 200);
+//                            }
+//                        });
+//                    }
+//                }, 200);
                 break;
             }
             case LOGIN: {
@@ -4940,11 +5171,11 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 dialogCounter++;
-                if (dialogCounter == 5) setContainer(ContainerName.LESSONS);
-                if (dialogCounter == 7) setContainer(ContainerName.SETTINGS);
-                if (dialogCounter == 9) setContainer(ContainerName.HOME);
-                if (dialogCounter == 12) setContainer(ContainerName.NOTIFICATION);
-                if (dialogCounter == 13) setContainer(ContainerName.SCHEDULE);
+//                if (dialogCounter == 5) setContainer(ContainerName.LESSONS);
+//                if (dialogCounter == 7) setContainer(ContainerName.SETTINGS);
+//                if (dialogCounter == 9) setContainer(ContainerName.HOME);
+//                if (dialogCounter == 12) setContainer(ContainerName.NOTIFICATION);
+//                if (dialogCounter == 13) setContainer(ContainerName.SCHEDULE);
                 dialog.dismiss();
                 if (dialogCounter < 14) {
                     Timer dialogTimer = new Timer();
@@ -5500,32 +5731,32 @@ public class MainActivity extends AppCompatActivity {
             // и добавляем новый
 
             if (v.getId() == home.getId()) {
-                System.out.println("You clicked home");
+//                System.out.println("You clicked home");
                 setContainer(ContainerName.HOME);
             }
 
             if (v.getId() == schedule.getId()) {
-                System.out.println("You clicked schedule");
+//                System.out.println("You clicked schedule");
                 setContainer(ContainerName.SCHEDULE);
             }
 
             if (v.getId() == profile.getId()) {
-                System.out.println("You clicked profile");
+//                System.out.println("You clicked profile");
                 setContainer(ContainerName.PROFILE);
             }
 
             if (v.getId() == lessons.getId()) {
-                System.out.println("You clicked lessons");
+//                System.out.println("You clicked lessons");
                 setContainer(ContainerName.LESSONS);
             }
 
             if (v.getId() == userHelp.getId()) {
-                System.out.println("You clicked notifications");
+//                System.out.println("You clicked notifications");
                 setContainer(ContainerName.NOTIFICATION);
             }
 
             if (v.getId() == settings.getId()) {
-                System.out.println("You clicked settings");
+//                System.out.println("You clicked settings");
                 setContainer(ContainerName.SETTINGS);
 //                resetApp();
 //                setLoginFormContainer();
@@ -5877,7 +6108,7 @@ public class MainActivity extends AppCompatActivity {
             } catch (JSONException e) {
                 e.printStackTrace();
             }
-            System.out.println(buffer);
+//            System.out.println(buffer);
             if (buffer == null) {
                 setLoadingToList(ContainerName.LESSONS_INFORMATION);
                 sendGetExercisesByLessonRequest(new String[] {v.getId()+""});
@@ -5987,8 +6218,8 @@ public class MainActivity extends AppCompatActivity {
 
                         // получаем подробную информацию о паре
 
-                        System.out.println("1: " +  readyExercisesByLesson);
-                        System.out.println("2: " +  readyExercisesByLessonVisits);
+//                        System.out.println("1: " +  readyExercisesByLesson);
+//                        System.out.println("2: " +  readyExercisesByLessonVisits);
 
 
                         JSONObject valueInfo;
