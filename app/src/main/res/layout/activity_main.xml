@@ -14,7 +14,14 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:orientation="vertical"
-        tools:visibility="invisible">
+        tools:visibility="visible">
+
+        <ImageView
+            android:layout_width="300dp"
+            android:layout_height="120dp"
+            android:layout_centerHorizontal="true"
+            android:layout_marginTop="90dp"
+            android:src="@drawable/itmo_logo"></ImageView>
 
 
         <WebView
@@ -1628,7 +1635,7 @@
         android:layout_marginBottom="60dp"
         android:layout_marginLeft="15dp"
         android:layout_marginRight="15dp"
-        tools:visibility="visible">
+        tools:visibility="invisible">
 
 
         <ScrollView

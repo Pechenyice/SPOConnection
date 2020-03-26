@@ -298,59 +298,59 @@ public class MainActivity extends AppCompatActivity {
 
 
 
-    private class MyGestureListener extends GestureDetector.SimpleOnGestureListener{
-        @Override
-        public boolean onDown(MotionEvent e) {
-            return true;
-        }
-        @Override
-        public boolean onFling(MotionEvent e1, MotionEvent e2, float velocityX, float velocityY){
-            System.out.println(activeContainer);
-            if (e2.getX() - e1.getX() > 100) {
-                switch (activeContainer) {
-                    case SETTINGS: {
-                        setContainer(ContainerName.LESSONS);
-                        break;
-                    }
-                    case SCHEDULE: {
-                        setContainer(ContainerName.HOME);
-                        break;
-                    }
-                    case PROFILE: {
-                        setContainer(ContainerName.SCHEDULE);
-                        break;
-                    }
-                    case LESSONS: {
-                        setContainer(ContainerName.PROFILE);
-                        break;
-                    }
-                }
-                System.out.println("left to right");
-            }
-            if (e1.getX() - e2.getX() > 100) {
-                switch (activeContainer) {
-                    case HOME: {
-                        setContainer(ContainerName.SCHEDULE);
-                        break;
-                    }
-                    case SCHEDULE: {
-                        setContainer(ContainerName.PROFILE);
-                        break;
-                    }
-                    case PROFILE: {
-                        setContainer(ContainerName.LESSONS);
-                        break;
-                    }
-                    case LESSONS: {
-                        setContainer(ContainerName.SETTINGS);
-                        break;
-                    }
-                }
-                System.out.println("right to left");
-            }
-            return false;
-        }
-    }
+//    private class MyGestureListener extends GestureDetector.SimpleOnGestureListener{
+//        @Override
+//        public boolean onDown(MotionEvent e) {
+//            return true;
+//        }
+//        @Override
+//        public boolean onFling(MotionEvent e1, MotionEvent e2, float velocityX, float velocityY){
+//            System.out.println(activeContainer);
+//            if (e2.getX() - e1.getX() > 100) {
+//                switch (activeContainer) {
+//                    case SETTINGS: {
+//                        setContainer(ContainerName.LESSONS);
+//                        break;
+//                    }
+//                    case SCHEDULE: {
+//                        setContainer(ContainerName.HOME);
+//                        break;
+//                    }
+//                    case PROFILE: {
+//                        setContainer(ContainerName.SCHEDULE);
+//                        break;
+//                    }
+//                    case LESSONS: {
+//                        setContainer(ContainerName.PROFILE);
+//                        break;
+//                    }
+//                }
+//                System.out.println("left to right");
+//            }
+//            if (e1.getX() - e2.getX() > 100) {
+//                switch (activeContainer) {
+//                    case HOME: {
+//                        setContainer(ContainerName.SCHEDULE);
+//                        break;
+//                    }
+//                    case SCHEDULE: {
+//                        setContainer(ContainerName.PROFILE);
+//                        break;
+//                    }
+//                    case PROFILE: {
+//                        setContainer(ContainerName.LESSONS);
+//                        break;
+//                    }
+//                    case LESSONS: {
+//                        setContainer(ContainerName.SETTINGS);
+//                        break;
+//                    }
+//                }
+//                System.out.println("right to left");
+//            }
+//            return false;
+//        }
+//    }
 
 
 
@@ -401,99 +401,99 @@ public class MainActivity extends AppCompatActivity {
 
         // свайпы
 
-        final GestureDetectorCompat lSwipeDetector = new GestureDetectorCompat(this, new MyGestureListener());
-
-        main.setOnTouchListener(new View.OnTouchListener() {
-            @Override
-            public boolean onTouch(View v, MotionEvent event) {
-                return lSwipeDetector.onTouchEvent(event);
-            }
-        });
-
-        profileScreen.setOnTouchListener(new View.OnTouchListener() {
-            @Override
-            public boolean onTouch(View v, MotionEvent event) {
-                return lSwipeDetector.onTouchEvent(event);
-            }
-        });
-
-        navigation.setOnTouchListener(new View.OnTouchListener() {
-            @Override
-            public boolean onTouch(View v, MotionEvent event) {
-                return lSwipeDetector.onTouchEvent(event);
-            }
-        });
-
-        homeScreen.setOnTouchListener(new View.OnTouchListener() {
-            @Override
-            public boolean onTouch(View v, MotionEvent event) {
-                return lSwipeDetector.onTouchEvent(event);
-            }
-        });
-
-        scheduleScreen.setOnTouchListener(new View.OnTouchListener() {
-            @Override
-            public boolean onTouch(View v, MotionEvent event) {
-                return lSwipeDetector.onTouchEvent(event);
-            }
-        });
-
-        teacherScheduleScreen.setOnTouchListener(new View.OnTouchListener() {
-            @Override
-            public boolean onTouch(View v, MotionEvent event) {
-                return lSwipeDetector.onTouchEvent(event);
-            }
-        });
-
-        lessonsScreen.setOnTouchListener(new View.OnTouchListener() {
-            @Override
-            public boolean onTouch(View v, MotionEvent event) {
-                return lSwipeDetector.onTouchEvent(event);
-            }
-        });
-
-        lessonsInformationScreen.setOnTouchListener(new View.OnTouchListener() {
-            @Override
-            public boolean onTouch(View v, MotionEvent event) {
-                return lSwipeDetector.onTouchEvent(event);
-            }
-        });
-        userHelpScreen.setOnTouchListener(new View.OnTouchListener() {
-            @Override
-            public boolean onTouch(View v, MotionEvent event) {
-                return lSwipeDetector.onTouchEvent(event);
-            }
-        });
-        notificationListScreen.setOnTouchListener(new View.OnTouchListener() {
-            @Override
-            public boolean onTouch(View v, MotionEvent event) {
-                return lSwipeDetector.onTouchEvent(event);
-            }
-        });
-        settingsScreen.setOnTouchListener(new View.OnTouchListener() {
-            @Override
-            public boolean onTouch(View v, MotionEvent event) {
-                return lSwipeDetector.onTouchEvent(event);
-            }
-        });
-        itogScreen.setOnTouchListener(new View.OnTouchListener() {
-            @Override
-            public boolean onTouch(View v, MotionEvent event) {
-                return lSwipeDetector.onTouchEvent(event);
-            }
-        });
-        backConnectScreen.setOnTouchListener(new View.OnTouchListener() {
-            @Override
-            public boolean onTouch(View v, MotionEvent event) {
-                return lSwipeDetector.onTouchEvent(event);
-            }
-        });
-        teachersScreen.setOnTouchListener(new View.OnTouchListener() {
-            @Override
-            public boolean onTouch(View v, MotionEvent event) {
-                return lSwipeDetector.onTouchEvent(event);
-            }
-        });
+//        final GestureDetectorCompat lSwipeDetector = new GestureDetectorCompat(this, new MyGestureListener());
+//
+//        main.setOnTouchListener(new View.OnTouchListener() {
+//            @Override
+//            public boolean onTouch(View v, MotionEvent event) {
+//                return lSwipeDetector.onTouchEvent(event);
+//            }
+//        });
+//
+//        profileScreen.setOnTouchListener(new View.OnTouchListener() {
+//            @Override
+//            public boolean onTouch(View v, MotionEvent event) {
+//                return lSwipeDetector.onTouchEvent(event);
+//            }
+//        });
+//
+//        navigation.setOnTouchListener(new View.OnTouchListener() {
+//            @Override
+//            public boolean onTouch(View v, MotionEvent event) {
+//                return lSwipeDetector.onTouchEvent(event);
+//            }
+//        });
+//
+//        homeScreen.setOnTouchListener(new View.OnTouchListener() {
+//            @Override
+//            public boolean onTouch(View v, MotionEvent event) {
+//                return lSwipeDetector.onTouchEvent(event);
+//            }
+//        });
+//
+//        scheduleScreen.setOnTouchListener(new View.OnTouchListener() {
+//            @Override
+//            public boolean onTouch(View v, MotionEvent event) {
+//                return lSwipeDetector.onTouchEvent(event);
+//            }
+//        });
+//
+//        teacherScheduleScreen.setOnTouchListener(new View.OnTouchListener() {
+//            @Override
+//            public boolean onTouch(View v, MotionEvent event) {
+//                return lSwipeDetector.onTouchEvent(event);
+//            }
+//        });
+//
+//        lessonsScreen.setOnTouchListener(new View.OnTouchListener() {
+//            @Override
+//            public boolean onTouch(View v, MotionEvent event) {
+//                return lSwipeDetector.onTouchEvent(event);
+//            }
+//        });
+//
+//        lessonsInformationScreen.setOnTouchListener(new View.OnTouchListener() {
+//            @Override
+//            public boolean onTouch(View v, MotionEvent event) {
+//                return lSwipeDetector.onTouchEvent(event);
+//            }
+//        });
+//        userHelpScreen.setOnTouchListener(new View.OnTouchListener() {
+//            @Override
+//            public boolean onTouch(View v, MotionEvent event) {
+//                return lSwipeDetector.onTouchEvent(event);
+//            }
+//        });
+//        notificationListScreen.setOnTouchListener(new View.OnTouchListener() {
+//            @Override
+//            public boolean onTouch(View v, MotionEvent event) {
+//                return lSwipeDetector.onTouchEvent(event);
+//            }
+//        });
+//        settingsScreen.setOnTouchListener(new View.OnTouchListener() {
+//            @Override
+//            public boolean onTouch(View v, MotionEvent event) {
+//                return lSwipeDetector.onTouchEvent(event);
+//            }
+//        });
+//        itogScreen.setOnTouchListener(new View.OnTouchListener() {
+//            @Override
+//            public boolean onTouch(View v, MotionEvent event) {
+//                return lSwipeDetector.onTouchEvent(event);
+//            }
+//        });
+//        backConnectScreen.setOnTouchListener(new View.OnTouchListener() {
+//            @Override
+//            public boolean onTouch(View v, MotionEvent event) {
+//                return lSwipeDetector.onTouchEvent(event);
+//            }
+//        });
+//        teachersScreen.setOnTouchListener(new View.OnTouchListener() {
+//            @Override
+//            public boolean onTouch(View v, MotionEvent event) {
+//                return lSwipeDetector.onTouchEvent(event);
+//            }
+//        });
 
         // webView
 
@@ -873,9 +873,13 @@ public class MainActivity extends AppCompatActivity {
         homeNotificationLink.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                setContainer(ContainerName.NOTIFICATION);
                 sendGetVKWallPostsRequest(new String[] {"40"});
-                setLoadingToList(ContainerName.NOTIFICATION);
+                setContainer(ContainerName.NOTIFICATION);
+                if (activeContainer == ContainerName.NOTIFICATION) {
+                    LinearLayout box = findViewById(R.id.notificationList);
+                    box.removeAllViews();
+                    setLoadingToList(ContainerName.NOTIFICATION);
+                }
             }
         });
         homeTeachersLink.setOnClickListener(new View.OnClickListener() {
@@ -4449,10 +4453,11 @@ public class MainActivity extends AppCompatActivity {
                 scheduleNavImg.setImageResource(R.drawable.schedule);
                 scheduleNavText.setTextColor(getResources().getColor(R.color.greyColor));
                 scheduleNavText.setShadowLayer(0,0,0,0);
-                AlphaAnimation anim = new AlphaAnimation(1.0f, 0.0f);
-                anim.setDuration(200);
-                anim.setStartOffset(0);
-                teachersScreen.startAnimation(anim);
+                teachersList.removeView(loadingScreen);
+//                AlphaAnimation anim = new AlphaAnimation(1.0f, 0.0f);
+//                anim.setDuration(200);
+//                anim.setStartOffset(0);
+//                teachersScreen.startAnimation(anim);
 //                Timer timer = new Timer();
 //                timer.schedule(new TimerTask() {
 //                    @Override
@@ -4471,11 +4476,11 @@ public class MainActivity extends AppCompatActivity {
                 profileNavImg.setImageResource(R.drawable.profile);
                 profileNavText.setTextColor(getResources().getColor(R.color.greyColor));
                 profileNavText.setShadowLayer(0,0,0,0);
-                AlphaAnimation anim = new AlphaAnimation(1.0f, 0.0f);
-                anim.setDuration(200);
-                anim.setStartOffset(0);
-                profileScreen.startAnimation(anim);
-                Timer timer = new Timer();
+//                AlphaAnimation anim = new AlphaAnimation(1.0f, 0.0f);
+//                anim.setDuration(200);
+//                anim.setStartOffset(0);
+//                profileScreen.startAnimation(anim);
+//                Timer timer = new Timer();
 //                timer.schedule(new TimerTask() {
 //                    @Override
 //                    public void run() {
@@ -4493,10 +4498,10 @@ public class MainActivity extends AppCompatActivity {
                 homeNavImg.setImageResource(R.drawable.main);
                 homeNavText.setTextColor(getResources().getColor(R.color.greyColor));
                 homeNavText.setShadowLayer(0,0,0,0);
-                AlphaAnimation anim = new AlphaAnimation(1.0f, 0.0f);
-                anim.setDuration(200);
-                anim.setStartOffset(0);
-                homeScreen.startAnimation(anim);
+//                AlphaAnimation anim = new AlphaAnimation(1.0f, 0.0f);
+//                anim.setDuration(200);
+//                anim.setStartOffset(0);
+//                homeScreen.startAnimation(anim);
 //                Timer timer = new Timer();
 //                timer.schedule(new TimerTask() {
 //                    @Override
@@ -4522,10 +4527,11 @@ public class MainActivity extends AppCompatActivity {
                 scheduleNavText.setTextColor(getResources().getColor(R.color.greyColor));
                 scheduleNavText.setShadowLayer(0,0,0,0);
                 teacherScheduleList.removeView(errorScreen);
-                AlphaAnimation anim = new AlphaAnimation(1.0f, 0.0f);
-                anim.setDuration(200);
-                anim.setStartOffset(0);
-                teacherScheduleScreen.startAnimation(anim);
+                teacherScheduleList.removeView(loadingScreen);
+//                AlphaAnimation anim = new AlphaAnimation(1.0f, 0.0f);
+//                anim.setDuration(200);
+//                anim.setStartOffset(0);
+//                teacherScheduleScreen.startAnimation(anim);
 //                Timer timer = new Timer();
 //                timer.schedule(new TimerTask() {
 //                    @Override
@@ -4545,10 +4551,11 @@ public class MainActivity extends AppCompatActivity {
                 scheduleNavText.setTextColor(getResources().getColor(R.color.greyColor));
                 scheduleNavText.setShadowLayer(0,0,0,0);
                 scheduleListError.removeView(errorScreen);
-                AlphaAnimation anim = new AlphaAnimation(1.0f, 0.0f);
-                anim.setDuration(200);
-                anim.setStartOffset(0);
-                scheduleScreen.startAnimation(anim);
+                scheduleListError.removeView(loadingScreen);
+//                AlphaAnimation anim = new AlphaAnimation(1.0f, 0.0f);
+//                anim.setDuration(200);
+//                anim.setStartOffset(0);
+//                scheduleScreen.startAnimation(anim);
 //                Timer timer = new Timer();
 //                timer.schedule(new TimerTask() {
 //                    @Override
@@ -4567,10 +4574,10 @@ public class MainActivity extends AppCompatActivity {
                 lessonsNavImg.setImageResource(R.drawable.subject);
                 lessonsNavText.setTextColor(getResources().getColor(R.color.greyColor));
                 lessonsNavText.setShadowLayer(0,0,0,0);
-                AlphaAnimation anim = new AlphaAnimation(1.0f, 0.0f);
-                anim.setDuration(200);
-                anim.setStartOffset(0);
-                lessonsScreen.startAnimation(anim);
+//                AlphaAnimation anim = new AlphaAnimation(1.0f, 0.0f);
+//                anim.setDuration(200);
+//                anim.setStartOffset(0);
+//                lessonsScreen.startAnimation(anim);
 //                Timer timer = new Timer();
 //                timer.schedule(new TimerTask() {
 //                    @Override
@@ -4591,10 +4598,10 @@ public class MainActivity extends AppCompatActivity {
                 lessonsNavText.setShadowLayer(0,0,0,0);
 //                LinearLayout lessonsInfoList = findViewById(R.id.lessonsInformationList);
                 lessonsInfoList.removeView(errorScreen);
-                AlphaAnimation anim = new AlphaAnimation(1.0f, 0.0f);
-                anim.setDuration(200);
-                anim.setStartOffset(0);
-                lessonsInformationScreen.startAnimation(anim);
+//                AlphaAnimation anim = new AlphaAnimation(1.0f, 0.0f);
+//                anim.setDuration(200);
+//                anim.setStartOffset(0);
+//                lessonsInformationScreen.startAnimation(anim);
 //                Timer timer = new Timer();
 //                timer.schedule(new TimerTask() {
 //                    @Override
@@ -4615,10 +4622,11 @@ public class MainActivity extends AppCompatActivity {
                 notificationNavText.setShadowLayer(0,0,0,0);
 //                LinearLayout notList = findViewById(R.id.notificationList);
                 notList.removeView(errorScreen);
-                AlphaAnimation anim = new AlphaAnimation(1.0f, 0.0f);
-                anim.setDuration(200);
-                anim.setStartOffset(0);
-                notificationListScreen.startAnimation(anim);
+                notList.removeView(loadingScreen);
+//                AlphaAnimation anim = new AlphaAnimation(1.0f, 0.0f);
+//                anim.setDuration(200);
+//                anim.setStartOffset(0);
+//                notificationListScreen.startAnimation(anim);
 //                Timer timer = new Timer();
 //                timer.schedule(new TimerTask() {
 //                    @Override
@@ -4627,6 +4635,7 @@ public class MainActivity extends AppCompatActivity {
 //                            @Override
 //                            public void run() {
                                 main.removeView(notificationListScreen);
+
 //                            }
 //                        });
 //                    }
@@ -4637,10 +4646,10 @@ public class MainActivity extends AppCompatActivity {
                 settingsNavImg.setImageResource(R.drawable.settings);
                 settingsNavText.setTextColor(getResources().getColor(R.color.greyColor));
                 settingsNavText.setShadowLayer(0,0,0,0);
-                AlphaAnimation anim = new AlphaAnimation(1.0f, 0.0f);
-                anim.setDuration(200);
-                anim.setStartOffset(0);
-                settingsScreen.startAnimation(anim);
+//                AlphaAnimation anim = new AlphaAnimation(1.0f, 0.0f);
+//                anim.setDuration(200);
+//                anim.setStartOffset(0);
+//                settingsScreen.startAnimation(anim);
 //                Timer timer = new Timer();
 //                timer.schedule(new TimerTask() {
 //                    @Override
@@ -4661,10 +4670,11 @@ public class MainActivity extends AppCompatActivity {
                 lessonsNavText.setShadowLayer(0,0,0,0);
 //                LinearLayout itogList = findViewById(R.id.itogList);
                 itogList.removeView(errorScreen);
-                AlphaAnimation anim = new AlphaAnimation(1.0f, 0.0f);
-                anim.setDuration(200);
-                anim.setStartOffset(0);
-                itogScreen.startAnimation(anim);
+                itogList.removeView(loadingScreen);
+//                AlphaAnimation anim = new AlphaAnimation(1.0f, 0.0f);
+//                anim.setDuration(200);
+//                anim.setStartOffset(0);
+//                itogScreen.startAnimation(anim);
 //                Timer timer = new Timer();
 //                timer.schedule(new TimerTask() {
 //                    @Override
@@ -4683,10 +4693,10 @@ public class MainActivity extends AppCompatActivity {
                 settingsNavImg.setImageResource(R.drawable.settings);
                 settingsNavText.setTextColor(getResources().getColor(R.color.greyColor));
                 settingsNavText.setShadowLayer(0,0,0,0);
-                AlphaAnimation anim = new AlphaAnimation(1.0f, 0.0f);
-                anim.setDuration(200);
-                anim.setStartOffset(0);
-                backConnectScreen.startAnimation(anim);
+//                AlphaAnimation anim = new AlphaAnimation(1.0f, 0.0f);
+//                anim.setDuration(200);
+//                anim.setStartOffset(0);
+//                backConnectScreen.startAnimation(anim);
 //                Timer timer = new Timer();
 //                timer.schedule(new TimerTask() {
 //                    @Override
