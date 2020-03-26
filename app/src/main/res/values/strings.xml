@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">SPOConnection</string>
+    <string name="app_name">SPO Connection</string>
     <string name="loginFormLogin">LOGIN</string>
     <string name="loginFormPassword">PASSWORD</string>
     <string name="loginFormSubmit">ВОЙТИ</string>
