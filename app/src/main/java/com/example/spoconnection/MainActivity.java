@@ -171,6 +171,7 @@ public class MainActivity extends AppCompatActivity {
     GetScheduleOfGroupRequest scheduleOfGroupRequest;
     GetScheduleOfTeacherRequest scheduleOfTeacherRequest;
     GetScheduleInfoRequest scheduleInfoRequest;
+    GetStudentAchievementsRequest achievementsRequest;
 
     // Handlers для проверки на выполнение запроса
 
@@ -197,6 +198,7 @@ public class MainActivity extends AppCompatActivity {
     RequestStatus getScheduleOfGroupRequestStatus;
     RequestStatus getScheduleOfTeacherRequestStatus;
     RequestStatus getScheduleInfoRequestStatus;
+    RequestStatus getStudentAchievementsRequestStatus;
 
 
     // Переменная, чтобы buildFrontend не вызвался дважды (и после getMainData и после getByDay)
@@ -357,6 +359,7 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
 
+        setTheme(R.style.AppTheme);
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
@@ -741,7 +744,18 @@ public class MainActivity extends AppCompatActivity {
                     LinearLayout scheduleList = findViewById(R.id.scheduleList);
                     scheduleList.removeAllViews();
                     setLoadingToList(ContainerName.SCHEDULE);
-                    onGetScheduleOfGroupRequestCompleted("now", "");
+                    Timer timer = new Timer();
+                    timer.schedule(new TimerTask() {
+                        @Override
+                        public void run() {
+                            MainActivity.this.runOnUiThread(new Runnable() {
+                                @Override
+                                public void run() {
+                                    onGetScheduleOfGroupRequestCompleted("now", "");
+                                }
+                            });
+                        }
+                    }, 200);
                 }
             }
         });
@@ -797,7 +811,18 @@ public class MainActivity extends AppCompatActivity {
                     LinearLayout scheduleList = findViewById(R.id.scheduleList);
                     scheduleList.removeAllViews();
                     setLoadingToList(ContainerName.SCHEDULE);
-                    onGetScheduleOfGroupRequestCompleted("next", "");
+                    Timer timer = new Timer();
+                    timer.schedule(new TimerTask() {
+                        @Override
+                        public void run() {
+                            MainActivity.this.runOnUiThread(new Runnable() {
+                                @Override
+                                public void run() {
+                                    onGetScheduleOfGroupRequestCompleted("next", "");
+                                }
+                            });
+                        }
+                    }, 200);
                 }
             }
         });
@@ -989,13 +1014,13 @@ public class MainActivity extends AppCompatActivity {
             setContainer(ContainerName.SETTINGS);
             return;
         } else if (activeContainer == ContainerName.TEACHERSCHEDULE) {
-            setContainer(ContainerName.SCHEDULE);
+            setContainer(ContainerName.TEACHERS);
             return;
         } else if (activeContainer == ContainerName.ITOG) {
             setContainer(ContainerName.LESSONS);
             return;
         } else if (activeContainer == ContainerName.TEACHERS) {
-            setContainer(ContainerName.SCHEDULE);
+            setContainer(ContainerName.HOME);
             return;
         } else {
             setContainer(ContainerName.PROFILE);
@@ -1201,6 +1226,9 @@ public class MainActivity extends AppCompatActivity {
         // долги, посещения, средний балл
         sendGetStudentStatsRequest();
 
+        // достижения
+        sendGetStudentAchievementsRequest();
+
         // если необходимо, парсим страницу с профилем
         if (getStudentProfileDataRequestStatus != RequestStatus.COMPLETED)
             sendGetStudentProfileDataRequest();
@@ -1276,6 +1304,7 @@ public class MainActivity extends AppCompatActivity {
         getFinalMarksRequestStatus            = RequestStatus.NOT_CALLED;
         getAllFinalMarksRequestStatus         = RequestStatus.NOT_CALLED;
         ratingRequestStatus                   = RequestStatus.NOT_CALLED;
+        getStudentAchievementsRequestStatus   = RequestStatus.NOT_CALLED;
     }
 
     public void resetApp() {
@@ -1484,6 +1513,13 @@ public class MainActivity extends AppCompatActivity {
         getScheduleInfoRequestStatus = RequestStatus.CALLED;
         scheduleInfoRequest = new GetScheduleInfoRequest();
         scheduleInfoRequest.execute();
+    }
+
+    private void sendGetStudentAchievementsRequest() {
+
+        getStudentAchievementsRequestStatus = RequestStatus.CALLED;
+        achievementsRequest = new GetStudentAchievementsRequest();
+        achievementsRequest.execute();
     }
 
     // Колбеки, которые вызываются при завершении определенного запроса
@@ -3202,6 +3238,17 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
+    public void onGetStudentAchievementsRequestCompleted(String str) {
+        if (getStudentAchievementsRequestStatus == RequestStatus.COMPLETED) {
+            System.out.println(str);
+            System.out.println("HERE");
+        } else if (getStudentAchievementsRequestStatus == RequestStatus.TIMEOUT) {
+
+        } else if (getStudentAchievementsRequestStatus == RequestStatus.FAILED) {
+
+        }
+    }
+
     // Сами асинхронные запросы
 
     // [name, password]
@@ -4339,7 +4386,69 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
+    class GetStudentAchievementsRequest extends AsyncTask<String[], String, String> {
 
+//        @Override
+//        protected void onPreExecute() {
+//            super.onPreExecute();
+//        }
+
+        @Override
+        protected void onProgressUpdate(String... values) {
+            super.onProgressUpdate(values);
+            loadingLog("Получение данных о достижениях");
+        }
+
+        protected String doInBackground(String[]... params) { // params[0][0] - year, params[0][1] - month
+
+            publishProgress("");
+
+            HttpURLConnection urlConnection = null;
+            String responseBody = "";
+
+
+            // создаем мап для картинки
+//            if (getStudentProfileDataRequestStatus == RequestStatus.COMPLETED) {
+//                try {
+//                    studentAvatarBitmap = BitmapFactory.decodeStream((InputStream) new URL("https://ifspo.ifmo.ru" + studentAvatarSrc).getContent());
+//                } catch (MalformedURLException e) {
+//                    e.printStackTrace();
+//                } catch (IOException e) {
+//                    e.printStackTrace();
+//                }
+//            }
+
+            try {
+                preferences = MainActivity.this.getPreferences(Context.MODE_PRIVATE);
+                String currentAdress = preferences.getString("studentName", "");
+
+                String url_address = "http://spoconnection-rating-server.herokuapp.com/achievements"
+                        + "?name=" + currentAdress;
+
+                urlConnection = Functions.setupGETAuthRequest(url_address, authCookie, MAIN_DATA_REQUEST_CONNECT_TIMEOUT, MAIN_DATA_REQUEST_READ_TIMEOUT);
+                responseBody = Functions.getResponseFromGetRequest(urlConnection);
+                getStudentAchievementsRequestStatus = RequestStatus.COMPLETED;
+
+            } catch (SocketTimeoutException e) {
+                System.out.println("Achievements request timeout!");
+                getStudentAchievementsRequestStatus = RequestStatus.TIMEOUT;
+                return "";
+            } catch (Exception e) {
+//                System.out.println("Problems with main data request request");
+//                System.out.println(e.toString());
+                getStudentAchievementsRequestStatus = RequestStatus.FAILED;
+                return "";
+            } finally {
+                if (urlConnection != null) urlConnection.disconnect();
+            }
+            return responseBody;
+        }
+
+        protected void onPostExecute(String result) {
+            super.onPostExecute(result);
+            onGetStudentAchievementsRequestCompleted(result);
+        }
+    }
 
 
 
