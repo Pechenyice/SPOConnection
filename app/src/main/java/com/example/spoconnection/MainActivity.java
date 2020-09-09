@@ -1092,7 +1092,7 @@ public class MainActivity extends AppCompatActivity {
 //        System.out.println(preferences.getAll().toString());
 
         if (appFirstRun) {
-//            System.out.println("App first run");
+            System.out.println("App first run");
             preferencesEditor.putBoolean("appFirstRun", false);
             preferencesEditor.apply();
         }
@@ -1227,7 +1227,7 @@ public class MainActivity extends AppCompatActivity {
         sendGetStudentStatsRequest();
 
         // достижения
-        sendGetStudentAchievementsRequest();
+//        sendGetStudentAchievementsRequest();
 
         // если необходимо, парсим страницу с профилем
         if (getStudentProfileDataRequestStatus != RequestStatus.COMPLETED)
@@ -1246,20 +1246,21 @@ public class MainActivity extends AppCompatActivity {
     // Когда отпраили все запросы для входа в акаунт
     public void afterFirstRequests() {
 
-//        System.out.println("+--------");
-//        System.out.println("| Stats request: " + getStudentStatsRequestStatus);
-//        System.out.println("| Final marks request: " + getFinalMarksRequestStatus);
-//        System.out.println("| All final marks request: " + getAllFinalMarksRequestStatus);
-//        System.out.println("| Main data request: " + getStudentMainDataRequestStatus);
-//        System.out.println("| Student profile data request: " + getStudentProfileDataRequestStatus);
-//        System.out.println("| Rating request: " + ratingRequestStatus);
-//        System.out.println("| Exercises by day request: " + getExercisesByDayRequestStatus);
-//        System.out.println("+--------");
+        System.out.println("+--------");
+        System.out.println("| Stats request: " + getStudentStatsRequestStatus);
+        System.out.println("| Final marks request: " + getFinalMarksRequestStatus);
+        System.out.println("| All final marks request: " + getAllFinalMarksRequestStatus);
+        System.out.println("| Main data request: " + getStudentMainDataRequestStatus);
+        System.out.println("| Student profile data request: " + getStudentProfileDataRequestStatus);
+        System.out.println("| Rating request: " + ratingRequestStatus);
+        System.out.println("| Exercises by day request: " + getExercisesByDayRequestStatus);
+        System.out.println("+--------");
 
         preferences = MainActivity.this.getPreferences(Context.MODE_PRIVATE);
         preferencesEditor = preferences.edit();
 
-        if (getStudentStatsRequestStatus == RequestStatus.COMPLETED
+        if (
+                getStudentStatsRequestStatus == RequestStatus.COMPLETED
                 && getStudentMainDataRequestStatus    == RequestStatus.COMPLETED
                 && getExercisesByDayRequestStatus     == RequestStatus.COMPLETED
 //                && getFinalMarksRequestStatus         == RequestStatus.COMPLETED
@@ -2647,6 +2648,10 @@ public class MainActivity extends AppCompatActivity {
                                     pos = "6";
                                     break;
                                 }
+                                case "VII": {
+                                    pos = "7";
+                                    break;
+                                }
                             }
 
                             TextView theDayLessonsCounter = new TextView(getApplicationContext());
@@ -2834,6 +2839,10 @@ public class MainActivity extends AppCompatActivity {
                                 }
                                 case "VI": {
                                     pos = "6";
+                                    break;
+                                }
+                                case "VII": {
+                                    pos = "7";
                                     break;
                                 }
                             }
@@ -3049,6 +3058,10 @@ public class MainActivity extends AppCompatActivity {
                             }
                             case "VI": {
                                 pos = "6";
+                                break;
+                            }
+                            case "VII": {
+                                pos = "7";
                                 break;
                             }
                         }
@@ -3753,6 +3766,11 @@ public class MainActivity extends AppCompatActivity {
                             timeOfLessonEnd = "18:30";
                             break;
                         }
+                        case "VII": {
+                            timeOfLessonStart = "18:40";
+                            timeOfLessonEnd = "20:10";
+                            break;
+                        }
                     }
                     String nameOfLesson = elem.getElementsByClass("lesson_td").get(0).select("div").get(0).text();
 
@@ -3919,6 +3937,11 @@ public class MainActivity extends AppCompatActivity {
                             timeOfLessonEnd = "18:30";
                             break;
                         }
+                        case "VII": {
+                            timeOfLessonStart = "18:40";
+                            timeOfLessonEnd = "20:10";
+                            break;
+                        }
                     }
                     String nameOfLesson = elem.getElementsByClass("lesson_td").get(0).select("div").get(0).text();
 
@@ -3982,11 +4005,15 @@ public class MainActivity extends AppCompatActivity {
                 urlConnection = (HttpURLConnection) url.openConnection();
 
                 String urlParameters = "student_id=" + studentId;
+//                System.out.println(authCookie);
+//                System.out.println(studentId);
                 urlConnection = Functions.setupPOSTAuthRequest(url_address, urlParameters, authCookie, STATS_REQUEST_CONNECT_TIMEOUT, STATS_REQUEST_READ_TIMEOUT);
 
 
                 responseBody = Functions.getResponseFromGetRequest(urlConnection);
                 html = Jsoup.parse(responseBody);
+//                System.out.println(html.toString());
+//                System.out.println(html);
 
                 Elements stats = html.body().getElementsByClass("stat-block");
 
@@ -4004,7 +4031,7 @@ public class MainActivity extends AppCompatActivity {
                 return new String[] {"", "", ""};
             } catch (Exception e) {
 //                System.out.println("Problems with statistics request");
-//                System.out.println(e.toString());
+                System.out.println(e.toString());
                 getStudentStatsRequestStatus = RequestStatus.FAILED;
                 return new String[] {"", "", ""};
             } finally {

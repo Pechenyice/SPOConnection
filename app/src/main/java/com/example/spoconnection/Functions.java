@@ -68,7 +68,7 @@ public class Functions {
     public static String getStudentIdFromCookie(String cookie) {
 
         String[] decoded_cookie = URLDecoder.decode(cookie).split("s:");
-        String userIdDirty = decoded_cookie[decoded_cookie.length - 5].split(":")[1];
+        String userIdDirty = decoded_cookie[decoded_cookie.length - 4].split(":")[1];
         return userIdDirty.substring(1, userIdDirty.length() - 2);
     }
 
