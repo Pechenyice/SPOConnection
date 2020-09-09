@@ -2468,8 +2468,8 @@ public class MainActivity extends AppCompatActivity {
                  ratingInfo = new JSONObject(response);
 //                 System.out.println(ratingInfo);
 
-                 ratingPlace.setText(ratingInfo.getString("studentPosition"));
-                 ratingCount.setText(ratingInfo.getString("studentsCount"));
+                 ratingPlace.setText(ratingInfo.getString("pos"));
+                 ratingCount.setText(ratingInfo.getString("count"));
             } catch (JSONException e) {
 
             }
@@ -4292,11 +4292,13 @@ public class MainActivity extends AppCompatActivity {
 //            String group = params[0][3];
 
             try {
-                String url_address = "https://spoconnection-rating-server.herokuapp.com/rating"
-                        + "?name=" + name
-                        + "&password=" + password
-                        + "&fio=" + studentFIO
-                        + "&group=" + studentGroup;
+                String url_address = "https://spoconnection-rating-server.herokuapp.com/api"
+					+ "?method="     + "rating.student"
+                    + "&studentID="  + studentId
+					+ "&name="       + name
+                    + "&password="   + password
+                    + "&fio="        + studentFIO
+                    + "&party="      + studentGroup;
 
                 urlConnection = Functions.setupGETAuthRequest(url_address, authCookie, RATING_REQUEST_CONNECT_TIMEOUT, RATING_REQUEST_READ_TIMEOUT);
                 responseBody = Functions.getResponseFromGetRequest(urlConnection);
