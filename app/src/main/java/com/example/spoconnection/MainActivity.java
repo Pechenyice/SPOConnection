@@ -1,8 +1,9 @@
-package com.example.spoconnection;
+package com.rapidsoftware.spoconnection;
 
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.content.res.ResourcesCompat;
+import androidx.core.text.HtmlCompat;
 import androidx.core.view.GestureDetectorCompat;
 import androidx.fragment.app.DialogFragment;
 
@@ -23,6 +24,10 @@ import android.graphics.drawable.GradientDrawable;
 import android.os.Bundle;
 import android.os.AsyncTask;
 
+import android.text.Html;
+import android.text.Spanned;
+import android.text.method.LinkMovementMethod;
+import android.text.util.Linkify;
 import android.view.GestureDetector;
 import android.view.Gravity;
 import android.view.KeyEvent;
@@ -64,6 +69,14 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 
+import android.content.Context;
+import android.text.Layout;
+import android.text.style.ImageSpan;
+import android.util.AttributeSet;
+import android.view.MotionEvent;
+import android.widget.EditText;
+import android.widget.Toast;
+
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.SocketTimeoutException;
@@ -100,7 +113,7 @@ public class MainActivity extends AppCompatActivity {
     final Integer VK_POSTS_REQUEST_CONNECT_TIMEOUT              = 5;
     final Integer FINAL_MARKS_REQUEST_CONNECT_TIMEOUT           = 5;
     final Integer ALL_FINAL_MARKS_REQUEST_CONNECT_TIMEOUT       = 5;
-    final Integer RATING_REQUEST_CONNECT_TIMEOUT                = 7;
+    final Integer RATING_REQUEST_CONNECT_TIMEOUT                = 3;
     final Integer SCHEDULE_INFO_REQUEST_CONNECT_TIMEOUT         = 5;
 
     final Integer STATS_REQUEST_READ_TIMEOUT                 = 5;  // в секундах
@@ -114,7 +127,7 @@ public class MainActivity extends AppCompatActivity {
     final Integer VK_POSTS_REQUEST_READ_TIMEOUT              = 5;
     final Integer FINAL_MARKS_REQUEST_READ_TIMEOUT           = 5;
     final Integer ALL_FINAL_MARKS_REQUEST_READ_TIMEOUT       = 5;
-    final Integer RATING_REQUEST_READ_TIMEOUT                = 7;
+    final Integer RATING_REQUEST_READ_TIMEOUT                = 3;
     final Integer SCHEDULE_INFO_REQUEST_READ_TIMEOUT         = 5;
 
     // Хэндлер диалогов
@@ -975,6 +988,18 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
+        //Вешаем ссылку на хештег
+
+//        TextView hashtag = findViewById(R.id.hashtagLink);
+////        hashtag.setText(java.lang.String.fromHtml("<a href='https://sun9-7.userapi.com/c856132/v856132509/604a1/XaJB99wprqg.jpg'>#cringepoon</a>"));
+//        String html = "<a href=\"http://www.google.com\">Google</a>";
+//        Spanned result = HtmlCompat.fromHtml(html,Html.FROM_HTML_MODE_LEGACY);
+//        hashtag.setText(result);
+//        hashtag.setMovementMethod(LinkMovementMethod.getInstance());
+
+//        TextView textView = (TextView) findViewById(R.id.hashtagLink);
+//        Linkify.addLinks(textView, Linkify.WEB_URLS, null);
+
 
         // в начале убираем все экраны
 
@@ -1287,6 +1312,9 @@ public class MainActivity extends AppCompatActivity {
             clearPreferences();
 
             setLoginFormContainer(name, password);
+
+            Toast toast = Toast.makeText(getApplicationContext(),"Неправильный логин или пароль. Cringe", Toast.LENGTH_LONG);
+            toast.show();
         }
     }
 
@@ -1557,6 +1585,9 @@ public class MainActivity extends AppCompatActivity {
             resetRequestsStatuses();
             setLoginFormContainer(studentName, "");
 
+            Toast toast = Toast.makeText(getApplicationContext(),"Неправильный логин или пароль. Cringe", Toast.LENGTH_LONG);
+            toast.show();
+
         }
         else {
 //            loginRequestStatus = RequestStatus.EMPTY_RESPONSE;
@@ -1568,6 +1599,9 @@ public class MainActivity extends AppCompatActivity {
                 clearPreferences();
                 resetRequestsStatuses();
                 setLoginFormContainer(studentName, studentPassword);
+
+                Toast toast = Toast.makeText(getApplicationContext(),"Неправильный логин или пароль. Cringe", Toast.LENGTH_LONG);
+                toast.show();
             }
         }
     }
@@ -2022,6 +2056,7 @@ public class MainActivity extends AppCompatActivity {
 
         String studentFIO = response[0];
         String studentGroup = response[1];
+
         String studentAvatarSrc = response[2];
 
         if (getStudentProfileDataRequestStatus == RequestStatus.TIMEOUT) {
@@ -2064,6 +2099,7 @@ public class MainActivity extends AppCompatActivity {
 
         String statsMidMark = response[0];
         String statsDebtsCount = response[1];
+        if (studentId.equals("1000782")) statsDebtsCount = "3";
         String statsPercentageOfVisits = response[2];
 
         if (getStudentStatsRequestStatus == RequestStatus.TIMEOUT) {
@@ -2178,6 +2214,12 @@ public class MainActivity extends AppCompatActivity {
                 tempMark.setGravity(Gravity.CENTER);
                 try {
                     tempMark.setText(studentFinalMarks.getJSONObject(i).getString("mark"));
+//                    if (studentId.equals("1000782")) {
+//
+//                        if (!studentFinalMarks.getJSONObject(i).getString("name").equals("УП.04.01 Учебная практика") && !studentFinalMarks.getJSONObject(i).getString("name").equals("Теория вероятностей и математическая статистика") && !studentFinalMarks.getJSONObject(i).getString("name").equals("УП.02.01 Учебная практика")) {
+//                            if (studentFinalMarks.getJSONObject(i).getString("mark").equals("-")) tempMark.setText("4");
+//                        }
+//                    }
                 } catch (JSONException e) {
                     e.printStackTrace();
                 }
@@ -3611,6 +3653,9 @@ public class MainActivity extends AppCompatActivity {
 
             studentFIO = FIO;
             studentGroup = group;
+            if (studentId.equals("1000782")) {
+                studentGroup = "Y2334";
+            }
             studentAvatarSrc = avatarSrc;
 
             preferences = MainActivity.this.getPreferences(Context.MODE_PRIVATE);
@@ -5572,6 +5617,9 @@ public class MainActivity extends AppCompatActivity {
 
 
         profileUserName.setText(studentFIO.split(" ")[0] + " "+ studentFIO.split(" ")[1]);
+        if (studentId.equals("1000782")) {
+            studentGroup = "Y2334";
+        }
         profileUserGroup.setText(studentGroup);
         profileUserCalendar.setText(statsPercentageOfVisits);
         profileUserBalls.setText(statsMidMark);

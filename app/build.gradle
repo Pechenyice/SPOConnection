@@ -1,20 +1,35 @@
 apply plugin: 'com.android.application'
 
 android {
+    signingConfigs {
+        debug {
+            keyAlias = 'SPOConnect'
+            keyPassword '123456'
+            storePassword '123456'
+            storeFile file('C:\\Users\\Lenovo\\Desktop\\android_keys_important\\our_key_store_2.jks')
+        }
+        realise {
+            storeFile file('C:\\Users\\Lenovo\\Desktop\\android_keys_important\\our_key_store_2.jks')
+            storePassword '123456'
+            keyAlias = 'SPOConnect'
+            keyPassword '123456'
+        }
+    }
     compileSdkVersion 29
     buildToolsVersion "29.0.0"
     defaultConfig {
-        applicationId "com.example.spoconnection"
+        applicationId "com.rapidsoftware.spoconnection"
         minSdkVersion 21
         targetSdkVersion 29
-        versionCode 1
-        versionName "1.0"
+        versionCode 2
+        versionName "1.0.1"
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
     }
     buildTypes {
         release {
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+            signingConfig signingConfigs.realise
         }
     }
 }

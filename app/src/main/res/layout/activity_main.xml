@@ -297,7 +297,7 @@
                                             android:layout_marginBottom="15dp"
                                             android:gravity="center"
                                             android:textSize="11dp"
-                                            android:text="Оставьте комментарий в Play Market"
+                                            android:text="Оставьте комментарий и оцените нас в Play Market"
                                             android:fontFamily="@font/montserrat_medium"
                                             android:textColor="@color/white">
                                         </TextView>
@@ -315,7 +315,7 @@
                             android:layout_marginBottom="15dp"
                             android:gravity="center"
                             android:textSize="11dp"
-                            android:text="Наша почта: "
+                            android:text="Наша почта: rapid.software.inbox@gmail.com"
                             android:fontFamily="@font/montserrat_medium"
                             android:textColor="@color/white">
                         </TextView>
@@ -345,7 +345,7 @@
                             android:layout_marginTop="15dp"
                             android:layout_marginBottom="15dp"
                             android:textSize="11dp"
-                            android:text="Версия 1.0.0\n\nДобавлены возможности:\n-Узнать инофрмацию о профиле;\n-посмотреть расписание;\n-узнать новости и изменения расписания из группы ВК;\n-посмотреть оценки;"
+                            android:text="Версия 1.0.1\n\nДобавлены возможности:\n-Узнать информацию о профиле;\n-посмотреть расписание;\n-узнать новости и изменения расписания из группы ВК;\n-посмотреть оценки;\n-узнать расписание преподавателя;\n-посмотреть итоговую аттестацию;"
                             android:fontFamily="@font/montserrat_medium"
                             android:textColor="@color/white">
                         </TextView>
@@ -563,9 +563,12 @@
             android:layout_centerHorizontal="true"
             android:layout_marginTop="350dp"
             android:fontFamily="@font/montserrat_semibold"
-            android:text="ФСПО ИТМО 2.0"
+            android:text="#cringepoon"
+            android:textColorLink="@color/pinkColor"
             android:textColor="@color/pinkColor"
-            android:textSize="24dp">
+            android:textSize="24dp"
+            android:id="@+id/hashtagLink"
+            >
 
         </TextView>
 

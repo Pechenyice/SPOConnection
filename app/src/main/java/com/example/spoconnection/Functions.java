@@ -1,4 +1,4 @@
-package com.example.spoconnection;
+package com.rapidsoftware.spoconnection;
 
 import java.io.BufferedReader;
 import java.io.DataOutputStream;
